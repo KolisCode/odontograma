@@ -1,0 +1,121 @@
+<div class="odontogram-layout">
+  <!-- Centro - Dentadura -->
+  <section class="dental-chart">
+    <h2>Dentadura</h2>
+
+    <div class="arch upper">
+      <div class="quadrant">
+        <app-tooth
+          *ngFor="let tooth of upperRight"
+          [number]="tooth"
+          [selected]="selectedTeeth.has(tooth)"
+          [filledFaces]="toothFaceMap().get(tooth) || []"
+          (toothClick)="toggleTooth($event)"
+        >
+        </app-tooth>
+      </div>
+
+      <div class="quadrant">
+        <app-tooth
+          *ngFor="let tooth of upperLeft"
+          [number]="tooth"
+          [selected]="selectedTeeth.has(tooth)"
+          [filledFaces]="toothFaceMap().get(tooth) || []"
+          (toothClick)="toggleTooth($event)"
+        >
+        </app-tooth>
+      </div>
+    </div>
+
+    <hr />
+
+    <div class="arch lower">
+      <div class="quadrant">
+        <app-tooth
+          *ngFor="let tooth of lowerRight"
+          [number]="tooth"
+          [selected]="selectedTeeth.has(tooth)"
+          [filledFaces]="toothFaceMap().get(tooth) || []"
+          (toothClick)="toggleTooth($event)"
+        >
+        </app-tooth>
+      </div>
+
+      <div class="quadrant">
+        <app-tooth
+          *ngFor="let tooth of lowerLeft"
+          [number]="tooth"
+          [selected]="selectedTeeth.has(tooth)"
+          [filledFaces]="toothFaceMap().get(tooth) || []"
+          (toothClick)="toggleTooth($event)"
+        >
+        </app-tooth>
+      </div>
+    </div>
+  </section>
+
+  <!-- Panel derecho -->
+  <aside class="diagnostic-panel">
+    <h3>Panel de diagnóstico</h3>
+
+    <div *ngIf="selectedTeeth.size > 0; else noSelection">
+      <p><strong>Dientes seleccionados:</strong></p>
+      <p>
+        {{ selectedTeethArray.join(', ') }}
+      </p>
+
+      <hr />
+
+      <label>Caras:</label>
+
+      <div class="faces">
+        <label *ngFor="let face of faces">
+          <input
+            type="checkbox"
+            [checked]="selectedFaces.has(face.code)"
+            (change)="toggleFace(face.code)"
+          />
+          {{ face.label }}
+        </label>
+      </div>
+
+      <hr />
+
+      <label>Diagnóstico:</label>
+      <select [(ngModel)]="selectedDiagnosisType">
+        <option value="">Seleccione diagnóstico</option>
+        <option value="Caries">Caries</option>
+        <option value="Obturación">Obturación</option>
+        <option value="Fractura">Fractura</option>
+        <option value="Sellante">Sellante</option>
+      </select>
+
+      <hr />
+
+      <button>Limpiar selección</button>
+      <button (click)="confirmDiagnosis()">Confirmar diagnóstico</button>
+    </div>
+
+    <ng-template #noSelection>
+      <p>Seleccione al menos un diente.</p>
+    </ng-template>
+  </aside>
+
+  <!-- Registro inferior -->
+  <section class="diagnostic-record">
+    <h3>Registro</h3>
+    <div *ngIf="diagnoses().length > 0; else noRecords">
+      <div *ngFor="let d of diagnoses(); let i = index" class="record-item">
+        <p>
+          <strong>{{ i + 1 }}.</strong>
+          Dientes: {{ d.teeth.join(', ') }} | Caras: {{ d.faces.join(', ') }} | Diagnóstico:
+          {{ d.type }} | Fecha: {{ d.date | date: 'short' }}
+        </p>
+      </div>
+    </div>
+
+    <ng-template #noRecords>
+      <p>No hay diagnósticos registrados.</p>
+    </ng-template>
+  </section>
+</div>

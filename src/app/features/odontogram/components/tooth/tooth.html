@@ -1,0 +1,11 @@
+<div class="tooth-container" [class.selected]="selected">
+  <div class="face top" [ngClass]="getFaceClass('O')"></div>
+  <div class="face left" [ngClass]="getFaceClass('M')"></div>
+
+  <div class="face center" (click)="onToothClick()">
+    {{ number }}
+  </div>
+
+  <div class="face right" [ngClass]="getFaceClass('D')"></div>
+  <div class="face bottom" [ngClass]="getFaceClass('V')"></div>
+</div>

@@ -1,0 +1,80 @@
+.tooth-container {
+  width: 60px;
+  cursor: pointer;
+  text-align: center;
+}
+
+svg {
+  width: 100%;
+  height: auto;
+}
+
+.face {
+  fill: white;
+  stroke: black;
+  stroke-width: 2;
+  transition: 0.2s;
+}
+
+.tooth-container.selected .face {
+  stroke: #4caf50;
+  stroke-width: 3;
+}
+
+.tooth-number {
+  font-size: 10px;
+}
+
+.tooth-container {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  grid-template-areas:
+    ". top ."
+    "left center right"
+    ". bottom .";
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: 1fr 2fr 1fr;
+  border: 1px solid #333;
+  margin: 4px;
+}
+
+.face {
+  border: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.top { grid-area: top; }
+.left { grid-area: left; }
+.center { grid-area: center; cursor: pointer; }
+.right { grid-area: right; }
+.bottom { grid-area: bottom; }
+
+.filled {
+  background-color: red;
+}
+
+.selected {
+  outline: 2px dashed green;
+}
+
+.caries {
+  background-color: red;
+}
+
+.obturacion {
+  background-color: blue;
+}
+
+.fractura {
+  background-color: orange;
+}
+
+.sellante {
+  background-color: green;
+}
+
+
