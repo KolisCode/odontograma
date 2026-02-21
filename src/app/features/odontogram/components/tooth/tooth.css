@@ -57,24 +57,35 @@ svg {
   background-color: red;
 }
 
-.selected {
-  outline: 2px dashed green;
+.tooth-container.selected {
+  transform: scale(1.05);
+  transition: transform 0.15s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
-
 .caries {
-  background-color: red;
+  fill: #d9534f;
 }
 
 .obturacion {
-  background-color: blue;
+  fill: #5bc0de;
 }
 
 .fractura {
-  background-color: orange;
+  fill: #f0ad4e;
 }
 
 .sellante {
-  background-color: green;
+  fill: #5cb85c;
+}
+
+.tooth-face {
+  transition: fill 0.2s ease, stroke 0.2s ease;
+  cursor: pointer;
+}
+
+.tooth-face:hover {
+  stroke-width: 2px;
+  stroke: #333;
 }
 
 

@@ -5,9 +5,8 @@
   grid-template-columns: 3fr 1fr;
 
   /* 2 filas: área principal + registro inferior */
-  grid-template-rows: 1fr 200px;
-
-  height: 100vh;
+  grid-template-rows: 1fr auto;
+  min-height: 100vh;
   gap: 10px;
   padding: 10px;
   box-sizing: border-box;
@@ -21,6 +20,13 @@
   padding: 1rem;
 }
 
+.dental-chart,
+.diagnostic-panel,
+.diagnostic-record {
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
 /* Panel derecho */
 .diagnostic-panel {
   grid-column: 2;
@@ -69,4 +75,49 @@
 .tooth.selected {
   background-color: #4caf50;
   color: white;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #d9534f;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  transform: scale(1.2);
+}
+
+.record-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  background: #f8f9fa;
+}
+
+.record-content {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.primary-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.secondary-btn {
+  background: #e9ecef;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
 }

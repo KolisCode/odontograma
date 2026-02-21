@@ -92,8 +92,9 @@
 
       <hr />
 
-      <button>Limpiar selección</button>
-      <button (click)="confirmDiagnosis()">Confirmar diagnóstico</button>
+      <button class="secondary-btn" (click)="clearSelection()">Limpiar</button>
+
+      <button class="primary-btn" (click)="confirmDiagnosis()">Confirmar diagnóstico</button>
     </div>
 
     <ng-template #noSelection>
@@ -106,16 +107,28 @@
     <h3>Registro</h3>
     <div *ngIf="diagnoses().length > 0; else noRecords">
       <div *ngFor="let d of diagnoses(); let i = index" class="record-item">
-        <p>
-          <strong>{{ i + 1 }}.</strong>
-          Dientes: {{ d.teeth.join(', ') }} | Caras: {{ d.faces.join(', ') }} | Diagnóstico:
-          {{ d.type }} | Fecha: {{ d.date | date: 'short' }}
-        </p>
+        <div class="record-content">
+          <div>
+            <strong>{{ i + 1 }}.</strong>
+            <div>Dientes: {{ d.teeth.join(', ') }}</div>
+            <div>Caras: {{ d.faces.join(', ') }}</div>
+            <div>Diagnóstico: {{ d.type }}</div>
+            <div>Fecha: {{ d.date | date: 'short' }}</div>
+          </div>
+
+          <button class="delete-btn" (click)="removeDiagnosis(i)">✕</button>
+        </div>
       </div>
     </div>
 
     <ng-template #noRecords>
       <p>No hay diagnósticos registrados.</p>
     </ng-template>
+
+    <h3>Resumen</h3>
+
+    <div *ngIf="diagnoses().length > 0">
+      <div *ngFor="let item of diagnosisSummary() | keyvalue">{{ item.key }}: {{ item.value }}</div>
+    </div>
   </section>
 </div>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, OnInit, effect } from '@angular/core';
 import { Tooth } from '../components/tooth/tooth';
 import { Diagnosis } from '../interfaces/diagnosis';
 import { FormsModule } from '@angular/forms';
@@ -21,20 +21,30 @@ export class Odontogram {
   lowerLeft = [31, 32, 33, 34, 35, 36, 37, 38];
 
   // Caras disponibles
-faces = [
-  { code: 'V', label: 'Vestibular' },
-  { code: 'L', label: 'Lingual' },
-  { code: 'M', label: 'Mesial' },
-  { code: 'D', label: 'Distal' },
-  { code: 'O', label: 'Oclusal' }
-];
+  faces = [
+    { code: 'V', label: 'Vestibular' },
+    { code: 'L', label: 'Lingual' },
+    { code: 'M', label: 'Mesial' },
+    { code: 'D', label: 'Distal' },
+    { code: 'O', label: 'Oclusal' },
+  ];
 
-  diagnoses = signal<Diagnosis[]>([]);;
+  diagnoses = signal<Diagnosis[]>(this.loadFromStorage());
   selectedDiagnosisType: string = '';
 
+  private loadFromStorage(): Diagnosis[] {
+    const data = localStorage.getItem('odontogram-diagnoses');
+    return data ? JSON.parse(data) : [];
+  }
 
   // Guarda los dientes seleccionados
   selectedTeeth = new Set<number>();
+
+  constructor() {
+    effect(() => {
+      localStorage.setItem('odontogram-diagnoses', JSON.stringify(this.diagnoses()));
+    });
+  }
 
   /*
    * Alterna la selección de un diente.
@@ -68,53 +78,71 @@ faces = [
   selectedFaces = new Set<string>();
 
   confirmDiagnosis() {
-  if (
-    this.selectedTeeth.size === 0 ||
-    this.selectedFaces.size === 0 ||
-    !this.selectedDiagnosisType
-  ) {
-    alert('Debe seleccionar dientes, caras y diagnóstico.');
-    return;
+    if (
+      this.selectedTeeth.size === 0 ||
+      this.selectedFaces.size === 0 ||
+      !this.selectedDiagnosisType
+    ) {
+      alert('Debe seleccionar dientes, caras y diagnóstico.');
+      return;
+    }
+
+    const newDiagnosis: Diagnosis = {
+      teeth: Array.from(this.selectedTeeth),
+      faces: Array.from(this.selectedFaces),
+      type: this.selectedDiagnosisType,
+      date: new Date(),
+    };
+
+    this.diagnoses.update((current) => [...current, newDiagnosis]);
+
+    // Quitar solo el estado visual de selección
+    this.selectedTeeth.clear();
+    this.selectedFaces.clear();
   }
 
-  const newDiagnosis: Diagnosis = {
-    teeth: Array.from(this.selectedTeeth),
-    faces: Array.from(this.selectedFaces),
-    type: this.selectedDiagnosisType,
-    date: new Date()
-  };
+  toothFaceMap = computed(() => {
+    const map = new Map<number, { face: string; type: string }[]>();
 
-this.diagnoses.update(current => [...current, newDiagnosis]);
+    for (const diagnosis of this.diagnoses()) {
+      for (const tooth of diagnosis.teeth) {
+        if (!map.has(tooth)) {
+          map.set(tooth, []);
+        }
 
-  // Quitar solo el estado visual de selección
-  this.selectedTeeth.clear();
-  this.selectedFaces.clear();
-}
+        const currentFaces = map.get(tooth)!;
 
-toothFaceMap = computed(() => {
-  const map = new Map<number, { face: string; type: string }[]>();
-
-  for (const diagnosis of this.diagnoses()) {
-    for (const tooth of diagnosis.teeth) {
-      if (!map.has(tooth)) {
-        map.set(tooth, []);
-      }
-
-      const currentFaces = map.get(tooth)!;
-
-      for (const face of diagnosis.faces) {
-        currentFaces.push({
-          face,
-          type: diagnosis.type
-        });
+        for (const face of diagnosis.faces) {
+          currentFaces.push({
+            face,
+            type: diagnosis.type,
+          });
+        }
       }
     }
+
+    return map;
+  });
+
+  clearSelection(): void {
+    this.selectedTeeth.clear();
+    this.selectedFaces.clear();
+    this.selectedDiagnosisType = '';
   }
 
-  return map;
+  removeDiagnosis(index: number): void {
+  this.diagnoses.update(current =>
+    current.filter((_, i) => i !== index)
+  );
+}
+
+diagnosisSummary = computed(() => {
+  const summary: Record<string, number> = {};
+
+  for (const d of this.diagnoses()) {
+    summary[d.type] = (summary[d.type] || 0) + 1;
+  }
+
+  return summary;
 });
-
-
-
-
 }
