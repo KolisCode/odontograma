@@ -17,12 +17,13 @@
   grid-column: 1;
   grid-row: 1;
   border: 1px solid #ccc;
-  padding: 1rem;
+  padding: 8rem;
 }
 
 .dental-chart,
 .diagnostic-panel,
-.diagnostic-record {
+.diagnostic-record,
+.resumen-panel {
   border-radius: 8px;
   background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -37,11 +38,22 @@
 
 /* Registro inferior ocupa ambas columnas */
 .diagnostic-record {
-  grid-column: 1 / 3;
+  grid-column: 1 / 2;
   grid-row: 2;
   border: 1px solid #ccc;
   padding: 1rem;
   overflow-y: auto;
+}
+
+.resumen-panel{
+  border: 1px solid #ccc;
+  padding: 1rem;
+  overflow-y: auto;
+  grid-template-columns: 1fr 1fr;
+}
+
+.resumen-panel-content div.resumenRegister{
+  grid-column: 1 / 2;
 }
 
 .arch {

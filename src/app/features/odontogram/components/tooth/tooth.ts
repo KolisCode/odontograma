@@ -24,7 +24,7 @@ export class Tooth {
     this.toothClick.emit(this.number);
   }
   getFaceClass(face: string): string {
-  console.log('Evaluando cara:', face, this.filledFaces);
+  //console.log('Evaluando cara:', face, this.filledFaces);
 
   const match = this.filledFaces.find((f) => f.face === face);
   return match ? this.getDiagnosisClass(match.type) : '';

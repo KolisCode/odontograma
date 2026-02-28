@@ -1,3 +1,4 @@
+<app-navbar [patientName]="'Paciente #1'"></app-navbar>
 <div class="odontogram-layout">
   <!-- Centro - Dentadura -->
   <section class="dental-chart">
@@ -26,9 +27,7 @@
         </app-tooth>
       </div>
     </div>
-
     <hr />
-
     <div class="arch lower">
       <div class="quadrant">
         <app-tooth
@@ -57,7 +56,6 @@
   <!-- Panel derecho -->
   <aside class="diagnostic-panel">
     <h3>Panel de diagnóstico</h3>
-
     <div *ngIf="selectedTeeth.size > 0; else noSelection">
       <p><strong>Dientes seleccionados:</strong></p>
       <p>
@@ -96,10 +94,11 @@
 
       <button class="primary-btn" (click)="confirmDiagnosis()">Confirmar diagnóstico</button>
     </div>
-
     <ng-template #noSelection>
       <p>Seleccione al menos un diente.</p>
     </ng-template>
+
+    <button (click)="save()">Guardar</button>
   </aside>
 
   <!-- Registro inferior -->
@@ -125,10 +124,16 @@
       <p>No hay diagnósticos registrados.</p>
     </ng-template>
 
-    <h3>Resumen</h3>
-
-    <div *ngIf="diagnoses().length > 0">
+    
+  </section>
+  <section class="resumen-panel">
+    <div class = "resumen-panel-content">
+      <h3>Resumen</h3>
+    <div *ngIf="diagnoses().length > 0" class="resumenRegister">
       <div *ngFor="let item of diagnosisSummary() | keyvalue">{{ item.key }}: {{ item.value }}</div>
     </div>
+    </div>
+    
   </section>
+
 </div>

@@ -3,15 +3,17 @@ import { Component, signal, computed, OnInit, effect } from '@angular/core';
 import { Tooth } from '../components/tooth/tooth';
 import { Diagnosis } from '../interfaces/diagnosis';
 import { FormsModule } from '@angular/forms';
+import { OdontogramService } from '../../../services/odontogram';
+import { Navbar } from "../../complements/navbar/navbar";
 
 @Component({
   selector: 'app-odontogram',
   standalone: true,
-  imports: [CommonModule, Tooth, FormsModule],
+  imports: [CommonModule, Tooth, FormsModule, Navbar],
   templateUrl: './odontogram.html',
   styleUrl: './odontogram.css',
 })
-export class Odontogram {
+export class Odontogram implements OnInit {
   // Arcada superior
   upperRight = [18, 17, 16, 15, 14, 13, 12, 11];
   upperLeft = [21, 22, 23, 24, 25, 26, 27, 28];
@@ -32,6 +34,28 @@ export class Odontogram {
   diagnoses = signal<Diagnosis[]>(this.loadFromStorage());
   selectedDiagnosisType: string = '';
 
+  odontogram: any | null = null;
+  originalOdontogram: any | null = null;
+
+  ngOnInit() {
+    const patientId = 1; // luego vendrá de ruta
+
+    this.odontogramService.getActive(patientId).subscribe({
+      next: (data) => {
+        this.odontogram = structuredClone(data);
+        this.originalOdontogram = structuredClone(data);
+      },
+      error: () => {
+        // Si no existe, crear estructura vacía
+        this.odontogram = {
+          pacienteId: patientId,
+          fecha: new Date().toISOString(),
+          dientes: [],
+        };
+      },
+    });
+  }
+
   private loadFromStorage(): Diagnosis[] {
     const data = localStorage.getItem('odontogram-diagnoses');
     return data ? JSON.parse(data) : [];
@@ -40,10 +64,36 @@ export class Odontogram {
   // Guarda los dientes seleccionados
   selectedTeeth = new Set<number>();
 
-  constructor() {
+  constructor(private odontogramService: OdontogramService) {
     effect(() => {
       localStorage.setItem('odontogram-diagnoses', JSON.stringify(this.diagnoses()));
     });
+  }
+
+  private buildBackendStructure() {
+    const dientesMap = new Map<number, any>();
+
+    for (const d of this.diagnoses()) {
+      for (const tooth of d.teeth) {
+        if (!dientesMap.has(tooth)) {
+          dientesMap.set(tooth, {
+            numero: tooth,
+            superficies: [],
+          });
+        }
+
+        const toothEntry = dientesMap.get(tooth);
+
+        for (const face of d.faces) {
+          toothEntry.superficies.push({
+            superficie: face,
+            diagnostico: d.type,
+          });
+        }
+      }
+    }
+
+    return Array.from(dientesMap.values());
   }
 
   /*
@@ -131,18 +181,57 @@ export class Odontogram {
   }
 
   removeDiagnosis(index: number): void {
-  this.diagnoses.update(current =>
-    current.filter((_, i) => i !== index)
-  );
-}
-
-diagnosisSummary = computed(() => {
-  const summary: Record<string, number> = {};
-
-  for (const d of this.diagnoses()) {
-    summary[d.type] = (summary[d.type] || 0) + 1;
+    this.diagnoses.update((current) => current.filter((_, i) => i !== index));
   }
 
-  return summary;
-});
+  diagnosisSummary = computed(() => {
+    const summary: Record<string, number> = {};
+
+    for (const d of this.diagnoses()) {
+      summary[d.type] = (summary[d.type] || 0) + 1;
+    }
+
+    return summary;
+  });
+
+  save() {
+    if (!this.odontogram) return;
+
+    // PACIENTE FIJO TEMPORAL
+    const pacienteIdFijo = 1;
+
+    // Sincronizar diagnoses → dientes
+    this.odontogram.dientes = this.buildBackendStructure();
+
+    const cleaned = this.cleanOdontogram({
+      ...this.odontogram,
+      pacienteId: pacienteIdFijo, // lo forzamos aquí
+    });
+
+    console.log('Enviando al backend:', cleaned);
+
+    if (!this.originalOdontogram) {
+      this.odontogramService.create(cleaned).subscribe((response) => {
+        this.originalOdontogram = structuredClone(response);
+        this.odontogram = structuredClone(response);
+      });
+    } else {
+      this.odontogramService.update(this.originalOdontogram.id, cleaned).subscribe((response) => {
+        this.originalOdontogram = structuredClone(response);
+        this.odontogram = structuredClone(response);
+      });
+    }
+  }
+
+  cleanOdontogram(odontogram: any) {
+    return {
+      ...odontogram,
+      dientes: odontogram.dientes
+        .map((tooth: any) => ({
+          ...tooth,
+          superficies: tooth.superficies.filter((surface: any) => surface.diagnostico),
+        }))
+        .filter((tooth: any) => tooth.superficies.length > 0),
+    };
+  }
 }

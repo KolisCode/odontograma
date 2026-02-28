@@ -1,31 +1,4 @@
 .tooth-container {
-  width: 60px;
-  cursor: pointer;
-  text-align: center;
-}
-
-svg {
-  width: 100%;
-  height: auto;
-}
-
-.face {
-  fill: white;
-  stroke: black;
-  stroke-width: 2;
-  transition: 0.2s;
-}
-
-.tooth-container.selected .face {
-  stroke: #4caf50;
-  stroke-width: 3;
-}
-
-.tooth-number {
-  font-size: 10px;
-}
-
-.tooth-container {
   width: 50px;
   height: 50px;
   display: grid;
@@ -37,55 +10,65 @@ svg {
   grid-template-rows: 1fr 2fr 1fr;
   border: 1px solid #333;
   margin: 4px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+/* Caras del diente */
 .face {
   border: 1px solid #ccc;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
+  background-color: white;
+  transition: background-color 0.2s ease, border 0.2s ease;
 }
 
+/* Áreas del grid */
 .top { grid-area: top; }
 .left { grid-area: left; }
-.center { grid-area: center; cursor: pointer; }
+.center { 
+  grid-area: center; 
+  font-weight: bold;
+  cursor: pointer;
+}
 .right { grid-area: right; }
 .bottom { grid-area: bottom; }
 
-.filled {
-  background-color: red;
-}
-
+/* Cuando el diente está seleccionado */
 .tooth-container.selected {
   transform: scale(1.05);
-  transition: transform 0.15s ease;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border-color: #4caf50;
 }
+
+.tooth-container.selected .face {
+  border-color: #4caf50;
+}
+
+/* Estados clínicos (usar background, no fill porque ya no es SVG) */
 .caries {
-  fill: #d9534f;
+  background-color: #d9534f;
+  color: white;
 }
 
 .obturacion {
-  fill: #5bc0de;
+  background-color: #5bc0de;
+  color: white;
 }
 
 .fractura {
-  fill: #f0ad4e;
+  background-color: #f0ad4e;
+  color: white;
 }
 
 .sellante {
-  fill: #5cb85c;
+  background-color: #5cb85c;
+  color: white;
 }
 
-.tooth-face {
-  transition: fill 0.2s ease, stroke 0.2s ease;
-  cursor: pointer;
+/* Hover */
+.face:hover {
+  border-color: #333;
 }
-
-.tooth-face:hover {
-  stroke-width: 2px;
-  stroke: #333;
-}
-
-
