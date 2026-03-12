@@ -1,31 +1,26 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-export interface Odontogram {
-  patientId: number;
-  date: string;
-  teeth: any[];
-}
+import { OdontogramPayload } from '../features/odontogram/interfaces/odontogram-payload';
+import { BackendOdontogramResponse } from '../features/odontogram/interfaces/backend-odontogram-response';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class OdontogramService {
-
   private apiUrl = 'http://localhost:3000/odontograma';
 
   constructor(private http: HttpClient) {}
 
-  getActive(patientId: number): Observable<Odontogram> {
-    return this.http.get<Odontogram>(`${this.apiUrl}/${patientId}`);
+  getActive(patientId: number): Observable<BackendOdontogramResponse> {
+    return this.http.get<BackendOdontogramResponse>(`${this.apiUrl}/${patientId}`);
   }
 
-  create(data: Odontogram): Observable<Odontogram> {
-    return this.http.post<Odontogram>(this.apiUrl, data);
+  create(data: OdontogramPayload): Observable<BackendOdontogramResponse> {
+    return this.http.post<BackendOdontogramResponse>(this.apiUrl, data);
   }
 
-  update(patientId: number, data: Odontogram): Observable<Odontogram> {
-    return this.http.put<Odontogram>(`${this.apiUrl}/${patientId}`, data);
+  update(id: number, data: OdontogramPayload): Observable<BackendOdontogramResponse> {
+    return this.http.put<BackendOdontogramResponse>(`${this.apiUrl}/${id}`, data);
   }
 }

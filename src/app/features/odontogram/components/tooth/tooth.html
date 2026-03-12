@@ -1,11 +1,24 @@
-<div class="tooth-container" [class.selected]="selected">
-  <div class="face top" [ngClass]="getFaceClass('O')"></div>
-  <div class="face left" [ngClass]="getFaceClass('M')"></div>
+<div class="tooth-container">
 
-  <div class="face center" (click)="onToothClick()">
-    {{ number }}
-  </div>
+     <div class="face top" [ngClass]="getFaceClass('Oclusal')" [title]="getFaceTooltip('Oclusal')"
+          (click)="faceClicked('Oclusal'); $event.stopPropagation()">
+     </div>
 
-  <div class="face right" [ngClass]="getFaceClass('D')"></div>
-  <div class="face bottom" [ngClass]="getFaceClass('V')"></div>
+     <div class="face left" [ngClass]="getFaceClass('Mesial')" [title]="getFaceTooltip('Mesial')"
+          (click)="faceClicked('Mesial'); $event.stopPropagation()">
+     </div>
+
+     <div class="face center" [ngClass]="getFaceClass('Centro')" [title]="getFaceTooltip('Centro')"
+          (click)="faceClicked('Centro'); $event.stopPropagation()">
+          {{ number }}
+     </div>
+
+     <div class="face right" [ngClass]="getFaceClass('Distal')" [title]="getFaceTooltip('Distal')"
+          (click)="faceClicked('Distal'); $event.stopPropagation()">
+     </div>
+
+     <div class="face bottom" [ngClass]="getFaceClass('Lingual')" [title]="getFaceTooltip('Lingual')"
+          (click)="faceClicked('Lingual'); $event.stopPropagation()">
+     </div>
+
 </div>

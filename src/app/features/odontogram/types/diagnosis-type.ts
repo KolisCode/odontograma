@@ -1,5 +1,5 @@
 export type DiagnosisType =
-  | 'CARIES'
-  | 'OBTURACION'
-  | 'FRACTURA'
-  | 'SELLANTE';
+  | 'Caries'
+  | 'Obturacion'
+  | 'Fractura'
+  | 'Sellante';

@@ -1,19 +1,30 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal, computed, OnInit, effect } from '@angular/core';
-import { Tooth } from '../components/tooth/tooth';
+import { finalize } from 'rxjs';
+
+import { Tooth as ToothComponent } from '../components/tooth/tooth';
 import { Diagnosis } from '../interfaces/diagnosis';
-import { FormsModule } from '@angular/forms';
+import { Tooth } from '../interfaces/tooth';
+import { SurfaceDiagnosis } from '../interfaces/surface-diagnosis';
+
+import { ToothSurface } from '../types/tooth-surface';
+import { DiagnosisType } from '../types/diagnosis-type';
+
 import { OdontogramService } from '../../../services/odontogram';
-import { Navbar } from "../../complements/navbar/navbar";
+import { Navbar } from '../../complements/navbar/navbar';
+
+import { Odontogram } from '../interfaces/odontogram';
+import { OdontogramPayload } from '../interfaces/odontogram-payload';
+import { BackendOdontogramResponse } from '../interfaces/backend-odontogram-response';
 
 @Component({
   selector: 'app-odontogram',
   standalone: true,
-  imports: [CommonModule, Tooth, FormsModule, Navbar],
+  imports: [CommonModule, ToothComponent, Navbar],
   templateUrl: './odontogram.html',
   styleUrl: './odontogram.css',
 })
-export class Odontogram implements OnInit {
+export class OdontogramComponent implements OnInit {
   // Arcada superior
   upperRight = [18, 17, 16, 15, 14, 13, 12, 11];
   upperLeft = [21, 22, 23, 24, 25, 26, 27, 28];
@@ -22,47 +33,70 @@ export class Odontogram implements OnInit {
   lowerRight = [48, 47, 46, 45, 44, 43, 42, 41];
   lowerLeft = [31, 32, 33, 34, 35, 36, 37, 38];
 
-  // Caras disponibles
-  faces = [
-    { code: 'V', label: 'Vestibular' },
-    { code: 'L', label: 'Lingual' },
-    { code: 'M', label: 'Mesial' },
-    { code: 'D', label: 'Distal' },
-    { code: 'O', label: 'Oclusal' },
+  selectedDiagnosis: DiagnosisType | null = null;
+
+  diagnoses = signal<Diagnosis[]>([]);
+
+  quickDiagnoses: { type: DiagnosisType; label: string; cssClass: string }[] = [
+    { type: 'Caries', label: 'Caries', cssClass: 'diagnosis-caries' },
+    { type: 'Obturacion', label: 'Obturación', cssClass: 'diagnosis-obturacion' },
+    { type: 'Fractura', label: 'Fractura', cssClass: 'diagnosis-fractura' },
+    { type: 'Sellante', label: 'Sellante', cssClass: 'diagnosis-sellante' },
   ];
 
-  diagnoses = signal<Diagnosis[]>(this.loadFromStorage());
-  selectedDiagnosisType: string = '';
+  selectDiagnosis(diagnosis: DiagnosisType) {
+    this.selectedDiagnosis = this.selectedDiagnosis === diagnosis ? null : diagnosis;
+  }
 
-  odontogram: any | null = null;
-  originalOdontogram: any | null = null;
+  clearActiveDiagnosis() {
+    this.selectedDiagnosis = null;
+  }
 
-  ngOnInit() {
-    const patientId = 1; // luego vendrá de ruta
+  applyDiagnosis(event: { tooth: number; surface: ToothSurface }) {
+    if (!this.selectedDiagnosis) return;
 
-    this.odontogramService.getActive(patientId).subscribe({
-      next: (data) => {
-        this.odontogram = structuredClone(data);
-        this.originalOdontogram = structuredClone(data);
-      },
-      error: () => {
-        // Si no existe, crear estructura vacía
-        this.odontogram = {
-          pacienteId: patientId,
-          fecha: new Date().toISOString(),
-          dientes: [],
+    this.diagnoses.update((current) => {
+      const diagnosisType = this.selectedDiagnosis!;
+      const existingIndex = current.findIndex(
+        (d) => d.type === diagnosisType && d.teeth.length === 1 && d.teeth[0] === event.tooth,
+      );
+
+      if (existingIndex === -1) {
+        const newDiagnosis: Diagnosis = {
+          teeth: [event.tooth],
+          faces: [event.surface],
+          type: diagnosisType,
+          date: new Date().toISOString(),
         };
-      },
+
+        return [...current, newDiagnosis];
+      }
+
+      const existing = current[existingIndex];
+      const faceExists = existing.faces.includes(event.surface);
+
+      const updatedDiagnosis: Diagnosis = {
+        ...existing,
+        faces: faceExists
+          ? existing.faces.filter((face) => face !== event.surface)
+          : [...existing.faces, event.surface],
+      };
+
+      if (updatedDiagnosis.faces.length === 0) {
+        return current.filter((_, index) => index !== existingIndex);
+      }
+
+      return current.map((diagnosis, index) =>
+        index === existingIndex ? updatedDiagnosis : diagnosis,
+      );
     });
   }
+  odontogram: Odontogram | null = null;
+  originalOdontogram: Odontogram | null = null;
 
-  private loadFromStorage(): Diagnosis[] {
-    const data = localStorage.getItem('odontogram-diagnoses');
-    return data ? JSON.parse(data) : [];
-  }
-
-  // Guarda los dientes seleccionados
-  selectedTeeth = new Set<number>();
+  isSaving = false;
+  saveMessage = '';
+  saveMessageType: 'success' | 'error' | 'info' | '' = '';
 
   constructor(private odontogramService: OdontogramService) {
     effect(() => {
@@ -70,89 +104,88 @@ export class Odontogram implements OnInit {
     });
   }
 
-  private buildBackendStructure() {
-    const dientesMap = new Map<number, any>();
+  ngOnInit() {
+    const patientId = 1;
+
+    this.odontogramService.getActive(patientId).subscribe({
+      next: (data) => {
+        this.originalOdontogram = {
+          id: data.id,
+          patientId: data.pacienteId,
+          date: data.fecha,
+          teeth: [],
+          version: data.version,
+        };
+
+        this.odontogram = structuredClone(this.originalOdontogram);
+
+        const diagnosesFromBackend = this.buildDiagnosesFromBackend(data);
+        this.diagnoses.set(diagnosesFromBackend);
+      },
+      error: () => {
+        this.odontogram = {
+          patientId,
+          date: new Date().toISOString(),
+          teeth: [],
+        };
+      },
+    });
+  }
+
+  private buildBackendStructure(): Tooth[] {
+    const teethMap = new Map<number, Tooth>();
 
     for (const d of this.diagnoses()) {
       for (const tooth of d.teeth) {
-        if (!dientesMap.has(tooth)) {
-          dientesMap.set(tooth, {
-            numero: tooth,
-            superficies: [],
+        if (!teethMap.has(tooth)) {
+          teethMap.set(tooth, {
+            number: tooth,
+            surfaces: [],
           });
         }
 
-        const toothEntry = dientesMap.get(tooth);
+        const toothEntry = teethMap.get(tooth)!;
 
         for (const face of d.faces) {
-          toothEntry.superficies.push({
-            superficie: face,
-            diagnostico: d.type,
-          });
+          const existingSurface = toothEntry.surfaces.find((s) => s.surface === face);
+
+          if (existingSurface) {
+            if (!existingSurface.diagnoses.includes(d.type)) {
+              existingSurface.diagnoses.push(d.type);
+            }
+          } else {
+            toothEntry.surfaces.push({
+              surface: face,
+              diagnoses: [d.type],
+            });
+          }
         }
       }
     }
 
-    return Array.from(dientesMap.values());
+    return Array.from(teethMap.values());
   }
 
-  /*
-   * Alterna la selección de un diente.
-   * Si ya está seleccionado → lo elimina.
-   * Si no está → lo agrega.
-   */
-  toggleTooth(tooth: number): void {
-    if (this.selectedTeeth.has(tooth)) {
-      this.selectedTeeth.delete(tooth);
-    } else {
-      this.selectedTeeth.add(tooth);
-    }
-  }
+  private buildVersioningPayload(): OdontogramPayload {
+    const patientId = 1;
+    const teeth = this.buildBackendStructure();
 
-  /**
-   * Alterna la selección de una cara.
-   */
-  toggleFace(face: string): void {
-    if (this.selectedFaces.has(face)) {
-      this.selectedFaces.delete(face);
-    } else {
-      this.selectedFaces.add(face);
-    }
-  }
-
-  get selectedTeethArray(): number[] {
-    return Array.from(this.selectedTeeth);
-  }
-
-  // Caras seleccionadas temporalmente
-  selectedFaces = new Set<string>();
-
-  confirmDiagnosis() {
-    if (
-      this.selectedTeeth.size === 0 ||
-      this.selectedFaces.size === 0 ||
-      !this.selectedDiagnosisType
-    ) {
-      alert('Debe seleccionar dientes, caras y diagnóstico.');
-      return;
-    }
-
-    const newDiagnosis: Diagnosis = {
-      teeth: Array.from(this.selectedTeeth),
-      faces: Array.from(this.selectedFaces),
-      type: this.selectedDiagnosisType,
-      date: new Date(),
+    return {
+      pacienteId: patientId,
+      dientes: teeth.map((tooth) => ({
+        numero: tooth.number,
+        superficies: tooth.surfaces.flatMap((surface) =>
+          surface.diagnoses.map((diagnosis) => ({
+            superficie: this.mapFrontendSurfaceToBackend(surface.surface),
+            diagnostico: diagnosis,
+          })),
+        ),
+      })),
     };
-
-    this.diagnoses.update((current) => [...current, newDiagnosis]);
-
-    // Quitar solo el estado visual de selección
-    this.selectedTeeth.clear();
-    this.selectedFaces.clear();
   }
 
   toothFaceMap = computed(() => {
-    const map = new Map<number, { face: string; type: string }[]>();
+    const map = new Map<number, SurfaceDiagnosis[]>();
 
     for (const diagnosis of this.diagnoses()) {
       for (const tooth of diagnosis.teeth) {
@@ -160,13 +193,21 @@ export class Odontogram implements OnInit {
           map.set(tooth, []);
         }
 
-        const currentFaces = map.get(tooth)!;
+        const surfaces = map.get(tooth)!;
 
         for (const face of diagnosis.faces) {
-          currentFaces.push({
-            face,
-            type: diagnosis.type,
-          });
+          const existing = surfaces.find((s) => s.surface === face);
+
+          if (existing) {
+            if (!existing.diagnoses.includes(diagnosis.type)) {
+              existing.diagnoses = [...existing.diagnoses, diagnosis.type];
+            }
+          } else {
+            surfaces.push({
+              surface: face,
+              diagnoses: [diagnosis.type],
+            });
+          }
         }
       }
     }
@@ -174,19 +215,12 @@ export class Odontogram implements OnInit {
     return map;
   });
 
-  clearSelection(): void {
-    this.selectedTeeth.clear();
-    this.selectedFaces.clear();
-    this.selectedDiagnosisType = '';
-  }
-
   removeDiagnosis(index: number): void {
     this.diagnoses.update((current) => current.filter((_, i) => i !== index));
   }
 
   diagnosisSummary = computed(() => {
-    const summary: Record<string, number> = {};
-
+    const summary: Partial<Record<DiagnosisType, number>> = {};
     for (const d of this.diagnoses()) {
       summary[d.type] = (summary[d.type] || 0) + 1;
     }
@@ -194,44 +228,157 @@ export class Odontogram implements OnInit {
     return summary;
   });
 
-  save() {
-    if (!this.odontogram) return;
+  private showSaveMessage(
+    type: 'success' | 'error' | 'info',
+    message: string,
+    autoClear = true,
+    duration = 3000,
+  ): void {
+    this.saveMessageType = type;
+    this.saveMessage = message;
 
-    // PACIENTE FIJO TEMPORAL
-    const pacienteIdFijo = 1;
+    if (!autoClear) return;
 
-    // Sincronizar diagnoses → dientes
-    this.odontogram.dientes = this.buildBackendStructure();
-
-    const cleaned = this.cleanOdontogram({
-      ...this.odontogram,
-      pacienteId: pacienteIdFijo, // lo forzamos aquí
-    });
-
-    console.log('Enviando al backend:', cleaned);
-
-    if (!this.originalOdontogram) {
-      this.odontogramService.create(cleaned).subscribe((response) => {
-        this.originalOdontogram = structuredClone(response);
-        this.odontogram = structuredClone(response);
-      });
-    } else {
-      this.odontogramService.update(this.originalOdontogram.id, cleaned).subscribe((response) => {
-        this.originalOdontogram = structuredClone(response);
-        this.odontogram = structuredClone(response);
-      });
-    }
+    setTimeout(() => {
+      if (this.saveMessage === message) {
+        this.saveMessage = '';
+        this.saveMessageType = '';
+      }
+    }, duration);
   }
 
-  cleanOdontogram(odontogram: any) {
+  save() {
+    if (!this.odontogram || this.isSaving) return;
+
+    const isCreate = !this.originalOdontogram;
+    const payload = this.buildVersioningPayload();
+
+    this.isSaving = true;
+    this.showSaveMessage('info', 'Guardando odontograma...', false);
+
+    console.log('Diagnoses actuales:', JSON.stringify(this.diagnoses(), null, 2));
+    console.log('Payload para backend:', JSON.stringify(payload, null, 2));
+
+    const request$ = isCreate
+      ? this.odontogramService.create(payload)
+      : this.odontogramService.update(this.originalOdontogram!.id!, payload);
+
+    request$
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          console.log('Respuesta del backend:', response);
+
+          this.originalOdontogram = {
+            id: response.id,
+            patientId: response.pacienteId,
+            date: response.fecha,
+            teeth: [],
+            version: response.version,
+          };
+
+          this.odontogram = structuredClone(this.originalOdontogram);
+
+          const diagnosesFromBackend = this.buildDiagnosesFromBackend(response);
+          this.diagnoses.set(diagnosesFromBackend);
+
+          this.showSaveMessage(
+            'success',
+            isCreate
+              ? 'Odontograma guardado correctamente.'
+              : 'Odontograma actualizado correctamente.',
+            true,
+            3000,
+          );
+        },
+        error: (error) => {
+          console.error('Error al guardar odontograma:', error);
+          this.showSaveMessage('error', 'No se pudo guardar el odontograma.', true, 4000);
+        },
+      });
+  }
+
+  cleanOdontogram(odontogram: Odontogram): Odontogram {
     return {
       ...odontogram,
-      dientes: odontogram.dientes
-        .map((tooth: any) => ({
-          ...tooth,
-          superficies: tooth.superficies.filter((surface: any) => surface.diagnostico),
-        }))
-        .filter((tooth: any) => tooth.superficies.length > 0),
+      teeth: odontogram.teeth.filter((tooth) => tooth.surfaces.length > 0),
     };
+  }
+
+  private buildDiagnosesFromBackend(rawOdontogram: BackendOdontogramResponse): Diagnosis[] {
+    const grouped = new Map<string, Diagnosis>();
+    const dientes = rawOdontogram?.dientes ?? [];
+    const fecha = rawOdontogram?.fecha ?? new Date().toISOString();
+
+    for (const diente of dientes) {
+      const numero = diente?.numero;
+      const superficies = diente?.superficies ?? [];
+
+      for (const superficie of superficies) {
+        const mappedSurface = this.mapBackendSurface(superficie?.superficie);
+        const mappedDiagnosis = this.mapBackendDiagnosis(superficie?.diagnostico);
+
+        if (!numero || !mappedSurface || !mappedDiagnosis) continue;
+
+        const key = `${numero}-${mappedDiagnosis}`;
+
+        if (!grouped.has(key)) {
+          grouped.set(key, {
+            teeth: [numero],
+            faces: [mappedSurface],
+            type: mappedDiagnosis,
+            date: fecha,
+          });
+        } else {
+          const existing = grouped.get(key)!;
+
+          if (!existing.faces.includes(mappedSurface)) {
+            existing.faces = [...existing.faces, mappedSurface];
+          }
+        }
+      }
+    }
+
+    return Array.from(grouped.values());
+  }
+
+  private mapBackendSurface(surface: string): ToothSurface | null {
+    const surfaceMap: Record<string, ToothSurface> = {
+      M: 'Mesial',
+      D: 'Distal',
+      V: 'Centro',
+      L: 'Lingual',
+      O: 'Oclusal',
+      C: 'Centro',
+    };
+
+    return surfaceMap[surface] ?? null;
+  }
+
+  private mapFrontendSurfaceToBackend(surface: ToothSurface): string {
+    const surfaceMap: Record<ToothSurface, string> = {
+      Mesial: 'M',
+      Distal: 'D',
+      Lingual: 'L',
+      Oclusal: 'O',
+      Centro: 'C',
+    };
+
+    return surfaceMap[surface];
+  }
+
+  private mapBackendDiagnosis(diagnosis: string): DiagnosisType | null {
+    const diagnosisMap: Record<string, DiagnosisType> = {
+      Caries: 'Caries',
+      Obturacion: 'Obturacion',
+      Fractura: 'Fractura',
+      Sellante: 'Sellante',
+    };
+
+    return diagnosisMap[diagnosis] ?? null;
   }
 }

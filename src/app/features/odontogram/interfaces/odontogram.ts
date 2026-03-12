@@ -1,7 +1,9 @@
 import { Tooth } from "./tooth";
 
 export interface Odontogram {
+  id?: number;
   patientId: number;
-  date: Date;
+  date: string;
   teeth: Tooth[];
+  version?: number;
 }

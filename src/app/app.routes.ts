@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
-import { Odontogram } from './features/odontogram/odontogram/odontogram';
+import { OdontogramComponent } from './features/odontogram/odontogram/odontogram';
+import { Login } from './features/authentication/login/login';
 
 export const routes: Routes = [
-    { path: '', component: Odontogram},
+    { path: 'odontogram', component: OdontogramComponent},
+    { path: '', component: Login},
 ];

@@ -37,3 +37,8 @@
 .back-btn:hover {
   background: #e5e7eb;
 }
+
+.logo img {
+  width: 40px;
+  height: 40px;
+}

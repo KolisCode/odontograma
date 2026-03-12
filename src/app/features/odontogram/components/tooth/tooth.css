@@ -2,44 +2,72 @@
   width: 50px;
   height: 50px;
   display: grid;
+
   grid-template-areas:
     ". top ."
     "left center right"
     ". bottom .";
+
   grid-template-columns: 1fr 2fr 1fr;
   grid-template-rows: 1fr 2fr 1fr;
+
   border: 1px solid #333;
   margin: 4px;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease;
 }
 
-/* Caras del diente */
 .face {
   border: 1px solid #ccc;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  background-color: white;
-  transition: background-color 0.2s ease, border 0.2s ease;
+  background: white;
+  font-size: 11px;
+  transition: background-color 0.25s ease, transform 0.1s ease;
 }
 
-/* Áreas del grid */
+.face:hover {
+  transform: scale(1.12);
+  cursor: pointer;
+  border: 1px solid #000000;
+}
+
 .top { grid-area: top; }
 .left { grid-area: left; }
 .center { 
-  grid-area: center; 
+  grid-area: center;
   font-weight: bold;
-  cursor: pointer;
 }
 .right { grid-area: right; }
 .bottom { grid-area: bottom; }
 
-/* Cuando el diente está seleccionado */
+/* DIAGNOSTICOS */
+
+.caries {
+  background: #d9534f;
+  color: white;
+}
+
+.obturacion {
+  background: #5bc0de;
+  color: white;
+}
+
+.fractura {
+  background: #f0ad4e;
+  color: white;
+}
+
+.sellante {
+  background: #5cb85c;
+  color: white;
+}
+
+/* SELECCION */
+
 .tooth-container.selected {
   transform: scale(1.05);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   border-color: #4caf50;
 }
 
@@ -47,28 +75,19 @@
   border-color: #4caf50;
 }
 
-/* Estados clínicos (usar background, no fill porque ya no es SVG) */
-.caries {
-  background-color: #d9534f;
-  color: white;
+
+.diagnosis-caries {
+  background-color: #ff4d4d;
 }
 
-.obturacion {
-  background-color: #5bc0de;
-  color: white;
+.diagnosis-obturacion {
+  background-color: #4da6ff;
 }
 
-.fractura {
-  background-color: #f0ad4e;
-  color: white;
+.diagnosis-fractura {
+  background-color: #ff9933;
 }
 
-.sellante {
-  background-color: #5cb85c;
-  color: white;
-}
-
-/* Hover */
-.face:hover {
-  border-color: #333;
+.diagnosis-sellante {
+  background-color: #66cc66;
 }
