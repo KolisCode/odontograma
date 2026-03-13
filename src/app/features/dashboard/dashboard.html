@@ -1,0 +1,89 @@
+<app-navbar></app-navbar>
+<section class="page-shell">
+  <div class="page-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Resumen general del consultorio</p>
+    </div>
+    <button class="btn-primary">Nuevo paciente</button>
+  </div>
+
+  <div class="stats-grid">
+    <article class="stat-card">
+      <span class="stat-label">Pacientes registrados</span>
+      <h2>248</h2>
+      <p>+12 este mes</p>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-label">Citas de hoy</span>
+      <h2>18</h2>
+      <p>3 pendientes de confirmar</p>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-label">Ingresos del día</span>
+      <h2>$ 1.250.000</h2>
+      <p>Actualizado hoy</p>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-label">Tratamientos activos</span>
+      <h2>34</h2>
+      <p>6 en seguimiento</p>
+    </article>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="panel-card">
+      <div class="panel-header">
+        <h3>Agenda de hoy</h3>
+        <a href="#">Ver todas</a>
+      </div>
+
+      <div class="agenda-list">
+        <div class="agenda-item">
+          <span class="time">08:00 AM</span>
+          <div>
+            <strong>María Gómez</strong>
+            <p>Valoración general</p>
+          </div>
+          <span class="status pending">Pendiente</span>
+        </div>
+
+        <div class="agenda-item">
+          <span class="time">09:30 AM</span>
+          <div>
+            <strong>Juan Pérez</strong>
+            <p>Limpieza dental</p>
+          </div>
+          <span class="status confirmed">Confirmada</span>
+        </div>
+
+        <div class="agenda-item">
+          <span class="time">11:00 AM</span>
+          <div>
+            <strong>Laura Rojas</strong>
+            <p>Control de ortodoncia</p>
+          </div>
+          <span class="status confirmed">Confirmada</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-header">
+        <h3>Accesos rápidos</h3>
+      </div>
+
+      <div class="quick-actions">
+        <button>Registrar paciente</button>
+        <button>Crear cita</button>
+        <button routerLink="/odontogram">Abrir odontograma</button>
+        <button>Registrar ingreso</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>

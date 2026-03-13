@@ -1,1 +1,193 @@
-<p>finance works!</p>
+<app-navbar></app-navbar>
+<section class="finance-page">
+  <div class="finance-header">
+    <div class="finance-header__text">
+      <h1>Cartera</h1>
+      <p>Registro de ingresos y egresos del consultorio</p>
+    </div>
+
+    <div class="finance-header__actions">
+      <button class="btn btn-secondary" type="button">Exportar</button>
+      <button class="btn btn-primary" type="button">Nuevo movimiento</button>
+    </div>
+  </div>
+
+  <div class="finance-stats">
+    <article class="stat-card">
+      <span class="stat-card__label">Ingresos del mes</span>
+      <h2>$ 8.450.000</h2>
+      <p>Pagos de consultas y tratamientos</p>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-card__label">Egresos del mes</span>
+      <h2>$ 2.180.000</h2>
+      <p>Insumos, proveedores y gastos</p>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-card__label">Balance</span>
+      <h2>$ 6.270.000</h2>
+      <p>Saldo operativo actual</p>
+    </article>
+  </div>
+
+  <div class="finance-layout">
+    <section class="finance-card finance-card--form">
+      <div class="finance-card__header">
+        <div>
+          <h2>Registrar movimiento</h2>
+          <span>Ingresa la información financiera básica</span>
+        </div>
+        <span class="status-badge status-badge--active">Control diario</span>
+      </div>
+
+      <form class="finance-form">
+        <div class="form-group">
+          <label>Tipo de movimiento</label>
+          <select>
+            <option>Ingreso</option>
+            <option>Egreso</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Monto</label>
+          <input type="number" placeholder="Ej. 150000" />
+        </div>
+
+        <div class="form-group form-group--full">
+          <label>Concepto</label>
+          <input type="text" placeholder="Describe el concepto del movimiento" />
+        </div>
+
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" />
+        </div>
+
+        <div class="form-group">
+          <label>Medio</label>
+          <select>
+            <option>Efectivo</option>
+            <option>Transferencia</option>
+            <option>Tarjeta</option>
+          </select>
+        </div>
+
+        <div class="form-actions form-group--full">
+          <button class="btn btn-secondary" type="button">Limpiar</button>
+          <button class="btn btn-primary" type="submit">Guardar movimiento</button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="finance-side">
+      <section class="finance-card">
+        <div class="finance-card__header finance-card__header--compact">
+          <div>
+            <h3>Movimientos recientes</h3>
+            <span>Últimos registros financieros</span>
+          </div>
+        </div>
+
+        <div class="movement-list">
+          <div class="movement-item">
+            <div>
+              <strong>Pago consulta general</strong>
+              <p>13/03/2026 · Efectivo</p>
+            </div>
+            <span class="money money--in">+ $120.000</span>
+          </div>
+
+          <div class="movement-item">
+            <div>
+              <strong>Compra de insumos</strong>
+              <p>13/03/2026 · Transferencia</p>
+            </div>
+            <span class="money money--out">- $85.000</span>
+          </div>
+
+          <div class="movement-item">
+            <div>
+              <strong>Abono tratamiento</strong>
+              <p>12/03/2026 · Tarjeta</p>
+            </div>
+            <span class="money money--in">+ $250.000</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="finance-card">
+        <div class="finance-card__header finance-card__header--compact">
+          <div>
+            <h3>Resumen rápido</h3>
+            <span>Lectura ejecutiva</span>
+          </div>
+        </div>
+
+        <div class="info-stack">
+          <div class="info-box">
+            <strong>Mayor ingreso</strong>
+            <span>Tratamiento estético · $850.000</span>
+          </div>
+          <div class="info-box">
+            <strong>Mayor egreso</strong>
+            <span>Compra de equipos · $430.000</span>
+          </div>
+          <div class="info-box">
+            <strong>Fecha con más movimiento</strong>
+            <span>12/03/2026</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <section class="finance-card finance-card--table">
+    <div class="finance-card__header">
+      <div>
+        <h3>Historial de movimientos</h3>
+        <span>Control financiero básico para demostración</span>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="finance-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Concepto</th>
+            <th>Medio</th>
+            <th>Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>13/03/2026</td>
+            <td><span class="status-badge status-badge--active">Ingreso</span></td>
+            <td>Pago consulta general</td>
+            <td>Efectivo</td>
+            <td>$120.000</td>
+          </tr>
+          <tr>
+            <td>13/03/2026</td>
+            <td><span class="status-badge status-badge--danger">Egreso</span></td>
+            <td>Compra de insumos</td>
+            <td>Transferencia</td>
+            <td>$85.000</td>
+          </tr>
+          <tr>
+            <td>12/03/2026</td>
+            <td><span class="status-badge status-badge--active">Ingreso</span></td>
+            <td>Abono tratamiento</td>
+            <td>Tarjeta</td>
+            <td>$250.000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+<app-footer></app-footer>

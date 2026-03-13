@@ -1,93 +1,79 @@
-.tooth-container {
-  width: 50px;
-  height: 50px;
-  display: grid;
-
-  grid-template-areas:
-    ". top ."
-    "left center right"
-    ". bottom .";
-
-  grid-template-columns: 1fr 2fr 1fr;
-  grid-template-rows: 1fr 2fr 1fr;
-
-  border: 1px solid #333;
-  margin: 4px;
-  cursor: pointer;
-  transition: transform 0.15s ease;
-}
-
-.face {
-  border: 1px solid #ccc;
+.tooth-wrapper {
+  width: 64px;
+  height: 84px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
-  font-size: 11px;
-  transition: background-color 0.25s ease, transform 0.1s ease;
 }
 
-.face:hover {
-  transform: scale(1.12);
+.tooth-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 4px 8px rgba(15, 23, 42, 0.08));
+}
+
+.tooth-outline {
+  fill: linear-gradient(180deg, #ffffff 0%, #f4f7fb 100%);
+  stroke: #cfd8e3;
+  stroke-width: 1.5;
+}
+
+/* Angular no interpreta gradients en fill CSS, así que dejamos color fijo base */
+.tooth-outline {
+  fill: #f1e6e6;
+}
+
+.surface {
+  fill: #f8fafc;
+  stroke: #d9e2ec;
+  stroke-width: 1.5;
   cursor: pointer;
-  border: 1px solid #000000;
+  transition: fill 0.18s ease, stroke 0.18s ease, transform 0.18s ease;
 }
 
-.top { grid-area: top; }
-.left { grid-area: left; }
-.center { 
-  grid-area: center;
-  font-weight: bold;
-}
-.right { grid-area: right; }
-.bottom { grid-area: bottom; }
-
-/* DIAGNOSTICOS */
-
-.caries {
-  background: #d9534f;
-  color: white;
+.surface-group:hover .surface {
+  stroke: #94a3b8;
+  fill: #eef4fb;
 }
 
-.obturacion {
-  background: #5bc0de;
-  color: white;
+.center-surface {
+  fill: #ffffff;
 }
 
-.fractura {
-  background: #f0ad4e;
-  color: white;
+.tooth-number {
+  font-size: 15px;
+  font-weight: 800;
+  fill: #334155;
+  pointer-events: none;
+  user-select: none;
 }
 
-.sellante {
-  background: #5cb85c;
-  color: white;
-}
-
-/* SELECCION */
-
-.tooth-container.selected {
-  transform: scale(1.05);
-  border-color: #4caf50;
-}
-
-.tooth-container.selected .face {
-  border-color: #4caf50;
-}
-
-
+/* Diagnósticos */
 .diagnosis-caries {
-  background-color: #ff4d4d;
+  fill: #ff4d4f !important;
+  stroke: #e03131 !important;
 }
 
 .diagnosis-obturacion {
-  background-color: #4da6ff;
+  fill: #4dabf7 !important;
+  stroke: #228be6 !important;
 }
 
 .diagnosis-fractura {
-  background-color: #ff9933;
+  fill: #ff922b !important;
+  stroke: #f76707 !important;
 }
 
 .diagnosis-sellante {
-  background-color: #66cc66;
+  fill: #40c057 !important;
+  stroke: #2b8a3e !important;
+}
+
+/* Cuando el centro tiene color, el número debe verse blanco */
+.center-surface.diagnosis-caries + .tooth-number,
+.center-surface.diagnosis-obturacion + .tooth-number,
+.center-surface.diagnosis-fractura + .tooth-number,
+.center-surface.diagnosis-sellante + .tooth-number {
+  fill: #ffffff;
 }

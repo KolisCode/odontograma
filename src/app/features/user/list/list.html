@@ -1,1 +1,185 @@
-<p>list works!</p>
+<app-navbar></app-navbar>
+<section class="patients-page">
+  <div class="patients-header">
+    <div class="patients-header__text">
+      <h1>Pacientes</h1>
+      <p>Registro y administración de información básica del paciente</p>
+    </div>
+
+    <div class="patients-header__actions">
+      <button class="btn btn-secondary" type="button">Importar</button>
+      <button class="btn btn-primary" type="button">Nuevo paciente</button>
+    </div>
+  </div>
+
+  <div class="patients-layout">
+    <section class="patients-card patients-card--form">
+      <div class="patients-card__header">
+        <div>
+          <h2>Formulario de paciente</h2>
+          <span>Completa la ficha inicial del paciente</span>
+        </div>
+        <span class="status-badge status-badge--active">Activo</span>
+      </div>
+
+      <form class="patients-form">
+        <div class="form-group">
+          <label>Nombres</label>
+          <input type="text" placeholder="Ej. María Fernanda" />
+        </div>
+
+        <div class="form-group">
+          <label>Apellidos</label>
+          <input type="text" placeholder="Ej. Gómez Rojas" />
+        </div>
+
+        <div class="form-group">
+          <label>Documento</label>
+          <input type="text" placeholder="Número de documento" />
+        </div>
+
+        <div class="form-group">
+          <label>Fecha de nacimiento</label>
+          <input type="date" />
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="text" placeholder="Número de contacto" />
+        </div>
+
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" placeholder="correo@ejemplo.com" />
+        </div>
+
+        <div class="form-group form-group--full">
+          <label>Dirección</label>
+          <input type="text" placeholder="Dirección de residencia" />
+        </div>
+
+        <div class="form-group">
+          <label>EPS / Aseguradora</label>
+          <input type="text" placeholder="Entidad de salud" />
+        </div>
+
+        <div class="form-group">
+          <label>Alergias</label>
+          <input type="text" placeholder="Ej. Penicilina" />
+        </div>
+
+        <div class="form-group form-group--full">
+          <label>Observaciones</label>
+          <textarea rows="4" placeholder="Notas adicionales del paciente"></textarea>
+        </div>
+
+        <div class="form-actions form-group--full">
+          <button class="btn btn-secondary" type="button">Limpiar</button>
+          <button class="btn btn-primary" type="submit">Guardar paciente</button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="patients-side">
+      <section class="patients-card">
+        <div class="patients-card__header patients-card__header--compact">
+          <div>
+            <h3>Pacientes recientes</h3>
+            <span>Últimos registros creados</span>
+          </div>
+          <a href="#">Ver todos</a>
+        </div>
+
+        <div class="mini-list">
+          <div class="mini-item">
+            <strong>Ana Torres</strong>
+            <span>CC 10203040 · 3001234567</span>
+          </div>
+          <div class="mini-item">
+            <strong>Carlos Méndez</strong>
+            <span>CC 99887766 · 3114567788</span>
+          </div>
+          <div class="mini-item">
+            <strong>Diana López</strong>
+            <span>CC 55667788 · 3207788990</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="patients-card">
+        <div class="patients-card__header patients-card__header--compact">
+          <div>
+            <h3>Información clínica rápida</h3>
+            <span>Datos útiles para recepción</span>
+          </div>
+        </div>
+
+        <div class="info-stack">
+          <div class="info-box">
+            <strong>Alergias registradas</strong>
+            <span>12 pacientes con alertas</span>
+          </div>
+          <div class="info-box">
+            <strong>Pacientes nuevos este mes</strong>
+            <span>28 registros</span>
+          </div>
+          <div class="info-box">
+            <strong>Historias pendientes</strong>
+            <span>5 por completar</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <section class="patients-card patients-card--table">
+    <div class="patients-card__header">
+      <div>
+        <h3>Listado de pacientes</h3>
+        <span>Vista rápida para demostración al cliente</span>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="patients-table">
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Documento</th>
+            <th>Teléfono</th>
+            <th>EPS</th>
+            <th>Estado</th>
+            <th>Última cita</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>María Gómez</td>
+            <td>1020304050</td>
+            <td>3001234567</td>
+            <td>Sura</td>
+            <td><span class="status-badge status-badge--active">Activo</span></td>
+            <td>12/03/2026</td>
+          </tr>
+          <tr>
+            <td>Juan Pérez</td>
+            <td>9988776655</td>
+            <td>3014567890</td>
+            <td>Nueva EPS</td>
+            <td><span class="status-badge status-badge--pending">Pendiente</span></td>
+            <td>10/03/2026</td>
+          </tr>
+          <tr>
+            <td>Diana López</td>
+            <td>5566778899</td>
+            <td>3209988776</td>
+            <td>Sanitas</td>
+            <td><span class="status-badge status-badge--active">Activo</span></td>
+            <td>08/03/2026</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+<app-footer></app-footer>

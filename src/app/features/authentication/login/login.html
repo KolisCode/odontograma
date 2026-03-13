@@ -1,5 +1,6 @@
-<div class="login-wrapper d-flex flex-column min-vh-100">
 
+
+<div class="login-wrapper d-flex flex-column min-vh-100">
   <div class="login d-flex justify-content-center align-items-center flex-grow-1">
     <div class="card login-card">
 
@@ -7,7 +8,7 @@
 
         <div class="text-center mb-4">
           <img src="logos/muelaBiodont.png" alt="Biodont" class="logo mb-2">
-          <h4 class="fw-bold">BIODONT</h4>
+          <h4 class="fw-bold" id="titulo">BIODONT</h4>
           <p class="text-muted">Acceso al sistema</p>
         </div>
 
@@ -35,11 +36,11 @@
             <p class="error" *ngIf="loginError" >Usuario o contraseña incorrectos</p>
 
           <div class="d-grid mt-4 enlaces">
-            <a class="enlace" href="">Registrar usuario</a>     
+            <a class="enlace" routerLink="/register">Registrar usuario</a>     
             <a class="enlace" href="">Recuperar contraseña</a>       
           </div>
           <div class="d-grid mt-4">
-            <button id="botonInicio" type="button" class="btn btn-primary" routerLink="/odontogram">
+            <button id="botonInicio" type="button" class="btn btn-primary" routerLink="/dashboard">
               Iniciar sesión
             </button>
           </div>
@@ -50,8 +51,7 @@
     </div>
   </div>
 
-  <footer class="footer text-center">
-    2026
-  </footer>
+  
+  <app-footer></app-footer>
 
 </div>

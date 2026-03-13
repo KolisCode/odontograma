@@ -1,190 +1,211 @@
 <app-navbar [patientName]="'Paciente #1'"></app-navbar>
 <div class="odontogram-layout">
-  <!-- Centro - Dentadura -->
-  <section class="dental-chart">
-    <h2>Dentadura</h2>
+  <div class="left-column">
+    <section class="dental-chart">
 
-    <div class="arch upper">
-      <div class="quadrant">
-        <app-tooth *ngFor="let tooth of upperRight" [number]="tooth" [filledFaces]="toothFaceMap().get(tooth) || []"
-          (surfaceClick)="applyDiagnosis($event)">
-        </app-tooth>
-      </div>
-
-      <div class="quadrant">
-        <app-tooth *ngFor="let tooth of upperLeft" [number]="tooth" [filledFaces]="toothFaceMap().get(tooth) || []"
-          (surfaceClick)="applyDiagnosis($event)">
-        </app-tooth>
-      </div>
-    </div>
-    <hr />
-    <div class="arch lower">
-      <div class="quadrant">
-        <app-tooth *ngFor="let tooth of lowerRight" [number]="tooth" [filledFaces]="toothFaceMap().get(tooth) || []"
-          (surfaceClick)="applyDiagnosis($event)">
-        </app-tooth>
-      </div>
-
-      <div class="quadrant">
-        <app-tooth *ngFor="let tooth of lowerLeft" [number]="tooth" [filledFaces]="toothFaceMap().get(tooth) || []"
-          (surfaceClick)="applyDiagnosis($event)">
-        </app-tooth>
-      </div>
-    </div>
-  </section>
-
-  <!-- Panel derecho -->
-  <aside class="diagnostic-panel">
-    <div class="odontogram-status-card" *ngIf="originalOdontogram">
-  <div class="status-row">
-    <span class="status-label">Odontograma </span>
-    <span class="status-badge">Activo</span>
-  </div>
-
-  <div class="status-meta">
-    <div>
-      <div class="status-meta-label">Fecha</div>
-      <div class="status-meta-value">
-        {{ originalOdontogram.date | date: 'short' }}
-      </div>
-    </div>
-
-    <div *ngIf="originalOdontogram.version">
-      <div class="status-meta-label">Versión</div>
-      <div class="status-meta-value">
-        {{ originalOdontogram.version }}
-      </div>
-    </div>
-  </div>
-</div>
-    <div class="panel-header">
-      <h3 class="panel-title">Diagnóstico rápido</h3>
-      <p class="panel-subtitle">
-        Selecciona un diagnóstico y luego haz clic sobre la cara del diente.
-      </p>
-    </div>
-
-    <div class="diagnosis-toolbar">
-      <button *ngFor="let diagnosis of quickDiagnoses" type="button" class="diagnosis-btn"
-        [class.active]="selectedDiagnosis === diagnosis.type" [class.diagnosis-caries]="diagnosis.type === 'Caries'"
-        [class.diagnosis-obturacion]="diagnosis.type === 'Obturacion'"
-        [class.diagnosis-fractura]="diagnosis.type === 'Fractura'"
-        [class.diagnosis-sellante]="diagnosis.type === 'Sellante'" (click)="selectDiagnosis(diagnosis.type)">
-        {{ diagnosis.label }}
-      </button>
-    </div>
-
-    <button type="button" class="clear-diagnosis-btn" (click)="clearActiveDiagnosis()" [disabled]="!selectedDiagnosis">
-      Limpiar selección
-    </button>
-
-    <div class="active-diagnosis-card" [class.empty]="!selectedDiagnosis">
-      <div class="active-diagnosis-label">Diagnóstico activo</div>
-
-      <div *ngIf="selectedDiagnosis; else noQuickDiagnosisSelected" class="active-diagnosis-value">
-        {{ selectedDiagnosis }}
-      </div>
-
-      <ng-template #noQuickDiagnosisSelected>
-        <div class="active-diagnosis-empty">
-          No hay diagnóstico seleccionado
+      <div class="arch upper">
+        <div class="quadrant">
+          <app-tooth *ngFor="let tooth of upperRight; let i = index" [number]="tooth" [filledFaces]="toothFaceMap().get(tooth) || []"
+            (surfaceClick)="applyDiagnosis($event)">
+          </app-tooth>
         </div>
-      </ng-template>
-    </div>
 
-    <div class="diagnosis-legend">
-      <div class="legend-title">Leyenda</div>
-
-      <div class="legend-list">
-        <div class="legend-item" *ngFor="let diagnosis of quickDiagnoses">
-          <span class="legend-dot" [class.diagnosis-caries]="diagnosis.type === 'Caries'"
-            [class.diagnosis-obturacion]="diagnosis.type === 'Obturacion'"
-            [class.diagnosis-fractura]="diagnosis.type === 'Fractura'"
-            [class.diagnosis-sellante]="diagnosis.type === 'Sellante'">
-          </span>
-          <span>{{ diagnosis.label }}</span>
+        <div class="quadrant">
+          <app-tooth *ngFor="let tooth of upperLeft" [number]="tooth" [filledFaces]="toothFaceMap().get(tooth) || []"
+            (surfaceClick)="applyDiagnosis($event)">
+          </app-tooth>
         </div>
       </div>
-    </div>
 
-    <div class="save-section">
-      <button type="button" class="save-btn" (click)="save()" [disabled]="isSaving">
-        {{ isSaving ? 'Guardando...' : 'Guardar odontograma' }}
-      </button>
+      <hr />
 
-      <div *ngIf="saveMessage" class="save-message" [ngClass]="{
-        'save-success': saveMessageType === 'success',
-        'save-error': saveMessageType === 'error',
-        'save-info': saveMessageType === 'info'
-      }">
-        {{ saveMessage }}
+      <div class="arch lower">
+        <div class="quadrant">
+          <app-tooth *ngFor="let tooth of lowerRight" [number]="tooth" [filledFaces]="toothFaceMap().get(tooth) || []"
+            (surfaceClick)="applyDiagnosis($event)">
+          </app-tooth>
+        </div>
+
+        <div class="quadrant">
+          <app-tooth *ngFor="let tooth of lowerLeft" [number]="tooth" [filledFaces]="toothFaceMap().get(tooth) || []"
+            (surfaceClick)="applyDiagnosis($event)">
+          </app-tooth>
+        </div>
       </div>
-    </div>
-  </aside>
-  <!-- Registro inferior -->
-  <section class="diagnostic-record">
-    <div class="section-header">
-      <h3>Registro</h3>
-      <span class="record-counter">{{ diagnoses().length }} registros</span>
-    </div>
+    </section>
 
-    <div *ngIf="diagnoses().length > 0; else noRecords" class="record-grid">
-      <div *ngFor="let d of diagnoses(); let i = index" class="record-item">
-        <div class="record-content">
-          <div class="record-main">
-            <div class="record-index">#{{ i + 1 }}</div>
+    <section class="diagnostic-record">
+      <div class="section-header">
+        <h3>Registro</h3>
+        <span class="record-counter">{{ diagnoses().length }} registros</span>
+      </div>
 
-            <div class="record-row">
+      <div *ngIf="diagnoses().length > 0; else noRecords" class="record-grid">
+        <div *ngFor="let d of diagnoses(); let i = index" class="record-item">
+          <div class="record-top">
+            <div class="record-id">Registro #{{ i + 1 }}</div>
+
+            <button class="delete-btn" (click)="removeDiagnosis(i)" title="Eliminar registro" type="button">
+              ✕
+            </button>
+          </div>
+
+          <div class="record-body">
+            <div class="record-row-inline">
               <span class="record-label">Diente</span>
-              <span class="record-value">{{ d.teeth.join(', ') }}</span>
-            </div>
-
-            <div class="record-row">
-              <span class="record-label">Caras</span>
-              <span class="record-value">{{ d.faces.join(', ') }}</span>
+              <span class="record-tooth">{{ d.teeth.join(', ') }}</span>
             </div>
 
             <div class="record-row">
               <span class="record-label">Diagnóstico</span>
-              <span class="record-badge">{{ d.type }}</span>
+              <span class="record-badge" [ngClass]="{
+            'badge-caries': d.type === 'Caries',
+            'badge-obturacion': d.type === 'Obturacion',
+            'badge-fractura': d.type === 'Fractura',
+            'badge-sellante': d.type === 'Sellante'
+          }">
+                {{ d.type }}
+              </span>
+            </div>
+
+            <div class="record-row">
+              <span class="record-label">Caras</span>
+              <div class="record-faces">
+                <span class="face-chip" *ngFor="let face of d.faces">
+                  {{ face }}
+                </span>
+              </div>
             </div>
 
             <div class="record-row">
               <span class="record-label">Fecha</span>
-              <span class="record-value">{{ d.date | date: 'short' }}</span>
+              <span class="record-date">{{ d.date | date: 'short' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noRecords>
+        <div class="empty-state">
+          <p>No hay diagnósticos registrados.</p>
+        </div>
+      </ng-template>
+    </section>
+  </div>
+
+  <div class="right-column">
+    <aside class="diagnostic-panel">
+      <div class="odontogram-status-card" *ngIf="originalOdontogram">
+        <div class="status-row">
+          <span class="status-label">Odontograma </span>
+          <span class="status-badge">Activo</span>
+        </div>
+
+        <div class="status-meta">
+          <div>
+            <div class="status-meta-label">Fecha</div>
+            <div class="status-meta-value">
+              {{ originalOdontogram.date | date: 'short' }}
             </div>
           </div>
 
-          <button class="delete-btn" (click)="removeDiagnosis(i)" title="Eliminar registro">✕</button>
+          <div *ngIf="originalOdontogram.version">
+            <div class="status-meta-label">Versión</div>
+            <div class="status-meta-value">
+              {{ originalOdontogram.version }}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <ng-template #noRecords>
-      <div class="empty-state">
-        <p>No hay diagnósticos registrados.</p>
+      <div class="panel-header">
+        <h3 class="panel-title">Diagnóstico rápido</h3>
+        <p class="panel-subtitle">
+          Selecciona un diagnóstico y luego haz clic sobre la cara del diente.
+        </p>
       </div>
-    </ng-template>
-  </section>
-  <section class="resumen-panel">
-  <div class="resumen-panel-content">
-    <div class="section-header">
-      <h3>Resumen</h3>
-      <span class="record-counter">{{ diagnoses().length }} total</span>
-    </div>
 
-    <div *ngIf="diagnoses().length > 0; else noSummary" class="summary-grid">
-      <div class="summary-card" *ngFor="let item of diagnosisSummary() | keyvalue">
-        <div class="summary-label">{{ item.key }}</div>
-        <div class="summary-value">{{ item.value }}</div>
+      <div class="diagnosis-toolbar">
+        <button *ngFor="let diagnosis of quickDiagnoses" type="button" class="diagnosis-btn"
+          [class.active]="selectedDiagnosis === diagnosis.type" [class.diagnosis-caries]="diagnosis.type === 'Caries'"
+          [class.diagnosis-obturacion]="diagnosis.type === 'Obturacion'"
+          [class.diagnosis-fractura]="diagnosis.type === 'Fractura'"
+          [class.diagnosis-sellante]="diagnosis.type === 'Sellante'" (click)="selectDiagnosis(diagnosis.type)">
+          {{ diagnosis.label }}
+        </button>
       </div>
-    </div>
 
-    <ng-template #noSummary>
-      <div class="empty-state">
-        <p>No hay datos para resumir.</p>
+      <button type="button" class="clear-diagnosis-btn" (click)="clearActiveDiagnosis()"
+        [disabled]="!selectedDiagnosis">
+        Limpiar selección
+      </button>
+
+      <div class="active-diagnosis-card" [class.empty]="!selectedDiagnosis">
+        <div class="active-diagnosis-label">Diagnóstico activo</div>
+
+        <div *ngIf="selectedDiagnosis; else noQuickDiagnosisSelected" class="active-diagnosis-value">
+          {{ selectedDiagnosis }}
+        </div>
+
+        <ng-template #noQuickDiagnosisSelected>
+          <div class="active-diagnosis-empty">
+            No hay diagnóstico seleccionado
+          </div>
+        </ng-template>
       </div>
-    </ng-template>
+
+      <div class="diagnosis-legend">
+        <div class="legend-title">Leyenda</div>
+
+        <div class="legend-list">
+          <div class="legend-item" *ngFor="let diagnosis of quickDiagnoses">
+            <span class="legend-dot" [class.diagnosis-caries]="diagnosis.type === 'Caries'"
+              [class.diagnosis-obturacion]="diagnosis.type === 'Obturacion'"
+              [class.diagnosis-fractura]="diagnosis.type === 'Fractura'"
+              [class.diagnosis-sellante]="diagnosis.type === 'Sellante'">
+            </span>
+            <span>{{ diagnosis.label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="save-section">
+        <button type="button" class="save-btn" (click)="save()" [disabled]="isSaving">
+          {{ isSaving ? 'Guardando...' : 'Guardar odontograma' }}
+        </button>
+
+        <div *ngIf="saveMessage" class="save-message" [ngClass]="{
+            'save-success': saveMessageType === 'success',
+            'save-error': saveMessageType === 'error',
+            'save-info': saveMessageType === 'info'
+          }">
+          {{ saveMessage }}
+        </div>
+      </div>
+    </aside>
+
+    <section class="resumen-panel">
+      <div class="resumen-panel-content">
+        <div class="section-header">
+          <h3>Resumen</h3>
+          <span class="record-counter">{{ diagnoses().length }} total</span>
+        </div>
+
+        <div *ngIf="diagnoses().length > 0; else noSummary" class="summary-grid">
+          <div class="summary-card" *ngFor="let item of diagnosisSummary() | keyvalue">
+            <div class="summary-label">{{ item.key }}</div>
+            <div class="summary-value">{{ item.value }}</div>
+          </div>
+        </div>
+
+        <ng-template #noSummary>
+          <div class="empty-state">
+            <p>No hay datos para resumir.</p>
+          </div>
+        </ng-template>
+      </div>
+    </section>
   </div>
-</section>
 </div>
+
+<app-footer></app-footer>

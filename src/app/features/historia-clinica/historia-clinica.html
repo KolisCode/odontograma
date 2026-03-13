@@ -1,0 +1,731 @@
+<app-navbar></app-navbar>
+<section class="clinical-page">
+  <div class="clinical-header">
+    <div class="clinical-header__text">
+      <h1>Historia clínica</h1>
+      <p>Cuestionario de admisión clínica odontológica</p>
+    </div>
+
+    <div class="clinical-header__actions">
+      <button class="btn btn-secondary" type="button">Vista previa</button>
+      <button class="btn btn-primary" type="button">Guardar historia</button>
+    </div>
+  </div>
+
+  <div class="clinical-layout">
+    <aside class="clinical-sidebar">
+      <div class="sidebar-card">
+        <h3>Secciones</h3>
+
+        <nav class="section-nav">
+          <a class="section-nav__item active" href="#encabezado">Encabezado</a>
+          <a class="section-nav__item" href="#datos-personales">Datos personales</a>
+          <a class="section-nav__item" href="#motivo-consulta">Motivo de consulta</a>
+          <a class="section-nav__item" href="#antecedentes">Antecedentes patológicos</a>
+          <a class="section-nav__item" href="#higiene-oral">Higiene oral</a>
+          <a class="section-nav__item" href="#declaracion">Declaración del paciente</a>
+          <a class="section-nav__item" href="#modulos">Módulos clínicos</a>
+        </nav>
+      </div>
+    </aside>
+
+    <main class="clinical-content">
+      <section class="clinical-card" id="encabezado">
+        <div class="clinical-card__header">
+          <div>
+            <h2>Encabezado de historia clínica</h2>
+            <span>Datos de apertura y radicación del documento</span>
+          </div>
+        </div>
+
+        <div class="clinical-form-grid">
+          <div class="form-group">
+            <label>Fecha de apertura</label>
+            <input type="text" value="13/03/2026 10:45 AM" readonly />
+          </div>
+
+          <div class="form-group">
+            <label>Número de historia clínica</label>
+            <input type="text" placeholder="Ej. HC-2026-0001" />
+          </div>
+        </div>
+      </section>
+
+      <section class="clinical-card" id="datos-personales">
+        <div class="clinical-card__header">
+          <div>
+            <h2>Datos personales</h2>
+            <span>Información de identificación del usuario</span>
+          </div>
+        </div>
+
+        <div class="clinical-form-grid">
+          <div class="form-group">
+            <label>Nombres completos</label>
+            <input type="text" placeholder="Ingresa los nombres" />
+          </div>
+
+          <div class="form-group">
+            <label>Apellidos completos</label>
+            <input type="text" placeholder="Ingresa los apellidos" />
+          </div>
+
+          <div class="form-group">
+            <label>Estado civil</label>
+            <select>
+              <option>Selecciona una opción</option>
+              <option>Soltero(a)</option>
+              <option>Casado(a)</option>
+              <option>Unión libre</option>
+              <option>Divorciado(a)</option>
+              <option>Viudo(a)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Documento de identidad</label>
+            <input type="text" placeholder="Número de documento" />
+          </div>
+
+          <div class="form-group">
+            <label>Fecha de nacimiento</label>
+            <input type="date" />
+          </div>
+
+          <div class="form-group">
+            <label>Edad</label>
+            <input type="text" placeholder="Autocalculada" />
+          </div>
+
+          <div class="form-group">
+            <label>Sexo</label>
+            <select>
+              <option>Selecciona una opción</option>
+              <option>Femenino</option>
+              <option>Masculino</option>
+              <option>Otro</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Ocupación</label>
+            <input type="text" placeholder="Ej. Estudiante, empleado, independiente" />
+          </div>
+
+          <div class="form-group form-group--full">
+            <label>Dirección</label>
+            <input type="text" placeholder="Dirección de domicilio" />
+          </div>
+
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" placeholder="Número de contacto" />
+          </div>
+
+          <div class="form-group">
+            <label>Lugar de residencia</label>
+            <input type="text" placeholder="Ciudad / municipio" />
+          </div>
+
+          <div class="form-group">
+            <label>Nombre del acompañante</label>
+            <input type="text" placeholder="Nombre completo del acompañante" />
+          </div>
+
+          <div class="form-group">
+            <label>Teléfono del acompañante</label>
+            <input type="text" placeholder="Número del acompañante" />
+          </div>
+
+          <div class="form-group">
+            <label>Parentesco</label>
+            <input type="text" placeholder="Ej. Madre, padre, esposo(a)" />
+          </div>
+        </div>
+      </section>
+
+      <section class="clinical-card" id="motivo-consulta">
+        <div class="clinical-card__header">
+          <div>
+            <h2>Motivo de consulta</h2>
+            <span>Razón principal de la atención</span>
+          </div>
+        </div>
+
+        <div class="clinical-form-grid">
+          <div class="form-group form-group--full">
+            <label>Motivo de consulta</label>
+            <textarea rows="4" placeholder="Describe el motivo principal de consulta"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="clinical-card" id="antecedentes">
+        <div class="clinical-card__header">
+          <div>
+            <h2>Antecedentes patológicos</h2>
+            <span>Condiciones médicas y antecedentes relevantes</span>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>1. Enfermedades sistémicas</h3>
+          <p class="subsection-note">¿Ha sido diagnosticado con alguna enfermedad?</p>
+
+          <div class="checkbox-grid">
+            <label><input type="checkbox" /> Hipertensión arterial</label>
+            <label><input type="checkbox" /> Diabetes</label>
+            <label><input type="checkbox" /> Enfermedades cardíacas</label>
+            <label><input type="checkbox" /> Enfermedades respiratorias</label>
+            <label><input type="checkbox" /> Enfermedades renales</label>
+            <label><input type="checkbox" /> Enfermedades hepáticas</label>
+            <label><input type="checkbox" /> Enfermedades endocrinas</label>
+            <label><input type="checkbox" /> Enfermedades neurológicas</label>
+            <label><input type="checkbox" /> Enfermedades de transmisión sexual</label>
+          </div>
+
+          <div class="form-group form-group--full">
+            <label>Observaciones</label>
+            <textarea rows="3" placeholder="Detalles adicionales sobre enfermedades sistémicas"></textarea>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>2. Antecedentes quirúrgicos</h3>
+
+          <div class="clinical-form-grid">
+            <div class="form-group">
+              <label>¿Ha sido hospitalizado?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>¿Cirugías previas?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group form-group--full">
+              <label>Detalle</label>
+              <textarea rows="3" placeholder="Especifica hospitalizaciones o cirugías previas"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>3. Medicación actual</h3>
+
+          <div class="clinical-form-grid">
+            <div class="form-group">
+              <label>¿Toma medicamentos?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mini-table">
+            <div class="mini-table__head">
+              <span>Medicamento</span>
+              <span>Dosis</span>
+              <span>Frecuencia</span>
+            </div>
+
+            <div class="mini-table__row">
+              <input type="text" placeholder="Medicamento" />
+              <input type="text" placeholder="Dosis" />
+              <input type="text" placeholder="Frecuencia" />
+            </div>
+
+            <div class="mini-table__row">
+              <input type="text" placeholder="Medicamento" />
+              <input type="text" placeholder="Dosis" />
+              <input type="text" placeholder="Frecuencia" />
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>4. Alergias</h3>
+
+          <div class="checkbox-grid">
+            <label><input type="checkbox" /> Medicamentos</label>
+            <label><input type="checkbox" /> Anestesia</label>
+            <label><input type="checkbox" /> Látex</label>
+          </div>
+
+          <div class="form-group form-group--full">
+            <label>Descripción de alergias</label>
+            <textarea rows="3" placeholder="Describe las alergias reportadas"></textarea>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>5. Antecedentes hematológicos</h3>
+
+          <div class="clinical-form-grid">
+            <div class="form-group">
+              <label>¿Sangra con facilidad?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>¿Problemas de coagulación?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group form-group--full">
+              <label>Observaciones</label>
+              <textarea rows="3" placeholder="Detalles adicionales"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>6. Gineco-obstétricos</h3>
+
+          <div class="clinical-form-grid">
+            <div class="form-group">
+              <label>Embarazo</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Trimestre</label>
+              <select>
+                <option>No aplica</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Lactancia</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>7. Hábitos</h3>
+
+          <div class="clinical-form-grid">
+            <div class="form-group">
+              <label>Fuma</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>¿Cuántos cigarrillos al día?</label>
+              <input type="number" placeholder="Cantidad diaria" />
+            </div>
+
+            <div class="form-group">
+              <label>Alcohol</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Sustancias psicoactivas</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group form-group--full">
+              <label>Observaciones</label>
+              <textarea rows="3" placeholder="Detalle hábitos relevantes"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>8. Antecedentes odontológicos</h3>
+
+          <div class="clinical-form-grid">
+            <div class="form-group">
+              <label>Complicaciones previas</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Reacciones a anestesia</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group form-group--full">
+              <label>Observaciones odontológicas previas</label>
+              <textarea rows="3" placeholder="Registra detalles relevantes"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="clinical-card" id="higiene-oral">
+        <div class="clinical-card__header">
+          <div>
+            <h2>Higiene oral</h2>
+            <span>Hábitos, control odontológico y síntomas orales</span>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>1. Higiene oral diaria</h3>
+
+          <div class="clinical-form-grid">
+            <div class="form-group">
+              <label>¿Cuántas veces al día se cepilla?</label>
+              <input type="number" placeholder="Ej. 3" />
+            </div>
+
+            <div class="form-group">
+              <label>¿Cada cuánto cambia el cepillo?</label>
+              <input type="text" placeholder="Ej. Cada 3 meses" />
+            </div>
+
+            <div class="form-group form-group--full">
+              <label>Momentos del día</label>
+              <div class="checkbox-grid checkbox-grid--inline">
+                <label><input type="checkbox" /> Mañana</label>
+                <label><input type="checkbox" /> Después de comidas</label>
+                <label><input type="checkbox" /> Noche</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Tipo de cepillo</label>
+              <select>
+                <option>Selecciona una opción</option>
+                <option>Suave</option>
+                <option>Medio</option>
+                <option>Duro</option>
+                <option>Eléctrico</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>¿Usa crema dental con flúor?</label>
+              <select>
+                <option>Sí</option>
+                <option>No</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>2. Uso de elementos complementarios</h3>
+
+          <div class="clinical-form-grid">
+            <div class="form-group">
+              <label>¿Usa seda dental?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Frecuencia de uso</label>
+              <input type="text" placeholder="Ej. Diario, ocasional" />
+            </div>
+
+            <div class="form-group">
+              <label>¿Utiliza enjuague bucal?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Tipo de enjuague</label>
+              <select>
+                <option>No aplica</option>
+                <option>Con flúor</option>
+                <option>Antiséptico</option>
+                <option>Natural</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>¿Usa cepillos interdentales?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>¿Usa irrigador oral?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>3. Control y atención odontológica</h3>
+
+          <div class="clinical-form-grid">
+            <div class="form-group">
+              <label>¿Cada cuánto asiste al odontólogo?</label>
+              <select>
+                <option>Cada 6 meses</option>
+                <option>1 vez al año</option>
+                <option>Solo cuando hay dolor</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>¿Ha recibido educación en higiene oral?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>¿Ha recibido profilaxis dental recientemente?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>4. Síntomas orales asociados a hábitos</h3>
+
+          <div class="clinical-form-grid">
+            <div class="form-group">
+              <label>¿Sangrado de encías al cepillarse?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>¿Mal aliento frecuente?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>¿Sensibilidad dental?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>¿Movilidad dental?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>5. Uso de prótesis o aparatos</h3>
+
+          <div class="clinical-form-grid">
+            <div class="form-group">
+              <label>¿Usa prótesis dental?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>¿Usa ortodoncia o retenedores?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>¿Realiza limpieza diaria de prótesis/aparatos?</label>
+              <select>
+                <option>No</option>
+                <option>Sí</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="clinical-card" id="declaracion">
+        <div class="clinical-card__header">
+          <div>
+            <h2>Declaración del paciente</h2>
+            <span>Aceptación y responsabilidad sobre la información suministrada</span>
+          </div>
+        </div>
+
+        <div class="legal-box">
+          <p>
+            El paciente registra y declara que toda la información indicada u omitida en esta historia clínica
+            es de su exclusiva responsabilidad, liberando expresamente a nuestra empresa de cualquier
+            responsabilidad, tanto civil como penal, que pudiera producirse como consecuencia de información
+            errónea, incompleta, falsa u omitida. Notificaré de cualquier cambio en la salud médica u
+            odontológica.
+          </p>
+        </div>
+
+        <div class="checkbox-grid checkbox-grid--inline">
+          <label><input type="checkbox" /> Confirmo que la información suministrada es veraz</label>
+          <label><input type="checkbox" /> Notificaré cualquier cambio en mi estado de salud</label>
+        </div>
+
+        <div class="clinical-form-grid">
+          <div class="form-group">
+            <label>Nombre del paciente o responsable</label>
+            <input type="text" placeholder="Nombre completo" />
+          </div>
+
+          <div class="form-group">
+            <label>Fecha de aceptación</label>
+            <input type="date" />
+          </div>
+
+          <div class="form-group">
+            <label>Firma</label>
+            <div class="signature-box">Área para firma</div>
+          </div>
+
+          <div class="form-group">
+            <label>Huella</label>
+            <div class="signature-box">Área para huella</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="clinical-card" id="modulos">
+        <div class="clinical-card__header">
+          <div>
+            <h2>Módulos clínicos asociados</h2>
+            <span>Elementos complementarios de la historia clínica</span>
+          </div>
+        </div>
+
+        <div class="modules-grid">
+          <div class="module-tile">
+            <strong>Odontograma de enfermedad</strong>
+            <span>Registro clínico diagnóstico</span>
+          </div>
+
+          <div class="module-tile">
+            <strong>Odontograma de tratamiento</strong>
+            <span>Plan y control terapéutico</span>
+          </div>
+
+          <div class="module-tile">
+            <strong>Enfermedades odontológicas no dentales</strong>
+            <span>Clasificación y apoyo clínico</span>
+          </div>
+
+          <div class="module-tile">
+            <strong>Fórmulas médicas</strong>
+            <span>Prescripción y seguimiento</span>
+          </div>
+
+          <div class="module-tile">
+            <strong>Evolución de tratamiento</strong>
+            <span>Notas clínicas y control médico</span>
+          </div>
+
+          <div class="module-tile">
+            <strong>Pagos y abonos</strong>
+            <span>Movimientos vinculados al tratamiento</span>
+          </div>
+
+          <div class="module-tile">
+            <strong>Presupuesto</strong>
+            <span>Asociado al odontograma de tratamiento</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="clinical-summary">
+      <div class="summary-card">
+        <h3>Resumen</h3>
+
+        <div class="summary-stat">
+          <span>Historia clínica</span>
+          <strong>HC-2026-0001</strong>
+        </div>
+
+        <div class="summary-stat">
+          <span>Paciente</span>
+          <strong>Sin asignar</strong>
+        </div>
+
+        <div class="summary-stat">
+          <span>Estado</span>
+          <strong>En edición</strong>
+        </div>
+
+        <div class="summary-progress">
+          <div class="summary-progress__top">
+            <span>Progreso</span>
+            <strong>65%</strong>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar__fill"></div>
+          </div>
+        </div>
+
+        <div class="summary-actions">
+          <button class="btn btn-primary" type="button">Guardar borrador</button>
+          <button class="btn btn-secondary" type="button">Finalizar</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+<app-footer></app-footer>

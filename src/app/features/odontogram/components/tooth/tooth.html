@@ -1,24 +1,101 @@
-<div class="tooth-container">
+<div class="tooth-wrapper">
+  <svg
+    class="tooth-svg"
+    viewBox="0 0 100 120"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-label="Diente {{ number }}"
+    role="img"
+  >
+    <!-- Silueta general -->
+    <path
+      class="tooth-outline"
+      d="M30,8
+         C18,8 10,18 10,32
+         L10,54
+         C10,66 16,76 24,84
+         C28,88 30,94 30,102
+         C30,110 35,116 42,116
+         C47,116 50,112 50,106
+         C50,112 53,116 58,116
+         C65,116 70,110 70,102
+         C70,94 72,88 76,84
+         C84,76 90,66 90,54
+         L90,32
+         C90,18 82,8 70,8
+         Z"
+    />
 
-     <div class="face top" [ngClass]="getFaceClass('Oclusal')" [title]="getFaceTooltip('Oclusal')"
-          (click)="faceClicked('Oclusal'); $event.stopPropagation()">
-     </div>
+    <!-- Cara superior / Oclusal -->
+    <g class="surface-group" (click)="faceClicked('Oclusal'); $event.stopPropagation()">
+      <title>{{ getFaceTooltip('Oclusal') }}</title>
+      <rect
+        x="39"
+        y="14"
+        width="22"
+        height="20"
+        rx="8"
+        class="surface"
+        [ngClass]="getFaceClass('Oclusal')"
+      />
+    </g>
 
-     <div class="face left" [ngClass]="getFaceClass('Mesial')" [title]="getFaceTooltip('Mesial')"
-          (click)="faceClicked('Mesial'); $event.stopPropagation()">
-     </div>
+    <!-- Cara izquierda / Mesial -->
+    <g class="surface-group" (click)="faceClicked('Mesial'); $event.stopPropagation()">
+      <title>{{ getFaceTooltip('Mesial') }}</title>
+      <rect
+        x="14"
+        y="42"
+        width="20"
+        height="28"
+        rx="8"
+        class="surface"
+        [ngClass]="getFaceClass('Mesial')"
+      />
+    </g>
 
-     <div class="face center" [ngClass]="getFaceClass('Centro')" [title]="getFaceTooltip('Centro')"
-          (click)="faceClicked('Centro'); $event.stopPropagation()">
-          {{ number }}
-     </div>
+    <!-- Cara central -->
+    <g class="surface-group" (click)="faceClicked('Centro'); $event.stopPropagation()">
+      <title>{{ getFaceTooltip('Centro') }}</title>
+      <rect
+        x="36"
+        y="42"
+        width="28"
+        height="28"
+        rx="8"
+        class="surface center-surface"
+        [ngClass]="getFaceClass('Centro')"
+      />
+      <text x="50" y="60" text-anchor="middle" dominant-baseline="middle" class="tooth-number">
+        {{ number }}
+      </text>
+    </g>
 
-     <div class="face right" [ngClass]="getFaceClass('Distal')" [title]="getFaceTooltip('Distal')"
-          (click)="faceClicked('Distal'); $event.stopPropagation()">
-     </div>
+    <!-- Cara derecha / Distal -->
+    <g class="surface-group" (click)="faceClicked('Distal'); $event.stopPropagation()">
+      <title>{{ getFaceTooltip('Distal') }}</title>
+      <rect
+        x="66"
+        y="42"
+        width="20"
+        height="28"
+        rx="8"
+        class="surface"
+        [ngClass]="getFaceClass('Distal')"
+      />
+    </g>
 
-     <div class="face bottom" [ngClass]="getFaceClass('Lingual')" [title]="getFaceTooltip('Lingual')"
-          (click)="faceClicked('Lingual'); $event.stopPropagation()">
-     </div>
-
+    <!-- Cara inferior / Lingual -->
+    <g class="surface-group" (click)="faceClicked('Lingual'); $event.stopPropagation()">
+      <title>{{ getFaceTooltip('Lingual') }}</title>
+      <rect
+        x="39"
+        y="78"
+        width="22"
+        height="24"
+        rx="8"
+        class="surface"
+        [ngClass]="getFaceClass('Lingual')"
+      />
+    </g>
+  </svg>
 </div>

@@ -1,1 +1,69 @@
-<p>register works!</p>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="logo-box">
+      <img src="logos/muelaBiodont.png" alt="BIODONT" class="logo" />
+      <h2>BIODONT</h2>
+      <p>Crear cuenta</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="nombre">Nombre completo</label>
+        <input id="nombre" type="text" formControlName="nombre" placeholder="Ingresa tu nombre completo" />
+        <small *ngIf="registerForm.get('nombre')?.touched && registerForm.get('nombre')?.invalid">
+          El nombre es obligatorio.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="correo">Correo electrónico</label>
+        <input id="correo" type="email" formControlName="correo" placeholder="correo@ejemplo.com" />
+        <small *ngIf="registerForm.get('correo')?.touched && registerForm.get('correo')?.invalid">
+          Ingresa un correo válido.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="rol">Rol</label>
+        <select id="rol" formControlName="rol">
+          <option value="">Selecciona un rol</option>
+          <option value="odontologo">Odontólogo</option>
+          <option value="auxiliar">Auxiliar</option>
+          <option value="recepcion">Recepción</option>
+        </select>
+        <small *ngIf="registerForm.get('rol')?.touched && registerForm.get('rol')?.invalid">
+          Debes seleccionar un rol.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input id="password" type="password" formControlName="password" placeholder="Mínimo 6 caracteres" />
+        <small *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+          La contraseña debe tener mínimo 6 caracteres.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirmar contraseña</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="Repite tu contraseña" />
+        <small *ngIf="registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched">
+          Las contraseñas no coinciden.
+        </small>
+      </div>
+
+      <button type="submit" [disabled]="registerForm.invalid || loading">
+        {{ loading ? 'Creando cuenta...' : 'Crear cuenta' }}
+      </button>
+
+      <p class="auth-link">
+        <a routerLink="/">Ir a iniciar sesión</a>
+      </p>
+
+      <p class="message success" *ngIf="successMessage">{{ successMessage }}</p>
+      <p class="message error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    </form>
+  </div>
+</div>
+
+<app-footer> </app-footer>

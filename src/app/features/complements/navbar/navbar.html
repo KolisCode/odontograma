@@ -1,16 +1,30 @@
-<nav class="navbar">
-  <div class="navbar-left">
-    <span class="logo"><img src="logos/muelaBiodont.png"> BioDont</span>
+<header class="app-header">
+  <div class="header-left">
+    <div class="brand-box">
+      <img src="logos/muelaBiodont.png" alt="Logo de Biodont" class="brand-logo" />
+      <div class="brand-text">
+        <span class="brand-title">BIODONT</span>
+        <span class="brand-subtitle">Sistema odontológico</span>
+      </div>
+    </div>
   </div>
+  <nav class="header-nav">
+    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+    <a routerLink="/patients" routerLinkActive="active">Pacientes</a>
+    <a routerLink="/appointments" routerLinkActive="active">Citas</a>
+    <a routerLink="/odontogram" routerLinkActive="active">Odontograma</a>
+    <a routerLink="/finance" routerLinkActive="active">Cartera</a>
+  </nav>
 
-  <div class="navbar-center">
-    <span class="module-title">Odontograma</span>
-  </div>
+  <div class="header-right">
+    <div class="user-chip">
+      <div class="avatar">A</div>
+      <div class="user-info">
+        <span class="user-name">Administrador</span>
+        <span class="user-role">Rol: Admin</span>
+      </div>
+    </div>
 
-  <div class="navbar-right">
-    <span class="patient">
-      Paciente: <strong>{{ patientName }}</strong>
-    </span>
-    <button class="back-btn">Volver</button>
+    <button class="btn-header-action" routerLink="/">Salir</button>
   </div>
-</nav>
+</header>

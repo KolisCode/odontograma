@@ -1,1 +1,211 @@
-<p>appointment works!</p>
+<app-navbar></app-navbar>
+
+<section class="appointments-page">
+  <div class="appointments-header">
+    <div class="appointments-header__text">
+      <h1>Citas</h1>
+      <p>Programación, control y seguimiento de agenda clínica</p>
+    </div>
+
+    <div class="appointments-header__actions">
+      <button class="btn btn-secondary" type="button">Ver calendario</button>
+      <button class="btn btn-primary" type="button">Nueva cita</button>
+    </div>
+  </div>
+
+  <div class="appointments-stats">
+    <article class="stat-card">
+      <span class="stat-card__label">Citas de hoy</span>
+      <h2>18</h2>
+      <p>3 por confirmar</p>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-card__label">Confirmadas</span>
+      <h2>12</h2>
+      <p>Agenda estable del día</p>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-card__label">Canceladas</span>
+      <h2>2</h2>
+      <p>Actualizado esta mañana</p>
+    </article>
+  </div>
+
+  <div class="appointments-layout">
+    <section class="appointments-card appointments-card--form">
+      <div class="appointments-card__header">
+        <div>
+          <h2>Agendar cita</h2>
+          <span>Registra una nueva atención en la agenda</span>
+        </div>
+        <span class="status-badge status-badge--pending">Agenda del día</span>
+      </div>
+
+      <form class="appointments-form">
+        <div class="form-group">
+          <label>Paciente</label>
+          <input type="text" placeholder="Selecciona o busca un paciente" />
+        </div>
+
+        <div class="form-group">
+          <label>Profesional</label>
+          <select>
+            <option>Selecciona un odontólogo</option>
+            <option>Dra. Laura Gómez</option>
+            <option>Dr. Sebastián Ruiz</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" />
+        </div>
+
+        <div class="form-group">
+          <label>Hora</label>
+          <input type="time" />
+        </div>
+
+        <div class="form-group">
+          <label>Estado</label>
+          <select>
+            <option>Programada</option>
+            <option>Confirmada</option>
+            <option>Atendida</option>
+            <option>Cancelada</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de atención</label>
+          <select>
+            <option>Valoración</option>
+            <option>Limpieza</option>
+            <option>Control</option>
+            <option>Urgencia</option>
+          </select>
+        </div>
+
+        <div class="form-group form-group--full">
+          <label>Motivo</label>
+          <textarea rows="4" placeholder="Describe el motivo de la cita"></textarea>
+        </div>
+
+        <div class="form-actions form-group--full">
+          <button class="btn btn-secondary" type="button">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Guardar cita</button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="appointments-side">
+      <section class="appointments-card">
+        <div class="appointments-card__header appointments-card__header--compact">
+          <div>
+            <h3>Próximas citas</h3>
+            <span>Agenda inmediata del día</span>
+          </div>
+        </div>
+
+        <div class="agenda-list">
+          <div class="agenda-item">
+            <div class="agenda-item__top">
+              <strong>08:00 AM · María Gómez</strong>
+              <span class="status-badge status-badge--pending">Programada</span>
+            </div>
+            <p>Valoración general · Dra. Laura Gómez</p>
+          </div>
+
+          <div class="agenda-item">
+            <div class="agenda-item__top">
+              <strong>09:30 AM · Juan Pérez</strong>
+              <span class="status-badge status-badge--active">Confirmada</span>
+            </div>
+            <p>Limpieza dental · Dr. Sebastián Ruiz</p>
+          </div>
+
+          <div class="agenda-item">
+            <div class="agenda-item__top">
+              <strong>11:00 AM · Laura Rojas</strong>
+              <span class="status-badge status-badge--active">Confirmada</span>
+            </div>
+            <p>Control de ortodoncia · Dra. Laura Gómez</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="appointments-card">
+        <div class="appointments-card__header appointments-card__header--compact">
+          <div>
+            <h3>Resumen agenda</h3>
+            <span>Estado general</span>
+          </div>
+        </div>
+
+        <div class="info-stack">
+          <div class="info-box">
+            <strong>Primer turno</strong>
+            <span>08:00 AM</span>
+          </div>
+          <div class="info-box">
+            <strong>Último turno</strong>
+            <span>05:30 PM</span>
+          </div>
+          <div class="info-box">
+            <strong>Espacios disponibles</strong>
+            <span>4 horarios libres</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <section class="appointments-card appointments-card--table">
+    <div class="appointments-card__header">
+      <div>
+        <h3>Listado de citas</h3>
+        <span>Vista organizada de la programación clínica</span>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="appointments-table">
+        <thead>
+          <tr>
+            <th>Hora</th>
+            <th>Paciente</th>
+            <th>Profesional</th>
+            <th>Motivo</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>08:00 AM</td>
+            <td>María Gómez</td>
+            <td>Dra. Laura Gómez</td>
+            <td>Valoración</td>
+            <td><span class="status-badge status-badge--pending">Programada</span></td>
+          </tr>
+          <tr>
+            <td>09:30 AM</td>
+            <td>Juan Pérez</td>
+            <td>Dr. Sebastián Ruiz</td>
+            <td>Limpieza dental</td>
+            <td><span class="status-badge status-badge--active">Confirmada</span></td>
+          </tr>
+          <tr>
+            <td>11:00 AM</td>
+            <td>Laura Rojas</td>
+            <td>Dra. Laura Gómez</td>
+            <td>Control</td>
+            <td><span class="status-badge status-badge--done">Atendida</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+<app-footer></app-footer>

@@ -10,18 +10,22 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
+#titulo {
+  text-decoration: underline rgb(50, 133, 12);
+}
+
 .logo {
   width: 80px;
   height: auto;
 }
 
 .btn-primary {
-  background-color: #1976d2;
+  background-color: #639283;
   border: none;
 }
 
 .btn-primary:hover {
-  background-color: #125ca1;
+  background-color: #259146;
 }
 
 .footer {

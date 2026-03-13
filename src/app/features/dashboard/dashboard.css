@@ -1,0 +1,153 @@
+.page-shell {
+  padding: 24px;
+  background: #eef3f7;
+  min-height: calc(100vh - 134px);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #183247;
+}
+
+.page-header p {
+  margin: 6px 0 0;
+  color: #6b7b8c;
+}
+
+.btn-primary {
+  border: none;
+  background: linear-gradient(90deg, #217737a2, #1a853ac0);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.stat-card,
+.panel-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px;
+  border: 1px solid #dde5ec;
+  box-shadow: 0 10px 24px rgba(18, 38, 63, 0.05);
+}
+
+.stat-label {
+  color: #708090;
+  font-size: 0.92rem;
+}
+
+.stat-card h2 {
+  margin: 10px 0 8px;
+  font-size: 1.8rem;
+  color: #183247;
+}
+
+.stat-card p {
+  margin: 0;
+  color: #7a8895;
+  font-size: 0.88rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 18px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.panel-header h3 {
+  margin: 0;
+  color: #183247;
+}
+
+.panel-header a {
+  text-decoration: none;
+  color: #2b78d0;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.agenda-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agenda-item {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid #e3eaf1;
+  border-radius: 14px;
+  background: #f9fbfd;
+}
+
+.agenda-item p {
+  margin: 4px 0 0;
+  color: #6f7d8a;
+  font-size: 0.9rem;
+}
+
+.time {
+  font-weight: 700;
+  color: #2f7d57;
+}
+
+.status {
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.status.pending {
+  background: #fff3d8;
+  color: #a56a00;
+}
+
+.status.confirmed {
+  background: #e5f7ea;
+  color: #247447;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.quick-actions button {
+  border: 1px solid #d8e2eb;
+  background: #f8fbfe;
+  padding: 14px;
+  border-radius: 14px;
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+  color: #27445c;
+}

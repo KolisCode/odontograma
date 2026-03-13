@@ -16,11 +16,12 @@ import { Navbar } from '../../complements/navbar/navbar';
 import { Odontogram } from '../interfaces/odontogram';
 import { OdontogramPayload } from '../interfaces/odontogram-payload';
 import { BackendOdontogramResponse } from '../interfaces/backend-odontogram-response';
+import { Footer } from '../../complements/footer/footer';
 
 @Component({
   selector: 'app-odontogram',
   standalone: true,
-  imports: [CommonModule, ToothComponent, Navbar],
+  imports: [CommonModule, ToothComponent, Navbar, Footer],
   templateUrl: './odontogram.html',
   styleUrl: './odontogram.css',
 })
@@ -381,4 +382,5 @@ export class OdontogramComponent implements OnInit {
 
     return diagnosisMap[diagnosis] ?? null;
   }
+
 }
