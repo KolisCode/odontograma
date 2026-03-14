@@ -41,14 +41,18 @@ h4.fw-bold {
 
 .enlaces {
   display: flex;
-  justify-content: end;
-  align-items: end;
+  justify-content: baseline;
+  align-items: baseline;
 }
 
 .enlace {
   color: rgb(0, 0, 0);
   text-decoration: none;
   margin-top: 10px;
+}
+
+.enlaces a {
+  color: #3b4146d2 !important;
 }
 
 .enlace:hover {

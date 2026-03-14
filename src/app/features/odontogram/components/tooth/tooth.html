@@ -1,11 +1,13 @@
 <div class="tooth-wrapper">
   <svg
     class="tooth-svg"
+    [ngClass]="getToothType()"
     viewBox="0 0 100 120"
     xmlns="http://www.w3.org/2000/svg"
     aria-label="Diente {{ number }}"
     role="img"
   >
+
     <!-- Silueta general -->
     <path
       class="tooth-outline"
@@ -97,5 +99,6 @@
         [ngClass]="getFaceClass('Lingual')"
       />
     </g>
+
   </svg>
 </div>

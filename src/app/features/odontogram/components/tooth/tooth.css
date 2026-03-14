@@ -77,3 +77,23 @@
 .center-surface.diagnosis-sellante + .tooth-number {
   fill: #ffffff;
 }
+
+/* Incisivos (más delgados) */
+.tooth-svg.incisor {
+  transform: scaleX(0.85);
+}
+
+/* Caninos */
+.tooth-svg.canine {
+  transform: scaleX(0.95);
+}
+
+/* Premolares */
+.tooth-svg.premolar {
+  transform: scaleX(1);
+}
+
+/* Molares (más anchos) */
+.tooth-svg.molar {
+  transform: scaleX(1.15);
+}

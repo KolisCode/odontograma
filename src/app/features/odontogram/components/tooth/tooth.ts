@@ -51,4 +51,16 @@ export class Tooth {
 
     return `Diente: ${this.number} - Cara: ${surface} - Tiene: ${face.diagnoses.join(', ')}`;
   }
+
+  getToothType(): string {
+    const n = this.number;
+
+    const lastDigit = n % 10;
+
+    if (lastDigit === 1 || lastDigit === 2) return 'incisor';
+    if (lastDigit === 3) return 'canine';
+    if (lastDigit === 4 || lastDigit === 5) return 'premolar';
+
+    return 'molar';
+  }
 }
