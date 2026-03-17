@@ -1,5 +1,5 @@
 .app-header {
-  height: 76px;
+  min-height: 76px;
   background: linear-gradient(90deg, #2f7d57, #327f63);
   color: #fff;
   display: grid;
@@ -21,6 +21,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  cursor: pointer;
 }
 
 .brand-logo {
@@ -118,4 +119,39 @@
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-header-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 1100px) {
+  .app-header {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 14px 18px;
+  }
+
+  .header-left,
+  .header-right,
+  .header-nav {
+    justify-content: center;
+  }
+
+  .header-right {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .user-chip {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .btn-header-action {
+    width: 100%;
+  }
 }

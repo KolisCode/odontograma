@@ -151,3 +151,24 @@
   cursor: pointer;
   color: #27445c;
 }
+
+.dashboard-alert {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fde8e8;
+  color: #b64040;
+  border: 1px solid #f3caca;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.empty-state {
+  padding: 18px;
+  border: 1px dashed #d8e2eb;
+  border-radius: 14px;
+  background: #f9fbfd;
+  color: #6f7d8a;
+  font-size: 0.92rem;
+  text-align: center;
+}

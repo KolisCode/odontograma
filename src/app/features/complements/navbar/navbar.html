@@ -1,6 +1,6 @@
 <header class="app-header">
   <div class="header-left">
-    <div class="brand-box">
+    <div class="brand-box" routerLink="/dashboard">
       <img src="logos/muelaBiodont.png" alt="Logo de Biodont" class="brand-logo" />
       <div class="brand-text">
         <span class="brand-title">BIODONT</span>
@@ -8,23 +8,51 @@
       </div>
     </div>
   </div>
+
   <nav class="header-nav">
-    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-    <a routerLink="/patients" routerLinkActive="active">Pacientes</a>
-    <a routerLink="/appointments" routerLinkActive="active">Citas</a>
-    <a routerLink="/odontogram" routerLinkActive="active">Odontograma</a>
-    <a routerLink="/finance" routerLinkActive="active">Cartera</a>
+    <a
+      routerLink="/dashboard"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }">
+      Dashboard
+    </a>
+
+    <a
+      routerLink="/patients"
+      routerLinkActive="active">
+      Pacientes
+    </a>
+
+    <a
+      routerLink="/appointments"
+      routerLinkActive="active">
+      Citas
+    </a>
+
+    <a
+      routerLink="/odontogram"
+      routerLinkActive="active">
+      Odontograma
+    </a>
+
+    <a
+      routerLink="/finance"
+      routerLinkActive="active">
+      Cartera
+    </a>
   </nav>
 
   <div class="header-right">
     <div class="user-chip">
-      <div class="avatar">A</div>
+      <div class="avatar">{{ avatarLetter }}</div>
       <div class="user-info">
-        <span class="user-name">Administrador</span>
-        <span class="user-role">Rol: Admin</span>
+        <span class="user-name">{{ userName }}</span>
+        <span class="user-role">Rol: {{ userRole }}</span>
       </div>
     </div>
 
-    <button class="btn-header-action" (click)="logout()" >Salir</button>
+    <button class="btn-header-action" type="button" (click)="logout()">
+      Salir
+    </button>
   </div>
 </header>
