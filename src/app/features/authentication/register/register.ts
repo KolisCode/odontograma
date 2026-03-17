@@ -10,7 +10,8 @@ import {
 } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../service/auth-service/auth.service';
-import { Footer } from "../../complements/footer/footer";
+import { Footer } from '../../complements/footer/footer';
+import { ChangeDetectorRef } from '@angular/core';
 
 function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
   const password = group.get('password')?.value;
@@ -33,17 +34,19 @@ export class Register {
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef,
   ) {
     this.registerForm = this.fb.group(
       {
         nombre: ['', Validators.required],
+        apellido: ['', Validators.required],
         correo: ['', [Validators.required, Validators.email]],
         rol: ['', Validators.required],
         password: ['', [Validators.required, Validators.minLength(6)]],
-        confirmPassword: ['', Validators.required]
+        confirmPassword: ['', Validators.required],
       },
-      { validators: passwordMatchValidator }
+      { validators: passwordMatchValidator },
     );
   }
 
@@ -57,9 +60,9 @@ export class Register {
     this.successMessage = '';
     this.errorMessage = '';
 
-    const { nombre, correo, rol, password } = this.registerForm.value;
+    const { nombre, apellido, correo, rol, password } = this.registerForm.value;
 
-    this.authService.register({ nombre, correo, rol, password }).subscribe({
+    this.authService.register({ nombre, apellido, correo, rol, password }).subscribe({
       next: (resp) => {
         this.successMessage = resp.message || 'Cuenta creada correctamente.';
         this.registerForm.reset();
@@ -68,7 +71,8 @@ export class Register {
       error: (err) => {
         this.errorMessage = err?.error?.message || 'No se pudo crear la cuenta.';
         this.loading = false;
-      }
+        this.cdr.detectChanges();
+      },
     });
   }
 }

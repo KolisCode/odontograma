@@ -2,49 +2,54 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
-export interface RegisterPayload {
-  nombre: string;
-  correo: string;
-  rol: string;
-  password: string;
-}
-
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AuthService {
-  
-  private apiUrl = 'http://localhost:3000/auth';
+  private api = 'http://192.168.2.7:3000/auth';
 
   constructor(private http: HttpClient) {}
 
-  register(data: RegisterPayload): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, data);
+  register(data: any): Observable<any> {
+    return this.http.post(`${this.api}/register`, data);
   }
 
-  login(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, data)
-      .pipe(
-        tap((response: any) => {
-          if(response?.data?.token){
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-          }
-        })
-      );
+  login(data: { correo: string; password: string }): Observable<any> {
+    return this.http.post(`${this.api}/login`, data).pipe(
+      tap((response: any) => {
+        const token = response?.data?.token;
+        const user = response?.data?.user;
+
+        if (token) {
+          localStorage.setItem('token', token);
+        }
+
+        if (user) {
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+      })
+    );
   }
 
-  logout(){
+  getProfile(): Observable<any> {
+    return this.http.get(`${this.api}/me`);
+  }
+
+  logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   }
 
-  getToken(){
+  getToken(): string | null {
     return localStorage.getItem('token');
   }
 
-  isLogged(){
-    return !!localStorage.getItem('token');
+  getUser(): any | null {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
   }
 
+  isLoggedIn(): boolean {
+    return !!this.getToken();
+  }
 }

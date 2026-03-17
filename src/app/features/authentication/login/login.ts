@@ -1,24 +1,56 @@
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { Footer } from "../../complements/footer/footer";
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../service/auth-service/auth.service';
+import { Footer } from '../../complements/footer/footer';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, RouterLink, Footer],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, Footer],
   templateUrl: './login.html',
-  styleUrl: './login.css'
+  styleUrls: ['./login.css'],
 })
-export class Login implements OnInit {
-  loginError = false;
+export class Login {
+  loginForm: FormGroup;
+  loading = false;
+  errorMessage = '';
 
-  ngOnInit(): void {
-    this.login();
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+  ) {
+    this.loginForm = this.fb.group({
+      correo: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
+    });
   }
-  login() {
-    if (false) {
-      this.loginError = true;
+
+  onSubmit(): void {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
     }
+
+    this.loading = true;
+    this.errorMessage = '';
+
+    const payload = this.loginForm.value;
+
+    this.authService.login(payload).subscribe({
+      next: () => {
+        this.loading = false;
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.errorMessage = err?.error?.message || 'No se pudo iniciar sesión';
+        console.log(err);
+        this.cdr.detectChanges();
+      },
+    });
   }
 }

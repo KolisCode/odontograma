@@ -8,10 +8,18 @@
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-group">
-        <label for="nombre">Nombre completo</label>
-        <input id="nombre" type="text" formControlName="nombre" placeholder="Ingresa tu nombre completo" />
+        <label for="nombre">Nombre</label>
+        <input id="nombre" type="text" formControlName="nombre" placeholder="Ingresa tu nombre" />
         <small *ngIf="registerForm.get('nombre')?.touched && registerForm.get('nombre')?.invalid">
           El nombre es obligatorio.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="apellido">Apellido</label>
+        <input id="apellido" type="text" formControlName="apellido" placeholder="Ingresa tu apellido" />
+        <small *ngIf="registerForm.get('apellido')?.touched && registerForm.get('apellido')?.invalid">
+          El apellido es obligatorio.
         </small>
       </div>
 
@@ -46,7 +54,8 @@
 
       <div class="form-group">
         <label for="confirmPassword">Confirmar contraseña</label>
-        <input id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="Repite tu contraseña" />
+        <input id="confirmPassword" type="password" formControlName="confirmPassword"
+          placeholder="Repite tu contraseña" />
         <small *ngIf="registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched">
           Las contraseñas no coinciden.
         </small>
@@ -63,6 +72,7 @@
       <p class="message success" *ngIf="successMessage">{{ successMessage }}</p>
       <p class="message error" *ngIf="errorMessage">{{ errorMessage }}</p>
     </form>
+
   </div>
 </div>
 

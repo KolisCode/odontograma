@@ -9,7 +9,7 @@
           <p class="text-muted mb-0">Accede al sistema odontológico</p>
         </div>
 
-        <form novalidate>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
           <div class="mb-3">
             <label for="inputEmail" class="form-label fw-semibold">Usuario</label>
             <div class="input-group">
@@ -22,14 +22,21 @@
                 id="inputEmail"
                 placeholder="correo@ejemplo.com"
                 autocomplete="username"
+                formControlName="correo"
               >
             </div>
+
+            <small
+              *ngIf="loginForm.get('correo')?.touched && loginForm.get('correo')?.invalid"
+              class="field-error">
+              Ingresa un correo válido.
+            </small>
           </div>
 
           <div class="mb-2">
             <div class="d-flex justify-content-between align-items-center">
               <label for="inputPassword" class="form-label fw-semibold mb-0">Contraseña</label>
-              <a class="small text-decoration-none enlace" href="">
+              <a class="small text-decoration-none enlace" href="javascript:void(0)">
                 Recuperar contraseña
               </a>
             </div>
@@ -44,27 +51,35 @@
                 id="inputPassword"
                 placeholder="Ingresa tu contraseña"
                 autocomplete="current-password"
+                formControlName="password"
               >
             </div>
+
+            <small
+              *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+              class="field-error">
+              La contraseña es obligatoria.
+            </small>
           </div>
 
-          <div *ngIf="loginError" class="alert alert-danger py-2 px-3 mt-3 mb-3" role="alert">
-            Usuario o contraseña incorrectos.
+          <div *ngIf="errorMessage" class="alert alert-danger py-2 px-3 mt-3 mb-3" role="alert">
+            {{ errorMessage }}
           </div>
 
           <div class="d-grid mt-4">
             <button
               id="botonInicio"
-              type="button"
+              type="submit"
               class="btn btn-primary btn-lg"
-              routerLink="/dashboard">
-              Iniciar sesión
+              [disabled]="loading">
+              {{ loading ? 'Ingresando...' : 'Iniciar sesión' }}
             </button>
           </div>
 
           <div class="text-center mt-4 enlaces" id="registro">
-            <a class="enlace ms-1 fw-semibold text-decoration-none"  routerLink="/register">
-            Registrar usuario
+            <span class="text-muted">¿No tienes cuenta?</span>
+            <a class="enlace ms-1 fw-semibold text-decoration-none" routerLink="/register">
+              Registrar usuario
             </a>
           </div>
         </form>
