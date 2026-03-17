@@ -119,6 +119,57 @@
       </div>
 
       <div class="panel-header">
+        <div class="tooth-guide-card">
+  <div class="tooth-guide-header">
+    <div>
+      <div class="tooth-guide-title">Guía de caras</div>
+      <div class="tooth-guide-subtitle">Identifica cada superficie del diente</div>
+    </div>
+
+    <button
+      type="button"
+      class="tooth-guide-btn"
+      (click)="openToothGuideModal()">
+      Ver guía
+    </button>
+  </div>
+
+  <div class="tooth-guide-preview" (click)="openToothGuideModal()">
+    <svg
+      class="guide-preview-svg"
+      viewBox="0 0 100 120"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="Guía del diente"
+      role="img"
+    >
+      <path
+        class="guide-outline"
+        d="M30,8
+           C18,8 10,18 10,32
+           L10,54
+           C10,66 16,76 24,84
+           C28,88 30,94 30,102
+           C30,110 35,116 42,116
+           C47,116 50,112 50,106
+           C50,112 53,116 58,116
+           C65,116 70,110 70,102
+           C70,94 72,88 76,84
+           C84,76 90,66 90,54
+           L90,32
+           C90,18 82,8 70,8
+           Z"
+      />
+
+      <rect x="39" y="14" width="22" height="20" rx="8" class="guide-surface guide-top" />
+      <rect x="14" y="42" width="20" height="28" rx="8" class="guide-surface guide-left" />
+      <rect x="36" y="42" width="28" height="28" rx="8" class="guide-surface guide-center" />
+      <rect x="66" y="42" width="20" height="28" rx="8" class="guide-surface guide-right" />
+      <rect x="39" y="78" width="22" height="24" rx="8" class="guide-surface guide-bottom" />
+    </svg>
+
+    <div class="guide-preview-hint">Haz clic para ampliar</div>
+  </div>
+</div>
         <h3 class="panel-title">Diagnóstico rápido</h3>
         <p class="panel-subtitle">
           Selecciona un diagnóstico y luego haz clic sobre la cara del diente.
@@ -207,5 +258,88 @@
     </section>
   </div>
 </div>
+<div
+  class="tooth-guide-modal-backdrop"
+  *ngIf="showToothGuideModal"
+  (click)="closeToothGuideModal()">
 
+  <div
+    class="tooth-guide-modal"
+    (click)="$event.stopPropagation()">
+
+    <div class="tooth-guide-modal-header">
+      <div>
+        <h3>Guía de caras del diente</h3>
+        <p>Referencia visual para identificar cada superficie</p>
+      </div>
+
+      <button
+        type="button"
+        class="tooth-guide-close"
+        (click)="closeToothGuideModal()">
+        ✕
+      </button>
+    </div>
+
+    <div class="tooth-guide-modal-body">
+      <div class="tooth-guide-large">
+        <svg
+          class="guide-large-svg"
+          viewBox="0 0 220 260"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-label="Guía ampliada del diente"
+          role="img"
+        >
+          <path
+            class="guide-outline"
+            d="M66,16
+               C40,16 22,34 22,64
+               L22,118
+               C22,144 34,164 50,182
+               C58,190 62,204 62,220
+               C62,238 74,252 90,252
+               C102,252 110,242 110,228
+               C110,242 118,252 130,252
+               C146,252 158,238 158,220
+               C158,204 162,190 170,182
+               C186,164 198,144 198,118
+               L198,64
+               C198,34 180,16 154,16
+               Z"
+          />
+
+          <rect x="86" y="28" width="48" height="38" rx="12" class="guide-surface guide-top" />
+          <rect x="34" y="90" width="42" height="60" rx="12" class="guide-surface guide-left" />
+          <rect x="82" y="90" width="56" height="60" rx="12" class="guide-surface guide-center" />
+          <rect x="144" y="90" width="42" height="60" rx="12" class="guide-surface guide-right" />
+          <rect x="86" y="164" width="48" height="46" rx="12" class="guide-surface guide-bottom" />
+
+          <text x="110" y="20" class="guide-label guide-label-top">Oclusal</text>
+          <text x="10" y="125" class="guide-label">Mesial</text>
+          <text x="188" y="125" class="guide-label">Distal</text>
+          <text x="110" y="242" class="guide-label guide-label-bottom">Lingual</text>
+          <text x="110" y="126" class="guide-label guide-label-center">Centro</text>
+        </svg>
+      </div>
+
+      <div class="tooth-guide-legend">
+        <div class="guide-legend-item">
+          <strong>Oclusal:</strong> superficie superior del diente.
+        </div>
+        <div class="guide-legend-item">
+          <strong>Mesial:</strong> lado que mira hacia la línea media.
+        </div>
+        <div class="guide-legend-item">
+          <strong>Distal:</strong> lado opuesto a la línea media.
+        </div>
+        <div class="guide-legend-item">
+          <strong>Lingual:</strong> superficie interna.
+        </div>
+        <div class="guide-legend-item">
+          <strong>Centro:</strong> zona central de referencia.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <app-footer></app-footer>

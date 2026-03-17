@@ -9,12 +9,14 @@ import { Appointment } from './features/user/appointment/appointment';
 import { HistoriaClinica } from './features/historia-clinica/historia-clinica';
 
 export const routes: Routes = [
-    { path: 'odontogram', component: OdontogramComponent},
-    { path: '', component: Login},
-    { path: 'register', component: Register},
-    { path: 'dashboard', component: Dashboard},
-    { path: 'finance', component: Finance},
-    { path: 'patients', component: List},
-    { path: 'appointments', component: Appointment},
-    { path: 'history/:id', component: HistoriaClinica},
+  { path: '', component: Login },
+  { path: 'login', component: Login },
+  { path: 'odontogram', component: OdontogramComponent },
+  { path: 'register', component: Register },
+  { path: 'dashboard', component: Dashboard },
+  { path: 'finance', component: Finance },
+  { path: 'patients', component: List },
+  { path: 'appointments', component: Appointment },
+  { path: 'history/:id', component: HistoriaClinica },
+  { path: '**', component: Login },
 ];

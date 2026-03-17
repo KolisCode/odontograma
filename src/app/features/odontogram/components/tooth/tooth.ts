@@ -63,4 +63,5 @@ export class Tooth {
 
     return 'molar';
   }
+
 }

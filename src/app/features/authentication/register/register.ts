@@ -9,7 +9,7 @@ import {
   ValidationErrors,
 } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { AuthService } from '../service/auth.service';
+import { AuthService } from '../service/auth-service/auth.service';
 import { Footer } from "../../complements/footer/footer";
 
 function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {

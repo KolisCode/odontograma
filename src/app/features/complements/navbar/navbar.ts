@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { RouterLink } from "@angular/router";
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../authentication/service/auth-service/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -11,4 +12,9 @@ import { RouterLink } from "@angular/router";
 })
 export class Navbar {
   @Input() patientName: string = 'Paciente Demo';
+  constructor(private authService: AuthService) {}
+
+  logout() {
+    this.authService.logout();
+  }
 }

@@ -383,4 +383,13 @@ export class OdontogramComponent implements OnInit {
     return diagnosisMap[diagnosis] ?? null;
   }
 
+  showToothGuideModal = false;
+
+  openToothGuideModal(): void {
+    this.showToothGuideModal = true;
+  }
+
+  closeToothGuideModal(): void {
+    this.showToothGuideModal = false;
+  }
 }
