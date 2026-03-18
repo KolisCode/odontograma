@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe, NgClass } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Navbar } from '../complements/navbar/navbar';
@@ -29,7 +29,8 @@ export class Dashboard implements OnInit {
 
   constructor(
     private dashboardService: DashboardService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -45,6 +46,7 @@ export class Dashboard implements OnInit {
         this.stats = response.data.stats;
         this.agendaHoy = response.data.agendaHoy;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.errorMessage =

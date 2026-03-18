@@ -17,6 +17,7 @@ import { Odontogram } from '../interfaces/odontogram';
 import { OdontogramPayload } from '../interfaces/odontogram-payload';
 import { BackendOdontogramResponse } from '../interfaces/backend-odontogram-response';
 import { Footer } from '../../complements/footer/footer';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-odontogram',
@@ -45,12 +46,59 @@ export class OdontogramComponent implements OnInit {
     { type: 'Sellante', label: 'Sellante', cssClass: 'diagnosis-sellante' },
   ];
 
+  patientId!: number;
+
   selectDiagnosis(diagnosis: DiagnosisType) {
     this.selectedDiagnosis = this.selectedDiagnosis === diagnosis ? null : diagnosis;
   }
 
   clearActiveDiagnosis() {
     this.selectedDiagnosis = null;
+  }
+
+  private loadOdontogram(): void {
+    this.odontogramService.getActive(this.patientId).subscribe({
+      next: (data) => {
+        if (!data) {
+          this.originalOdontogram = null;
+          this.odontogram = {
+            patientId: this.patientId,
+            date: new Date().toISOString(),
+            teeth: [],
+          };
+          this.diagnoses.set([]);
+          return;
+        }
+
+        this.originalOdontogram = {
+          id: data.id,
+          patientId: data.pacienteId,
+          date: data.fecha,
+          teeth: [],
+          version: data.version,
+        };
+
+        this.odontogram = structuredClone(this.originalOdontogram);
+
+        const diagnosesFromBackend = this.buildDiagnosesFromBackend(data);
+        this.diagnoses.set(diagnosesFromBackend);
+      },
+      error: () => {
+        this.originalOdontogram = null;
+        this.odontogram = {
+          patientId: this.patientId,
+          date: new Date().toISOString(),
+          teeth: [],
+        };
+        this.diagnoses.set([]);
+        this.showSaveMessage(
+          'info',
+          'No se pudo consultar el odontograma del paciente.',
+          true,
+          3000,
+        );
+      },
+    });
   }
 
   applyDiagnosis(event: { tooth: number; surface: ToothSurface }) {
@@ -99,40 +147,106 @@ export class OdontogramComponent implements OnInit {
   saveMessage = '';
   saveMessageType: 'success' | 'error' | 'info' | '' = '';
 
-  constructor(private odontogramService: OdontogramService) {
+  constructor(
+    private odontogramService: OdontogramService,
+    private route: ActivatedRoute,
+  ) {
     effect(() => {
       localStorage.setItem('odontogram-diagnoses', JSON.stringify(this.diagnoses()));
     });
   }
 
   ngOnInit() {
-    const patientId = 1;
+    this.route.paramMap.subscribe((params) => {
+      const id = params.get('id');
 
-    this.odontogramService.getActive(patientId).subscribe({
-      next: (data) => {
-        this.originalOdontogram = {
-          id: data.id,
-          patientId: data.pacienteId,
-          date: data.fecha,
-          teeth: [],
-          version: data.version,
-        };
+      if (!id) {
+        this.showSaveMessage('error', 'No se recibió el paciente para el odontograma.', true, 4000);
+        return;
+      }
 
-        this.odontogram = structuredClone(this.originalOdontogram);
+      this.patientId = Number(id);
 
-        const diagnosesFromBackend = this.buildDiagnosesFromBackend(data);
-        this.diagnoses.set(diagnosesFromBackend);
-      },
-      error: () => {
-        this.odontogram = {
-          patientId,
-          date: new Date().toISOString(),
-          teeth: [],
-        };
-      },
+      if (isNaN(this.patientId)) {
+        this.showSaveMessage('error', 'El identificador del paciente no es válido.', true, 4000);
+        return;
+      }
+
+      this.loadOdontogram();
     });
   }
 
+  groupedDiagnosesByTooth = computed(() => {
+    const grouped = new Map<
+      number,
+      {
+        tooth: number;
+        date: string;
+        surfaces: {
+          surface: ToothSurface;
+          diagnoses: DiagnosisType[];
+        }[];
+      }
+    >();
+
+    for (const diagnosis of this.diagnoses()) {
+      for (const tooth of diagnosis.teeth) {
+        if (!grouped.has(tooth)) {
+          grouped.set(tooth, {
+            tooth,
+            date: diagnosis.date,
+            surfaces: [],
+          });
+        }
+
+        const toothEntry = grouped.get(tooth)!;
+
+        for (const face of diagnosis.faces) {
+          const existingSurface = toothEntry.surfaces.find((s) => s.surface === face);
+
+          if (existingSurface) {
+            if (!existingSurface.diagnoses.includes(diagnosis.type)) {
+              existingSurface.diagnoses = [...existingSurface.diagnoses, diagnosis.type];
+            }
+          } else {
+            toothEntry.surfaces.push({
+              surface: face,
+              diagnoses: [diagnosis.type],
+            });
+          }
+        }
+
+        if (new Date(diagnosis.date) > new Date(toothEntry.date)) {
+          toothEntry.date = diagnosis.date;
+        }
+      }
+    }
+
+    return Array.from(grouped.values()).sort((a, b) => a.tooth - b.tooth);
+  });
+
+  removeSurfaceRecord(toothNumber: number, surface: ToothSurface): void {
+    this.diagnoses.update((current) =>
+      current
+        .map((diagnosis) => {
+          if (!diagnosis.teeth.includes(toothNumber)) {
+            return diagnosis;
+          }
+
+          const updatedFaces = diagnosis.faces.filter((face) => face !== surface);
+
+          if (updatedFaces.length === 0) {
+            return null;
+          }
+
+          return {
+            ...diagnosis,
+            faces: updatedFaces,
+          };
+        })
+        .filter((diagnosis): diagnosis is Diagnosis => diagnosis !== null),
+    );
+  }
   private buildBackendStructure(): Tooth[] {
     const teethMap = new Map<number, Tooth>();
 
@@ -168,11 +282,10 @@ export class OdontogramComponent implements OnInit {
   }
 
   private buildVersioningPayload(): OdontogramPayload {
-    const patientId = 1;
     const teeth = this.buildBackendStructure();
 
     return {
-      pacienteId: patientId,
+      pacienteId: this.patientId,
       dientes: teeth.map((tooth) => ({
         numero: tooth.number,
         superficies: tooth.surfaces.flatMap((surface) =>
@@ -184,7 +297,6 @@ export class OdontogramComponent implements OnInit {
       })),
     };
   }
-
   toothFaceMap = computed(() => {
     const map = new Map<number, SurfaceDiagnosis[]>();
 
@@ -215,10 +327,6 @@ export class OdontogramComponent implements OnInit {
 
     return map;
   });
-
-  removeDiagnosis(index: number): void {
-    this.diagnoses.update((current) => current.filter((_, i) => i !== index));
-  }
 
   diagnosisSummary = computed(() => {
     const summary: Partial<Record<DiagnosisType, number>> = {};
@@ -301,13 +409,6 @@ export class OdontogramComponent implements OnInit {
           this.showSaveMessage('error', 'No se pudo guardar el odontograma.', true, 4000);
         },
       });
-  }
-
-  cleanOdontogram(odontogram: Odontogram): Odontogram {
-    return {
-      ...odontogram,
-      teeth: odontogram.teeth.filter((tooth) => tooth.surfaces.length > 0),
-    };
   }
 
   private buildDiagnosesFromBackend(rawOdontogram: BackendOdontogramResponse): Diagnosis[] {

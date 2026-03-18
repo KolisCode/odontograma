@@ -34,27 +34,38 @@ export class Tooth {
     });
   }
 
-  getFaceClass(surface: ToothSurface): string {
+  getFaceDiagnoses(surface: ToothSurface): string[] {
     const face = this.filledFaces.find((f) => f.surface === surface);
+    if (!face) return [];
+    return face.diagnoses.slice(0, 4);
+  }
 
-    if (!face) return '';
+  getFaceClass(surface: ToothSurface): string {
+    const diagnoses = this.getFaceDiagnoses(surface);
+    if (diagnoses.length === 0) return '';
 
-    const diagnosis = face.diagnoses[face.diagnoses.length - 1];
-
+    const diagnosis = diagnoses[diagnoses.length - 1];
     return this.diagnosisClassMap[diagnosis] || '';
+  }
+
+  getDiagnosisCssClass(diagnosis: string): string {
+    return this.diagnosisClassMap[diagnosis] || '';
+  }
+
+  hasMultipleDiagnoses(surface: ToothSurface): boolean {
+    return this.getFaceDiagnoses(surface).length > 1;
   }
 
   getFaceTooltip(surface: ToothSurface): string {
     const face = this.filledFaces.find((f) => f.surface === surface);
 
-    if (!face) return '';
+    if (!face) return `Diente: ${this.number} - Cara: ${surface}`;
 
     return `Diente: ${this.number} - Cara: ${surface} - Tiene: ${face.diagnoses.join(', ')}`;
   }
 
   getToothType(): string {
     const n = this.number;
-
     const lastDigit = n % 10;
 
     if (lastDigit === 1 || lastDigit === 2) return 'incisor';
@@ -63,5 +74,4 @@ export class Tooth {
 
     return 'molar';
   }
-
 }

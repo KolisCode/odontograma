@@ -40,50 +40,59 @@
         <span class="record-counter">{{ diagnoses().length }} registros</span>
       </div>
 
-      <div *ngIf="diagnoses().length > 0; else noRecords" class="record-grid">
-        <div *ngFor="let d of diagnoses(); let i = index" class="record-item">
-          <div class="record-top">
-            <div class="record-id">Registro #{{ i + 1 }}</div>
+      <div *ngIf="groupedDiagnosesByTooth().length > 0; else noRecords" class="record-grid">
+  <div *ngFor="let record of groupedDiagnosesByTooth(); let i = index" class="record-item">
+    <div class="record-top">
+      <div class="record-id">Diente #{{ record.tooth }}</div>
+    </div>
 
-            <button class="delete-btn" (click)="removeDiagnosis(i)" title="Eliminar registro" type="button">
-              ✕
-            </button>
-          </div>
+    <div class="record-body">
+      <div class="record-row-inline">
+        <span class="record-label">Diente</span>
+        <span class="record-tooth">{{ record.tooth }}</span>
+      </div>
 
-          <div class="record-body">
-            <div class="record-row-inline">
-              <span class="record-label">Diente</span>
-              <span class="record-tooth">{{ d.teeth.join(', ') }}</span>
+      <div class="record-row">
+        <span class="record-label">Caras y diagnósticos</span>
+
+        <div class="record-surfaces">
+          <div class="surface-record" *ngFor="let surface of record.surfaces">
+            <div class="surface-record-top">
+              <div class="surface-name">{{ surface.surface }}</div>
+
+              <button
+                class="delete-btn surface-delete-btn"
+                (click)="removeSurfaceRecord(record.tooth, surface.surface)"
+                title="Eliminar esta cara del diente"
+                type="button">
+                ✕
+              </button>
             </div>
 
-            <div class="record-row">
-              <span class="record-label">Diagnóstico</span>
-              <span class="record-badge" [ngClass]="{
-            'badge-caries': d.type === 'Caries',
-            'badge-obturacion': d.type === 'Obturacion',
-            'badge-fractura': d.type === 'Fractura',
-            'badge-sellante': d.type === 'Sellante'
-          }">
-                {{ d.type }}
+            <div class="surface-diagnoses">
+              <span
+                class="record-badge"
+                *ngFor="let diagnosis of surface.diagnoses"
+                [ngClass]="{
+                  'badge-caries': diagnosis === 'Caries',
+                  'badge-obturacion': diagnosis === 'Obturacion',
+                  'badge-fractura': diagnosis === 'Fractura',
+                  'badge-sellante': diagnosis === 'Sellante'
+                }">
+                {{ diagnosis }}
               </span>
-            </div>
-
-            <div class="record-row">
-              <span class="record-label">Caras</span>
-              <div class="record-faces">
-                <span class="face-chip" *ngFor="let face of d.faces">
-                  {{ face }}
-                </span>
-              </div>
-            </div>
-
-            <div class="record-row">
-              <span class="record-label">Fecha</span>
-              <span class="record-date">{{ d.date | date: 'short' }}</span>
             </div>
           </div>
         </div>
       </div>
+
+      <div class="record-row">
+        <span class="record-label">Fecha</span>
+        <span class="record-date">{{ record.date | date: 'short' }}</span>
+      </div>
+    </div>
+  </div>
+</div>
 
       <ng-template #noRecords>
         <div class="empty-state">

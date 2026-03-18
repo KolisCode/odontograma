@@ -9,27 +9,35 @@
 
     <div class="appointments-header__actions">
       <button class="btn btn-secondary" type="button">Ver calendario</button>
-      <button class="btn btn-primary" type="button">Nueva cita</button>
+      <button class="btn btn-primary" type="button" (click)="clearForm()">Nueva cita</button>
     </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="appointments-alert appointments-alert--error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="appointments-alert appointments-alert--success">
+    {{ successMessage }}
   </div>
 
   <div class="appointments-stats">
     <article class="stat-card">
       <span class="stat-card__label">Citas de hoy</span>
-      <h2>18</h2>
-      <p>3 por confirmar</p>
+      <h2>{{ stats.citasHoy }}</h2>
+      <p>Agenda actual del día</p>
     </article>
 
     <article class="stat-card">
       <span class="stat-card__label">Confirmadas</span>
-      <h2>12</h2>
+      <h2>{{ stats.confirmadas }}</h2>
       <p>Agenda estable del día</p>
     </article>
 
     <article class="stat-card">
       <span class="stat-card__label">Canceladas</span>
-      <h2>2</h2>
-      <p>Actualizado esta mañana</p>
+      <h2>{{ stats.canceladas }}</h2>
+      <p>Actualizado esta jornada</p>
     </article>
   </div>
 
@@ -43,59 +51,79 @@
         <span class="status-badge status-badge--pending">Agenda del día</span>
       </div>
 
-      <form class="appointments-form">
+      <form class="appointments-form" [formGroup]="appointmentForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
           <label>Paciente</label>
-          <input type="text" placeholder="Selecciona o busca un paciente" />
+          <select formControlName="pacienteId">
+            <option value="">Selecciona un paciente</option>
+            <option *ngFor="let patient of patients" [value]="patient.id">
+              {{ patient.nombreCompleto }}
+            </option>
+          </select>
+          <small *ngIf="appointmentForm.get('pacienteId')?.touched && appointmentForm.get('pacienteId')?.invalid" class="field-error">
+            Debes seleccionar un paciente.
+          </small>
         </div>
 
         <div class="form-group">
           <label>Profesional</label>
-          <select>
-            <option>Selecciona un odontólogo</option>
-            <option>Dra. Laura Gómez</option>
-            <option>Dr. Sebastián Ruiz</option>
+          <select formControlName="usuarioId">
+            <option value="">Selecciona un profesional</option>
+            <option *ngFor="let user of clinicalStaff" [value]="user.id">
+              {{ user.nombreCompleto }} - {{ user.rol }}
+            </option>
           </select>
         </div>
 
         <div class="form-group">
           <label>Fecha</label>
-          <input type="date" />
+          <input type="date" formControlName="fecha" />
+          <small *ngIf="appointmentForm.get('fecha')?.touched && appointmentForm.get('fecha')?.invalid" class="field-error">
+            La fecha es obligatoria.
+          </small>
         </div>
 
         <div class="form-group">
           <label>Hora</label>
-          <input type="time" />
+          <input type="time" formControlName="hora" />
+          <small *ngIf="appointmentForm.get('hora')?.touched && appointmentForm.get('hora')?.invalid" class="field-error">
+            La hora es obligatoria.
+          </small>
         </div>
 
         <div class="form-group">
           <label>Estado</label>
-          <select>
-            <option>Programada</option>
-            <option>Confirmada</option>
-            <option>Atendida</option>
-            <option>Cancelada</option>
+          <select formControlName="estado">
+            <option value="PROGRAMADA">Programada</option>
+            <option value="CONFIRMADA">Confirmada</option>
+            <option value="ATENDIDA">Atendida</option>
+            <option value="CANCELADA">Cancelada</option>
           </select>
         </div>
 
         <div class="form-group">
           <label>Tipo de atención</label>
-          <select>
-            <option>Valoración</option>
-            <option>Limpieza</option>
-            <option>Control</option>
-            <option>Urgencia</option>
+          <select formControlName="tipoAtencion">
+            <option value="Valoración">Valoración</option>
+            <option value="Limpieza">Limpieza</option>
+            <option value="Control">Control</option>
+            <option value="Urgencia">Urgencia</option>
           </select>
         </div>
 
         <div class="form-group form-group--full">
           <label>Motivo</label>
-          <textarea rows="4" placeholder="Describe el motivo de la cita"></textarea>
+          <textarea rows="4" placeholder="Describe el motivo de la cita" formControlName="motivo"></textarea>
+          <small *ngIf="appointmentForm.get('motivo')?.touched && appointmentForm.get('motivo')?.invalid" class="field-error">
+            El motivo es obligatorio.
+          </small>
         </div>
 
         <div class="form-actions form-group--full">
-          <button class="btn btn-secondary" type="button">Cancelar</button>
-          <button class="btn btn-primary" type="submit">Guardar cita</button>
+          <button class="btn btn-secondary" type="button" (click)="clearForm()">Cancelar</button>
+          <button class="btn btn-primary" type="submit" [disabled]="loading">
+            {{ loading ? 'Guardando...' : 'Guardar cita' }}
+          </button>
         </div>
       </form>
     </section>
@@ -109,31 +137,21 @@
           </div>
         </div>
 
-        <div class="agenda-list">
-          <div class="agenda-item">
+        <div class="agenda-list" *ngIf="upcomingAppointments.length > 0; else noUpcomingAppointments">
+          <div class="agenda-item" *ngFor="let item of upcomingAppointments">
             <div class="agenda-item__top">
-              <strong>08:00 AM · María Gómez</strong>
-              <span class="status-badge status-badge--pending">Programada</span>
+              <strong>{{ item.hora }} · {{ item.pacienteNombre }}</strong>
+              <span class="status-badge" [ngClass]="getStatusClass(item.estado)">
+                {{ getStatusLabel(item.estado) }}
+              </span>
             </div>
-            <p>Valoración general · Dra. Laura Gómez</p>
-          </div>
-
-          <div class="agenda-item">
-            <div class="agenda-item__top">
-              <strong>09:30 AM · Juan Pérez</strong>
-              <span class="status-badge status-badge--active">Confirmada</span>
-            </div>
-            <p>Limpieza dental · Dr. Sebastián Ruiz</p>
-          </div>
-
-          <div class="agenda-item">
-            <div class="agenda-item__top">
-              <strong>11:00 AM · Laura Rojas</strong>
-              <span class="status-badge status-badge--active">Confirmada</span>
-            </div>
-            <p>Control de ortodoncia · Dra. Laura Gómez</p>
+            <p>{{ item.motivo }} · {{ item.profesional }}</p>
           </div>
         </div>
+
+        <ng-template #noUpcomingAppointments>
+          <div class="empty-box">No hay próximas citas registradas para hoy.</div>
+        </ng-template>
       </section>
 
       <section class="appointments-card">
@@ -147,15 +165,15 @@
         <div class="info-stack">
           <div class="info-box">
             <strong>Primer turno</strong>
-            <span>08:00 AM</span>
+            <span>{{ summary.primerTurno }}</span>
           </div>
           <div class="info-box">
             <strong>Último turno</strong>
-            <span>05:30 PM</span>
+            <span>{{ summary.ultimoTurno }}</span>
           </div>
           <div class="info-box">
             <strong>Espacios disponibles</strong>
-            <span>4 horarios libres</span>
+            <span>{{ summary.espaciosDisponibles }} horarios libres</span>
           </div>
         </div>
       </section>
@@ -170,7 +188,11 @@
       </div>
     </div>
 
-    <div class="table-wrapper">
+    <div *ngIf="tableLoading" class="empty-box">
+      Cargando citas...
+    </div>
+
+    <div class="table-wrapper" *ngIf="!tableLoading">
       <table class="appointments-table">
         <thead>
           <tr>
@@ -182,30 +204,27 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>08:00 AM</td>
-            <td>María Gómez</td>
-            <td>Dra. Laura Gómez</td>
-            <td>Valoración</td>
-            <td><span class="status-badge status-badge--pending">Programada</span></td>
+          <tr *ngFor="let item of appointments">
+            <td>{{ item.hora }}</td>
+            <td>{{ item.pacienteNombre }}</td>
+            <td>{{ item.profesional }}</td>
+            <td>{{ item.motivo }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusClass(item.estado)">
+                {{ getStatusLabel(item.estado) }}
+              </span>
+            </td>
           </tr>
-          <tr>
-            <td>09:30 AM</td>
-            <td>Juan Pérez</td>
-            <td>Dr. Sebastián Ruiz</td>
-            <td>Limpieza dental</td>
-            <td><span class="status-badge status-badge--active">Confirmada</span></td>
-          </tr>
-          <tr>
-            <td>11:00 AM</td>
-            <td>Laura Rojas</td>
-            <td>Dra. Laura Gómez</td>
-            <td>Control</td>
-            <td><span class="status-badge status-badge--done">Atendida</span></td>
+
+          <tr *ngIf="appointments.length === 0">
+            <td colspan="5" class="empty-table">
+              No hay citas registradas todavía.
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
   </section>
 </section>
+
 <app-footer></app-footer>

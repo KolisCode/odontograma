@@ -11,7 +11,7 @@ import { HistoriaClinica } from './features/historia-clinica/historia-clinica';
 export const routes: Routes = [
   { path: '', component: Login },
   { path: 'login', component: Login },
-  { path: 'odontogram', component: OdontogramComponent },
+  { path: 'odontogram/:id', component: OdontogramComponent },
   { path: 'register', component: Register },
   { path: 'dashboard', component: Dashboard },
   { path: 'finance', component: Finance },

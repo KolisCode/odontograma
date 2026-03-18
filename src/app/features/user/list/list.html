@@ -1,4 +1,5 @@
 <app-navbar></app-navbar>
+
 <section class="patients-page">
   <div class="patients-header">
     <div class="patients-header__text">
@@ -8,8 +9,16 @@
 
     <div class="patients-header__actions">
       <button class="btn btn-secondary" type="button">Importar</button>
-      <button class="btn btn-primary" type="button">Nuevo paciente</button>
+      <button class="btn btn-primary" type="button" (click)="clearForm()">Nuevo paciente</button>
     </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="patients-alert patients-alert--error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="patients-alert patients-alert--success">
+    {{ successMessage }}
   </div>
 
   <div class="patients-layout">
@@ -22,60 +31,74 @@
         <span class="status-badge status-badge--active">Activo</span>
       </div>
 
-      <form class="patients-form">
+      <form class="patients-form" [formGroup]="patientForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
           <label>Nombres</label>
-          <input type="text" placeholder="Ej. María Fernanda" />
+          <input type="text" placeholder="Ej. María Fernanda" formControlName="nombre" />
+          <small *ngIf="patientForm.get('nombre')?.touched && patientForm.get('nombre')?.invalid" class="field-error">
+            El nombre es obligatorio.
+          </small>
         </div>
 
         <div class="form-group">
           <label>Apellidos</label>
-          <input type="text" placeholder="Ej. Gómez Rojas" />
+          <input type="text" placeholder="Ej. Gómez Rojas" formControlName="apellido" />
+          <small *ngIf="patientForm.get('apellido')?.touched && patientForm.get('apellido')?.invalid" class="field-error">
+            El apellido es obligatorio.
+          </small>
         </div>
 
         <div class="form-group">
           <label>Documento</label>
-          <input type="text" placeholder="Número de documento" />
+          <input type="text" placeholder="Número de documento" formControlName="documento" />
+          <small *ngIf="patientForm.get('documento')?.touched && patientForm.get('documento')?.invalid" class="field-error">
+            El documento es obligatorio.
+          </small>
         </div>
 
         <div class="form-group">
           <label>Fecha de nacimiento</label>
-          <input type="date" />
+          <input type="date" formControlName="fechaNacimiento" />
         </div>
 
         <div class="form-group">
           <label>Teléfono</label>
-          <input type="text" placeholder="Número de contacto" />
+          <input type="text" placeholder="Número de contacto" formControlName="telefono" />
         </div>
 
         <div class="form-group">
           <label>Correo electrónico</label>
-          <input type="email" placeholder="correo@ejemplo.com" />
+          <input type="email" placeholder="correo@ejemplo.com" formControlName="correo" />
+          <small *ngIf="patientForm.get('correo')?.touched && patientForm.get('correo')?.invalid" class="field-error">
+            Ingresa un correo válido.
+          </small>
         </div>
 
         <div class="form-group form-group--full">
           <label>Dirección</label>
-          <input type="text" placeholder="Dirección de residencia" />
+          <input type="text" placeholder="Dirección de residencia" formControlName="direccion" />
         </div>
 
         <div class="form-group">
           <label>EPS / Aseguradora</label>
-          <input type="text" placeholder="Entidad de salud" />
+          <input type="text" placeholder="Entidad de salud" formControlName="eps" />
         </div>
 
         <div class="form-group">
           <label>Alergias</label>
-          <input type="text" placeholder="Ej. Penicilina" />
+          <input type="text" placeholder="Ej. Penicilina" formControlName="alergias" />
         </div>
 
         <div class="form-group form-group--full">
           <label>Observaciones</label>
-          <textarea rows="4" placeholder="Notas adicionales del paciente"></textarea>
+          <textarea rows="4" placeholder="Notas adicionales del paciente" formControlName="observaciones"></textarea>
         </div>
 
         <div class="form-actions form-group--full">
-          <button class="btn btn-secondary" type="button">Limpiar</button>
-          <button class="btn btn-primary" type="submit">Guardar paciente</button>
+          <button class="btn btn-secondary" type="button" (click)="clearForm()">Limpiar</button>
+          <button class="btn btn-primary" type="submit" [disabled]="loading">
+            {{ loading ? 'Guardando...' : 'Guardar paciente' }}
+          </button>
         </div>
       </form>
     </section>
@@ -87,23 +110,19 @@
             <h3>Pacientes recientes</h3>
             <span>Últimos registros creados</span>
           </div>
-          <a href="#">Ver todos</a>
+          <a href="javascript:void(0)">Ver todos</a>
         </div>
 
-        <div class="mini-list">
-          <div class="mini-item">
-            <strong>Ana Torres</strong>
-            <span>CC 10203040 · 3001234567</span>
-          </div>
-          <div class="mini-item">
-            <strong>Carlos Méndez</strong>
-            <span>CC 99887766 · 3114567788</span>
-          </div>
-          <div class="mini-item">
-            <strong>Diana López</strong>
-            <span>CC 55667788 · 3207788990</span>
+        <div class="mini-list" *ngIf="recentPatients.length > 0; else noRecentPatients">
+          <div class="mini-item" *ngFor="let patient of recentPatients">
+            <strong>{{ patient.nombreCompleto }}</strong>
+            <span>CC {{ patient.documento }} · {{ patient.telefono }}</span>
           </div>
         </div>
+
+        <ng-template #noRecentPatients>
+          <div class="empty-box">Aún no hay pacientes recientes.</div>
+        </ng-template>
       </section>
 
       <section class="patients-card">
@@ -117,15 +136,15 @@
         <div class="info-stack">
           <div class="info-box">
             <strong>Alergias registradas</strong>
-            <span>12 pacientes con alertas</span>
+            <span>{{ quickInfo.alergiasRegistradas }} pacientes con alertas</span>
           </div>
           <div class="info-box">
             <strong>Pacientes nuevos este mes</strong>
-            <span>28 registros</span>
+            <span>{{ quickInfo.pacientesNuevosMes }} registros</span>
           </div>
           <div class="info-box">
             <strong>Historias pendientes</strong>
-            <span>5 por completar</span>
+            <span>{{ quickInfo.historiasPendientes }} por completar</span>
           </div>
         </div>
       </section>
@@ -140,7 +159,11 @@
       </div>
     </div>
 
-    <div class="table-wrapper">
+    <div *ngIf="tableLoading" class="empty-box">
+      Cargando pacientes...
+    </div>
+
+    <div class="table-wrapper" *ngIf="!tableLoading">
       <table class="patients-table">
         <thead>
           <tr>
@@ -153,33 +176,38 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>María Gómez</td>
-            <td>1020304050</td>
-            <td>3001234567</td>
-            <td>Sura</td>
-            <td><span class="status-badge status-badge--active">Activo</span></td>
-            <td>12/03/2026</td>
-          </tr>
-          <tr>
-            <td>Juan Pérez</td>
-            <td>9988776655</td>
-            <td>3014567890</td>
-            <td>Nueva EPS</td>
-            <td><span class="status-badge status-badge--pending">Pendiente</span></td>
-            <td>10/03/2026</td>
-          </tr>
-          <tr>
-            <td>Diana López</td>
-            <td>5566778899</td>
-            <td>3209988776</td>
-            <td>Sanitas</td>
-            <td><span class="status-badge status-badge--active">Activo</span></td>
-            <td>08/03/2026</td>
-          </tr>
-        </tbody>
+  <tr *ngFor="let patient of patients">
+    <td>{{ patient.nombreCompleto }}</td>
+    <td>{{ patient.documento }}</td>
+    <td>{{ patient.telefono || 'Sin teléfono' }}</td>
+    <td>{{ patient.eps || 'Sin registro' }}</td>
+    <td>
+      <span class="status-badge" [ngClass]="getStatusClass(patient.activo)">
+        {{ getStatusLabel(patient.activo) }}
+      </span>
+    </td>
+    <td>{{ patient.ultimaCita }}</td>
+    <td>
+      <div class="table-actions">
+        <button class="btn-table btn-table-secondary" type="button" (click)="goToHistory(patient.id)">
+          Historia
+        </button>
+        <button class="btn-table btn-table-primary" type="button" (click)="goToOdontogram(patient.id)">
+          Odontograma
+        </button>
+      </div>
+    </td>
+  </tr>
+
+  <tr *ngIf="patients.length === 0">
+    <td colspan="7" class="empty-table">
+      No hay pacientes registrados todavía.
+    </td>
+  </tr>
+</tbody>
       </table>
     </div>
   </section>
 </section>
+
 <app-footer></app-footer>

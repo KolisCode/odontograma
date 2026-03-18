@@ -761,3 +761,48 @@
     grid-template-columns: 1fr;
   }
 }
+
+.record-surfaces {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.surface-record {
+  background: #f8fafc;
+  border: 1px solid #e5edf5;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.surface-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.surface-diagnoses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.surface-record-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.surface-delete-btn {
+  width: 30px;
+  height: 30px;
+  font-size: 16px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}

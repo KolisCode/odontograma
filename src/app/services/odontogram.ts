@@ -12,8 +12,8 @@ export class OdontogramService {
 
   constructor(private http: HttpClient) {}
 
-  getActive(patientId: number): Observable<BackendOdontogramResponse> {
-    return this.http.get<BackendOdontogramResponse>(`${this.apiUrl}/${patientId}`);
+  getActive(patientId: number): Observable<BackendOdontogramResponse | null> {
+    return this.http.get<BackendOdontogramResponse | null>(`${this.apiUrl}/${patientId}`);
   }
 
   create(data: OdontogramPayload): Observable<BackendOdontogramResponse> {
