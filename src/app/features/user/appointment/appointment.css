@@ -367,3 +367,21 @@
   color: #6f7d8a;
   padding: 22px !important;
 }
+
+.status-badge--cancelled {
+  background: #fde8e8;
+  color: #b64040;
+}
+
+.form-group input.ng-invalid.ng-touched,
+.form-group select.ng-invalid.ng-touched,
+.form-group textarea.ng-invalid.ng-touched {
+  border-color: #c94a4a;
+  background: #fffafa;
+}
+
+.form-group input.ng-valid.ng-touched,
+.form-group select.ng-valid.ng-touched,
+.form-group textarea.ng-valid.ng-touched {
+  border-color: #2f7d57;
+}

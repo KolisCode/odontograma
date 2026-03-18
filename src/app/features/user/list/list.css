@@ -358,3 +358,20 @@
 .btn-table-secondary:hover {
   background: #f8fbfe;
 }
+
+.field-hint {
+  color: #6e7f8f;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.form-group input.ng-invalid.ng-touched,
+.form-group textarea.ng-invalid.ng-touched {
+  border-color: #c94a4a;
+  background: #fffafa;
+}
+
+.form-group input.ng-valid.ng-touched,
+.form-group textarea.ng-valid.ng-touched {
+  border-color: #2f7d57;
+}

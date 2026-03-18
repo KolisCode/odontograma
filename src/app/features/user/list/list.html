@@ -34,64 +34,127 @@
       <form class="patients-form" [formGroup]="patientForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
           <label>Nombres</label>
-          <input type="text" placeholder="Ej. María Fernanda" formControlName="nombre" />
-          <small *ngIf="patientForm.get('nombre')?.touched && patientForm.get('nombre')?.invalid" class="field-error">
-            El nombre es obligatorio.
+          <input
+            type="text"
+            placeholder="Ej. María Fernanda"
+            formControlName="nombre"
+          />
+          <small *ngIf="hasError('nombre')" class="field-error">
+            {{ getErrorMessage('nombre') }}
           </small>
         </div>
 
         <div class="form-group">
           <label>Apellidos</label>
-          <input type="text" placeholder="Ej. Gómez Rojas" formControlName="apellido" />
-          <small *ngIf="patientForm.get('apellido')?.touched && patientForm.get('apellido')?.invalid" class="field-error">
-            El apellido es obligatorio.
+          <input
+            type="text"
+            placeholder="Ej. Gómez Rojas"
+            formControlName="apellido"
+          />
+          <small *ngIf="hasError('apellido')" class="field-error">
+            {{ getErrorMessage('apellido') }}
           </small>
         </div>
 
         <div class="form-group">
           <label>Documento</label>
-          <input type="text" placeholder="Número de documento" formControlName="documento" />
-          <small *ngIf="patientForm.get('documento')?.touched && patientForm.get('documento')?.invalid" class="field-error">
-            El documento es obligatorio.
+          <input
+            type="text"
+            inputmode="numeric"
+            placeholder="Número de documento"
+            formControlName="documento"
+          />
+          <small *ngIf="hasError('documento')" class="field-error">
+            {{ getErrorMessage('documento') }}
+          </small>
+        </div>
+ 
+        <div class="form-group">
+          <label>Fecha de nacimiento</label>
+          <input
+            type="date"
+            formControlName="fechaNacimiento"
+            [max]="maxBirthDate"
+          />
+          <small class="field-hint" *ngIf="getPatientAge() !== null">
+            Edad aproximada: {{ getPatientAge() }} años
+          </small>
+          <small *ngIf="hasError('fechaNacimiento')" class="field-error">
+            {{ getErrorMessage('fechaNacimiento') }}
           </small>
         </div>
 
         <div class="form-group">
-          <label>Fecha de nacimiento</label>
-          <input type="date" formControlName="fechaNacimiento" />
-        </div>
-
-        <div class="form-group">
           <label>Teléfono</label>
-          <input type="text" placeholder="Número de contacto" formControlName="telefono" />
+          <input
+            type="text"
+            inputmode="numeric"
+            placeholder="Número de contacto"
+            formControlName="telefono"
+          />
+          <small *ngIf="hasError('telefono')" class="field-error">
+            {{ getErrorMessage('telefono') }}
+          </small>
         </div>
 
         <div class="form-group">
           <label>Correo electrónico</label>
-          <input type="email" placeholder="correo@ejemplo.com" formControlName="correo" />
-          <small *ngIf="patientForm.get('correo')?.touched && patientForm.get('correo')?.invalid" class="field-error">
-            Ingresa un correo válido.
+          <input
+            type="email"
+            placeholder="correo@ejemplo.com"
+            formControlName="correo"
+          />
+          <small *ngIf="hasError('correo')" class="field-error">
+            {{ getErrorMessage('correo') }}
           </small>
         </div>
 
         <div class="form-group form-group--full">
           <label>Dirección</label>
-          <input type="text" placeholder="Dirección de residencia" formControlName="direccion" />
+          <input
+            type="text"
+            placeholder="Dirección de residencia"
+            formControlName="direccion"
+          />
+          <small *ngIf="hasError('direccion')" class="field-error">
+            {{ getErrorMessage('direccion') }}
+          </small>
         </div>
 
         <div class="form-group">
           <label>EPS / Aseguradora</label>
-          <input type="text" placeholder="Entidad de salud" formControlName="eps" />
+          <input
+            type="text"
+            placeholder="Entidad de salud"
+            formControlName="eps"
+          />
+          <small *ngIf="hasError('eps')" class="field-error">
+            {{ getErrorMessage('eps') }}
+          </small>
         </div>
 
         <div class="form-group">
           <label>Alergias</label>
-          <input type="text" placeholder="Ej. Penicilina" formControlName="alergias" />
+          <input
+            type="text"
+            placeholder="Ej. Penicilina"
+            formControlName="alergias"
+          />
+          <small *ngIf="hasError('alergias')" class="field-error">
+            {{ getErrorMessage('alergias') }}
+          </small>
         </div>
 
         <div class="form-group form-group--full">
           <label>Observaciones</label>
-          <textarea rows="4" placeholder="Notas adicionales del paciente" formControlName="observaciones"></textarea>
+          <textarea
+            rows="4"
+            placeholder="Notas adicionales del paciente"
+            formControlName="observaciones"
+          ></textarea>
+          <small *ngIf="hasError('observaciones')" class="field-error">
+            {{ getErrorMessage('observaciones') }}
+          </small>
         </div>
 
         <div class="form-actions form-group--full">
@@ -173,38 +236,39 @@
             <th>EPS</th>
             <th>Estado</th>
             <th>Última cita</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-  <tr *ngFor="let patient of patients">
-    <td>{{ patient.nombreCompleto }}</td>
-    <td>{{ patient.documento }}</td>
-    <td>{{ patient.telefono || 'Sin teléfono' }}</td>
-    <td>{{ patient.eps || 'Sin registro' }}</td>
-    <td>
-      <span class="status-badge" [ngClass]="getStatusClass(patient.activo)">
-        {{ getStatusLabel(patient.activo) }}
-      </span>
-    </td>
-    <td>{{ patient.ultimaCita }}</td>
-    <td>
-      <div class="table-actions">
-        <button class="btn-table btn-table-secondary" type="button" (click)="goToHistory(patient.id)">
-          Historia
-        </button>
-        <button class="btn-table btn-table-primary" type="button" (click)="goToOdontogram(patient.id)">
-          Odontograma
-        </button>
-      </div>
-    </td>
-  </tr>
+          <tr *ngFor="let patient of patients">
+            <td>{{ patient.nombreCompleto }}</td>
+            <td>{{ patient.documento }}</td>
+            <td>{{ patient.telefono || 'Sin teléfono' }}</td>
+            <td>{{ patient.eps || 'Sin registro' }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusClass(patient.activo)">
+                {{ getStatusLabel(patient.activo) }}
+              </span>
+            </td>
+            <td>{{ patient.ultimaCita || 'Sin cita' }}</td>
+            <td>
+              <div class="table-actions">
+                <button class="btn-table btn-table-secondary" type="button" (click)="goToHistory(patient.id)">
+                  Historia
+                </button>
+                <button class="btn-table btn-table-primary" type="button" (click)="goToOdontogram(patient.id)">
+                  Odontograma
+                </button>
+              </div>
+            </td>
+          </tr>
 
-  <tr *ngIf="patients.length === 0">
-    <td colspan="7" class="empty-table">
-      No hay pacientes registrados todavía.
-    </td>
-  </tr>
-</tbody>
+          <tr *ngIf="patients.length === 0">
+            <td colspan="7" class="empty-table">
+              No hay pacientes registrados todavía.
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </section>
