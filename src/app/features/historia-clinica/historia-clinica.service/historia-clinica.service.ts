@@ -29,7 +29,9 @@ export interface HistoriaClinicaPayload {
   providedIn: 'root'
 })
 export class HistoriaClinicaService {
-  private api = 'http://192.168.2.7:3000/historias-clinicas';
+  private api = '/api/historias-clinicas';
+    //private api = 'http://192.168.2.7:3000/historias-clinicas';
+
 
   constructor(private http: HttpClient) {}
 

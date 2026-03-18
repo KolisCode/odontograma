@@ -48,9 +48,13 @@ export interface AgendaSummary {
   providedIn: 'root'
 })
 export class AppointmentService {
-  private api = 'http://192.168.2.7:3000/citas';
-  private authApi = 'http://192.168.2.7:3000/auth';
-  private patientsApi = 'http://192.168.2.7:3000/pacientes';
+  // private api = 'http://192.168.2.7:3000/citas';
+  // private authApi = 'http://192.168.2.7:3000/auth';
+  // private patientsApi = 'http://192.168.2.7:3000/pacientes';
+  private api = '/api/citas';
+  private authApi = '/api/auth';
+  private patientsApi = '/api/pacientes';
+
 
   constructor(private http: HttpClient) {}
 

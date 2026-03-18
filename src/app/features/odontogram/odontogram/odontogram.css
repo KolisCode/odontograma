@@ -806,3 +806,78 @@
   border-radius: 8px;
   flex-shrink: 0;
 }
+
+.patient-context-card {
+  margin: 20px 20px 0;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+  border: 1px solid #e8eef6;
+  border-radius: 18px;
+  padding: 18px 22px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  margin-bottom: 5px;
+}
+
+.patient-context-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.patient-context-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.patient-context-eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.patient-context-copy h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.patient-context-meta {
+  margin: 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.patient-context-badge {
+  flex-shrink: 0;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #cfe0ff;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 768px) {
+  .patient-context-main {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .patient-context-badge {
+    align-self: flex-start;
+  }
+
+  .patient-context-copy h2 {
+    font-size: 20px;
+  }
+}

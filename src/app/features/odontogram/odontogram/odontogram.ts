@@ -19,6 +19,8 @@ import { BackendOdontogramResponse } from '../interfaces/backend-odontogram-resp
 import { Footer } from '../../complements/footer/footer';
 import { ActivatedRoute } from '@angular/router';
 
+import { PatientsService } from '../../user/service/pacientes.service';
+
 @Component({
   selector: 'app-odontogram',
   standalone: true,
@@ -47,6 +49,8 @@ export class OdontogramComponent implements OnInit {
   ];
 
   patientId!: number;
+  patientName = 'Paciente';
+  patientDocument = '';
 
   selectDiagnosis(diagnosis: DiagnosisType) {
     this.selectedDiagnosis = this.selectedDiagnosis === diagnosis ? null : diagnosis;
@@ -150,6 +154,8 @@ export class OdontogramComponent implements OnInit {
   constructor(
     private odontogramService: OdontogramService,
     private route: ActivatedRoute,
+      private patientsService: PatientsService,
+
   ) {
     effect(() => {
       localStorage.setItem('odontogram-diagnoses', JSON.stringify(this.diagnoses()));
@@ -171,10 +177,24 @@ export class OdontogramComponent implements OnInit {
         this.showSaveMessage('error', 'El identificador del paciente no es válido.', true, 4000);
         return;
       }
-
+      this.loadPatientInfo();
       this.loadOdontogram();
     });
   }
+
+  private loadPatientInfo(): void {
+  this.patientsService.getPatientById(this.patientId).subscribe({
+    next: (patient) => {
+      this.patientName = `${patient.data.nombre} ${patient.data.apellido}`.trim();
+      this.patientDocument = patient.documento || '';
+      console.log(patient);
+    },
+    error: () => {
+      this.patientName = `Paciente #${this.patientId}`;
+      this.patientDocument = '';
+    },
+  });
+}
 
   groupedDiagnosesByTooth = computed(() => {
     const grouped = new Map<
