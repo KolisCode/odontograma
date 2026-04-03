@@ -8,8 +8,8 @@ import { BackendOdontogramResponse } from '../features/odontogram/interfaces/bac
   providedIn: 'root',
 })
 export class OdontogramService {
-  //private apiUrl = '/api/odontograma';
-  private apiUrl = 'http://192.168.2.7:3000/odontograma';
+  private apiUrl = '/api/odontograma';
+  // private apiUrl = 'http://192.168.2.7:3000/odontograma';
 
 
   constructor(private http: HttpClient) {}

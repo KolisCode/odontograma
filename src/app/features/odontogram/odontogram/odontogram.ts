@@ -17,7 +17,7 @@ import { Odontogram } from '../interfaces/odontogram';
 import { OdontogramPayload } from '../interfaces/odontogram-payload';
 import { BackendOdontogramResponse } from '../interfaces/backend-odontogram-response';
 import { Footer } from '../../complements/footer/footer';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { PatientsService } from '../../user/service/pacientes.service';
 
@@ -32,6 +32,7 @@ export class OdontogramComponent implements OnInit {
   // Arcada superior
   upperRight = [18, 17, 16, 15, 14, 13, 12, 11];
   upperLeft = [21, 22, 23, 24, 25, 26, 27, 28];
+  pacienteId!: number;
 
   // Arcada inferior
   lowerRight = [48, 47, 46, 45, 44, 43, 42, 41];
@@ -155,6 +156,7 @@ export class OdontogramComponent implements OnInit {
     private odontogramService: OdontogramService,
     private route: ActivatedRoute,
       private patientsService: PatientsService,
+      private router: Router,
 
   ) {
     effect(() => {
@@ -163,8 +165,11 @@ export class OdontogramComponent implements OnInit {
   }
 
   ngOnInit() {
+    
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
+      this.pacienteId = Number(id);
+
 
       if (!id) {
         this.showSaveMessage('error', 'No se recibió el paciente para el odontograma.', true, 4000);
@@ -429,6 +434,10 @@ export class OdontogramComponent implements OnInit {
           this.showSaveMessage('error', 'No se pudo guardar el odontograma.', true, 4000);
         },
       });
+  }
+
+  goToHistoria(): void {
+    this.router.navigate(['/history', this.pacienteId]);
   }
 
   private buildDiagnosesFromBackend(rawOdontogram: BackendOdontogramResponse): Diagnosis[] {

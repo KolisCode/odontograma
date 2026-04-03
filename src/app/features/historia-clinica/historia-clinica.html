@@ -15,14 +15,6 @@
     </div>
   </div>
 
-  <div *ngIf="errorMessage" class="clinical-alert clinical-alert--error">
-    {{ errorMessage }}
-  </div>
-
-  <div *ngIf="successMessage" class="clinical-alert clinical-alert--success">
-    {{ successMessage }}
-  </div>
-
   <div *ngIf="loadingData" class="clinical-loading">
     Cargando historia clínica...
   </div>
@@ -33,12 +25,16 @@
         <h3>Secciones</h3>
 
         <nav class="section-nav">
-          <a class="section-nav__item active" href="#encabezado">Encabezado</a>
-          <a class="section-nav__item" href="#datos-personales">Datos personales</a>
-          <a class="section-nav__item" href="#motivo-consulta">Motivo de consulta</a>
-          <a class="section-nav__item" href="#antecedentes">Antecedentes patológicos</a>
-          <a class="section-nav__item" href="#higiene-oral">Higiene oral</a>
-          <a class="section-nav__item" href="#modulos">Módulos clínicos</a>
+          <button type="button" class="section-nav__item"
+            (click)="scrollToSection('encabezado')">Encabezado</button>
+          <button type="button" class="section-nav__item" (click)="scrollToSection('datos-personales')">Datos
+            personales</button>
+          <button type="button" class="section-nav__item" (click)="scrollToSection('motivo-consulta')">Motivo de
+            consulta</button>
+          <button type="button" class="section-nav__item" (click)="scrollToSection('antecedentes')">Antecedentes
+            patológicos</button>
+          <button type="button" class="section-nav__item" (click)="scrollToSection('higiene-oral')">Higiene
+            oral</button>
         </nav>
       </div>
     </aside>
@@ -76,12 +72,12 @@
         <div class="clinical-form-grid">
           <div class="form-group">
             <label>Nombres completos</label>
-            <input type="text" [value]="patientName.split(' ').slice(0, -1).join(' ') || patientName" readonly />
+            <input type="text" [value]="patientFirstNames" readonly />
           </div>
 
           <div class="form-group">
             <label>Apellidos completos</label>
-            <input type="text" [value]="patientName.split(' ').slice(-1).join(' ')" readonly />
+            <input type="text" [value]="patientLastNames" readonly />
           </div>
 
           <div class="form-group">
@@ -144,7 +140,8 @@
         <div class="clinical-form-grid">
           <div class="form-group form-group--full">
             <label>Motivo de consulta</label>
-            <textarea rows="4" formControlName="motivoConsulta" placeholder="Describe el motivo principal de consulta"></textarea>
+            <textarea rows="4" formControlName="motivoConsulta"
+              placeholder="Describe el motivo principal de consulta"></textarea>
           </div>
         </div>
       </section>
@@ -175,7 +172,8 @@
 
           <div class="form-group form-group--full">
             <label>Observaciones</label>
-            <textarea rows="3" formControlName="sistObservaciones" placeholder="Detalles adicionales sobre enfermedades sistémicas"></textarea>
+            <textarea rows="3" formControlName="sistObservaciones"
+              placeholder="Detalles adicionales sobre enfermedades sistémicas"></textarea>
           </div>
         </div>
 
@@ -201,7 +199,8 @@
 
             <div class="form-group form-group--full">
               <label>Detalle</label>
-              <textarea rows="3" formControlName="quirurgicosDetalle" placeholder="Especifica hospitalizaciones o cirugías previas"></textarea>
+              <textarea rows="3" formControlName="quirurgicosDetalle"
+                placeholder="Especifica hospitalizaciones o cirugías previas"></textarea>
             </div>
           </div>
         </div>
@@ -226,7 +225,8 @@
               <span>Frecuencia</span>
             </div>
 
-            <div class="mini-table__row" formArrayName="medicamentos" *ngFor="let med of medicamentosArray.controls; let i = index">
+            <div class="mini-table__row" formArrayName="medicamentos"
+              *ngFor="let med of medicamentosArray.controls; let i = index">
               <div [formGroupName]="i">
                 <input type="text" formControlName="medicamento" placeholder="Medicamento" />
               </div>
@@ -240,7 +240,8 @@
 
             <div class="mini-table-actions">
               <button class="btn btn-secondary" type="button" (click)="addMedicamento()">Agregar medicamento</button>
-              <button class="btn btn-secondary" type="button" (click)="removeMedicamento(medicamentosArray.length - 1)">Quitar último</button>
+              <button class="btn btn-secondary" type="button"
+                (click)="removeMedicamento(medicamentosArray.length - 1)">Quitar último</button>
             </div>
           </div>
         </div>
@@ -256,7 +257,8 @@
 
           <div class="form-group form-group--full">
             <label>Descripción de alergias</label>
-            <textarea rows="3" formControlName="alergiasDescripcion" placeholder="Describe las alergias reportadas"></textarea>
+            <textarea rows="3" formControlName="alergiasDescripcion"
+              placeholder="Describe las alergias reportadas"></textarea>
           </div>
         </div>
 
@@ -282,7 +284,8 @@
 
             <div class="form-group form-group--full">
               <label>Observaciones</label>
-              <textarea rows="3" formControlName="hematologicosObservaciones" placeholder="Detalles adicionales"></textarea>
+              <textarea rows="3" formControlName="hematologicosObservaciones"
+                placeholder="Detalles adicionales"></textarea>
             </div>
           </div>
         </div>
@@ -354,7 +357,8 @@
 
             <div class="form-group form-group--full">
               <label>Observaciones</label>
-              <textarea rows="3" formControlName="habitosObservaciones" placeholder="Detalle hábitos relevantes"></textarea>
+              <textarea rows="3" formControlName="habitosObservaciones"
+                placeholder="Detalle hábitos relevantes"></textarea>
             </div>
           </div>
         </div>
@@ -381,7 +385,8 @@
 
             <div class="form-group form-group--full">
               <label>Observaciones odontológicas previas</label>
-              <textarea rows="3" formControlName="antecedentesOdontoObservaciones" placeholder="Registra detalles relevantes"></textarea>
+              <textarea rows="3" formControlName="antecedentesOdontoObservaciones"
+                placeholder="Registra detalles relevantes"></textarea>
             </div>
           </div>
         </div>
@@ -592,7 +597,7 @@
         </div>
       </section>
 
-      <section class="clinical-card" id="modulos">
+      <!-- <section class="clinical-card" id="modulos">
         <div class="clinical-card__header">
           <div>
             <h2>Módulos clínicos asociados</h2>
@@ -636,7 +641,7 @@
             <span>Asociado al odontograma de tratamiento</span>
           </div>
         </div>
-      </section>
+      </section> -->
     </main>
 
     <aside class="clinical-summary">
@@ -657,15 +662,12 @@
           <span>Estado</span>
           <strong>En edición</strong>
         </div>
+        <div *ngIf="errorMessage" class="clinical-alert clinical-alert--error">
+          {{ errorMessage }}
+        </div>
 
-        <div class="summary-progress">
-          <div class="summary-progress__top">
-            <span>Progreso</span>
-            <strong>{{ progressPercent }}%</strong>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-bar__fill" [style.width.%]="progressPercent"></div>
-          </div>
+        <div *ngIf="successMessage" class="clinical-alert clinical-alert--success">
+          {{ successMessage }}
         </div>
 
         <div class="summary-actions">

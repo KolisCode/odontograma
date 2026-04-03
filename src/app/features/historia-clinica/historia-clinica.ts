@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
   FormBuilder,
   FormGroup,
-  ReactiveFormsModule
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 
 import { Navbar } from '../complements/navbar/navbar';
 import { Footer } from '../complements/footer/footer';
@@ -18,9 +19,9 @@ import { HistoriaClinicaService } from './historia-clinica.service/historia-clin
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule, Navbar, Footer],
   templateUrl: './historia-clinica.html',
-  styleUrls: ['./historia-clinica.css']
+  styleUrls: ['./historia-clinica.css'],
 })
-export class HistoriaClinica implements OnInit {
+export class HistoriaClinica implements OnInit, OnDestroy {
   historiaForm: FormGroup;
 
   pacienteId!: number;
@@ -31,11 +32,14 @@ export class HistoriaClinica implements OnInit {
   successMessage = '';
   errorMessage = '';
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private historiaClinicaService: HistoriaClinicaService
+    private historiaClinicaService: HistoriaClinicaService,
+    private cdr: ChangeDetectorRef,
   ) {
     this.historiaForm = this.fb.group({
       numeroHistoria: [''],
@@ -71,9 +75,7 @@ export class HistoriaClinica implements OnInit {
 
       // Medicación
       tomaMedicamentos: ['No'],
-      medicamentos: this.fb.array([
-        this.createMedicamentoGroup()
-      ]),
+      medicamentos: this.fb.array([this.createMedicamentoGroup()]),
 
       // Alergias
       alergiaMedicamentos: [false],
@@ -129,23 +131,37 @@ export class HistoriaClinica implements OnInit {
       limpiezaProtesis: ['No'],
 
       // Declaración
-      declaracionAceptada: [false]
+      declaracionAceptada: [false],
     });
   }
 
   ngOnInit(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
-    this.pacienteId = Number(idParam);
-
     this.aperturaTexto = this.formatDateTime(new Date());
-    this.loadHistoria();
+
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      const idParam = params.get('id');
+      this.pacienteId = Number(idParam);
+
+      if (this.pacienteId) {
+        this.loadHistoria();
+      } else {
+        this.errorMessage = 'No se recibió un paciente válido';
+        this.loadingData = false;
+      }
+    });
   }
 
-  createMedicamentoGroup(): FormGroup {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.cdr.detectChanges();
+  }
+
+  createMedicamentoGroup(data?: any): FormGroup {
     return this.fb.group({
-      medicamento: [''],
-      dosis: [''],
-      frecuencia: ['']
+      medicamento: [data?.medicamento || ''],
+      dosis: [data?.dosis || ''],
+      frecuencia: [data?.frecuencia || ''],
     });
   }
 
@@ -153,12 +169,33 @@ export class HistoriaClinica implements OnInit {
     return this.historiaForm.get('medicamentos') as FormArray;
   }
 
+  get patientFirstNames(): string {
+    const parts = this.patientName.trim().split(/\s+/);
+    return parts.length > 1 ? parts.slice(0, -1).join(' ') : this.patientName;
+  }
+
+  get patientLastNames(): string {
+    const parts = this.patientName.trim().split(/\s+/);
+    return parts.length > 1 ? parts.slice(-1).join(' ') : '';
+  }
+
   addMedicamento(): void {
     this.medicamentosArray.push(this.createMedicamentoGroup());
   }
 
+  scrollToSection(sectionId: string): void {
+  const element = document.getElementById(sectionId);
+
+  if (element) {
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }
+}
+
   removeMedicamento(index: number): void {
-    if (this.medicamentosArray.length > 1) {
+    if (this.medicamentosArray.length > 1 && index >= 0) {
       this.medicamentosArray.removeAt(index);
     }
   }
@@ -166,108 +203,177 @@ export class HistoriaClinica implements OnInit {
   loadHistoria(): void {
     this.loadingData = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
-    this.historiaClinicaService.getHistoriaByPaciente(this.pacienteId).subscribe({
-      next: (response) => {
-        const paciente = response?.data?.paciente;
-        const historia = response?.data?.historia;
+    this.historiaClinicaService
+      .getHistoriaByPaciente(this.pacienteId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const paciente = response?.data?.paciente;
+          const historia = response?.data?.historia;
 
-        if (paciente) {
-          this.patientName = `${paciente.nombre || ''} ${paciente.apellido || ''}`.trim();
-        }
+          if (paciente) {
+            this.patientName =
+              `${paciente.nombre || ''} ${paciente.apellido || ''}`.trim() || 'Paciente';
+          }
 
-        if (historia) {
-          this.patchHistoria(historia, paciente);
-          this.aperturaTexto = this.formatDateTime(historia.fechaApertura || historia.createdAt);
-        } else {
-          this.setDefaultHistoriaNumber();
-        }
+          if (historia) {
+            this.patchHistoria(historia);
+            this.aperturaTexto = this.formatDateTime(
+              historia.fechaApertura || historia.createdAt || new Date(),
+            );
+          } else {
+            this.resetMedicamentos();
+            this.setDefaultHistoriaNumber();
+          }
 
-        this.loadingData = false;
-      },
-      error: (err) => {
-        this.errorMessage = err?.error?.message || 'No se pudo cargar la historia clínica';
-        this.loadingData = false;
-      }
-    });
+          this.loadingData = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.errorMessage = err?.error?.message || 'No se pudo cargar la historia clínica';
+          this.loadingData = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   setDefaultHistoriaNumber(): void {
     const year = new Date().getFullYear();
     const numero = `HC-${year}-${String(this.pacienteId).padStart(4, '0')}`;
-    this.historiaForm.patchValue({ numeroHistoria: numero });
+    this.historiaForm.patchValue({ numeroHistoria: numero }, { emitEvent: false });
   }
 
-  patchHistoria(historia: any, paciente: any): void {
-    const enfermedades = historia.enfermedadesSistemicas || {};
-    const higiene = historia.higieneOral || {};
+  resetMedicamentos(): void {
+    this.medicamentosArray.clear();
+    this.medicamentosArray.push(this.createMedicamentoGroup());
+  }
+
+  parseJson(value: any): any {
+    if (!value) return {};
+    if (typeof value === 'object') return value;
+
+    try {
+      return JSON.parse(value);
+    } catch {
+      return {};
+    }
+  }
+
+  patchHistoria(historia: any): void {
+    const enfermedades = this.parseJson(historia.enfermedadesSistemicas);
+    const higiene = this.parseJson(historia.higieneOral);
+    const quirurgicos = this.parseJson(historia.antecedentesQuirurgicos);
+    const alergias = this.parseJson(historia.alergiasGenerales);
+    const hematologicos = this.parseJson(historia.antecedentesHematologicos);
+    const gineco = this.parseJson(historia.ginecoObstetricos);
+    const habitos = this.parseJson(historia.habitos);
+    const odonto = this.parseJson(historia.antecedentesOdontologicos);
     const medicamentos = Array.isArray(historia.medicacionActual) ? historia.medicacionActual : [];
 
-    this.historiaForm.patchValue({
-      numeroHistoria: historia.numeroHistoria || '',
-      estadoCivil: historia.estadoCivil || '',
-      sexo: historia.sexo || '',
-      ocupacion: historia.ocupacion || '',
-      lugarResidencia: historia.lugarResidencia || '',
-      acompananteNombre: historia.acompananteNombre || '',
-      acompananteTelefono: historia.acompananteTelefono || '',
-      acompananteParentesco: historia.acompananteParentesco || '',
-      motivoConsulta: historia.motivoConsulta || '',
+    this.historiaForm.patchValue(
+      {
+        numeroHistoria: historia.numeroHistoria || '',
+        estadoCivil: historia.estadoCivil || '',
+        sexo: historia.sexo || '',
+        ocupacion: historia.ocupacion || '',
+        lugarResidencia: historia.lugarResidencia || '',
+        acompananteNombre: historia.acompananteNombre || '',
+        acompananteTelefono: historia.acompananteTelefono || '',
+        acompananteParentesco: historia.acompananteParentesco || '',
+        motivoConsulta: historia.motivoConsulta || '',
 
-      sistHipertension: !!enfermedades.hipertension,
-      sistDiabetes: !!enfermedades.diabetes,
-      sistCardiacas: !!enfermedades.cardiacas,
-      sistRespiratorias: !!enfermedades.respiratorias,
-      sistRenales: !!enfermedades.renales,
-      sistHepaticas: !!enfermedades.hepaticas,
-      sistEndocrinas: !!enfermedades.endocrinas,
-      sistNeurologicas: !!enfermedades.neurologicas,
-      sistEts: !!enfermedades.ets,
-      sistObservaciones: enfermedades.observaciones || '',
+        // Enfermedades sistémicas
+        sistHipertension: !!enfermedades.hipertension,
+        sistDiabetes: !!enfermedades.diabetes,
+        sistCardiacas: !!enfermedades.cardiacas,
+        sistRespiratorias: !!enfermedades.respiratorias,
+        sistRenales: !!enfermedades.renales,
+        sistHepaticas: !!enfermedades.hepaticas,
+        sistEndocrinas: !!enfermedades.endocrinas,
+        sistNeurologicas: !!enfermedades.neurologicas,
+        sistEts: !!enfermedades.ets,
+        sistObservaciones: enfermedades.observaciones || '',
 
-      antecedentesQuirurgicos: historia.antecedentesQuirurgicos || '',
-      alergiasGenerales: historia.alergiasGenerales || '',
-      antecedentesHematologicos: historia.antecedentesHematologicos || '',
-      ginecoObstetricos: historia.ginecoObstetricos || '',
-      habitos: historia.habitos || '',
-      antecedentesOdontologicos: historia.antecedentesOdontologicos || '',
-      declaracionAceptada: !!historia.declaracionAceptada,
+        // Quirúrgicos
+        hospitalizado: quirurgicos.hospitalizado || 'No',
+        cirugiasPrevias: quirurgicos.cirugiasPrevias || 'No',
+        quirurgicosDetalle: quirurgicos.detalle || '',
 
-      cepilladoVecesDia: higiene.cepilladoVecesDia || '',
-      cambioCepillo: higiene.cambioCepillo || '',
-      momentoManana: Array.isArray(higiene.momentosCepillado) ? higiene.momentosCepillado.includes('Mañana') : false,
-      momentoDespuesComidas: Array.isArray(higiene.momentosCepillado) ? higiene.momentosCepillado.includes('Después de comidas') : false,
-      momentoNoche: Array.isArray(higiene.momentosCepillado) ? higiene.momentosCepillado.includes('Noche') : false,
-      tipoCepillo: higiene.tipoCepillo || '',
-      cremaConFluor: higiene.cremaConFluor ? 'Sí' : 'No',
-      usaSedaDental: higiene.usaSedaDental ? 'Sí' : 'No',
-      frecuenciaSedaDental: higiene.frecuenciaSedaDental || '',
-      usaEnjuague: higiene.usaEnjuague ? 'Sí' : 'No',
-      tipoEnjuague: higiene.tipoEnjuague || 'No aplica',
-      usaCepillosInterdentales: higiene.usaCepillosInterdentales ? 'Sí' : 'No',
-      usaIrrigador: higiene.usaIrrigador ? 'Sí' : 'No',
-      frecuenciaOdontologo: higiene.frecuenciaOdontologo || 'Cada 6 meses',
-      educacionHigieneOral: higiene.educacionHigieneOral ? 'Sí' : 'No',
-      profilaxisReciente: higiene.profilaxisReciente ? 'Sí' : 'No',
-      sangradoEncias: higiene.sangradoEncias ? 'Sí' : 'No',
-      halitosis: higiene.halitosis ? 'Sí' : 'No',
-      sensibilidadDental: higiene.sensibilidadDental ? 'Sí' : 'No',
-      movilidadDental: higiene.movilidadDental ? 'Sí' : 'No',
-      usaProtesis: higiene.usaProtesis ? 'Sí' : 'No',
-      usaOrtodoncia: higiene.usaOrtodoncia ? 'Sí' : 'No',
-      limpiezaProtesis: higiene.limpiezaProtesis ? 'Sí' : 'No'
-    });
+        // Medicación
+        tomaMedicamentos: medicamentos.length > 0 ? 'Sí' : 'No',
+
+        // Alergias
+        alergiaMedicamentos: !!alergias.medicamentos,
+        alergiaAnestesia: !!alergias.anestesia,
+        alergiaLatex: !!alergias.latex,
+        alergiasDescripcion: alergias.descripcion || '',
+
+        // Hematológicos
+        sangraFacilidad: hematologicos.sangraFacilidad || 'No',
+        problemasCoagulacion: hematologicos.problemasCoagulacion || 'No',
+        hematologicosObservaciones: hematologicos.observaciones || '',
+
+        // Gineco-obstétricos
+        embarazo: gineco.embarazo || 'No',
+        trimestre: gineco.trimestre || 'No aplica',
+        lactancia: gineco.lactancia || 'No',
+
+        // Hábitos
+        fuma: habitos.fuma || 'No',
+        cigarrillosDia: habitos.cigarrillosDia || '',
+        alcohol: habitos.alcohol || 'No',
+        sustanciasPsicoactivas: habitos.sustanciasPsicoactivas || 'No',
+        habitosObservaciones: habitos.observaciones || '',
+
+        // Odontológicos
+        complicacionesPrevias: odonto.complicacionesPrevias || 'No',
+        reaccionesAnestesia: odonto.reaccionesAnestesia || 'No',
+        antecedentesOdontoObservaciones: odonto.observaciones || '',
+
+        // Higiene oral
+        cepilladoVecesDia: higiene.cepilladoVecesDia || '',
+        cambioCepillo: higiene.cambioCepillo || '',
+        momentoManana: Array.isArray(higiene.momentosCepillado)
+          ? higiene.momentosCepillado.includes('Mañana')
+          : false,
+        momentoDespuesComidas: Array.isArray(higiene.momentosCepillado)
+          ? higiene.momentosCepillado.includes('Después de comidas')
+          : false,
+        momentoNoche: Array.isArray(higiene.momentosCepillado)
+          ? higiene.momentosCepillado.includes('Noche')
+          : false,
+        tipoCepillo: higiene.tipoCepillo || '',
+        cremaConFluor: higiene.cremaConFluor === false ? 'No' : 'Sí',
+        usaSedaDental: higiene.usaSedaDental ? 'Sí' : 'No',
+        frecuenciaSedaDental: higiene.frecuenciaSedaDental || '',
+        usaEnjuague: higiene.usaEnjuague ? 'Sí' : 'No',
+        tipoEnjuague: higiene.tipoEnjuague || 'No aplica',
+        usaCepillosInterdentales: higiene.usaCepillosInterdentales ? 'Sí' : 'No',
+        usaIrrigador: higiene.usaIrrigador ? 'Sí' : 'No',
+        frecuenciaOdontologo: higiene.frecuenciaOdontologo || 'Cada 6 meses',
+        educacionHigieneOral: higiene.educacionHigieneOral ? 'Sí' : 'No',
+        profilaxisReciente: higiene.profilaxisReciente ? 'Sí' : 'No',
+        sangradoEncias: higiene.sangradoEncias ? 'Sí' : 'No',
+        halitosis: higiene.halitosis ? 'Sí' : 'No',
+        sensibilidadDental: higiene.sensibilidadDental ? 'Sí' : 'No',
+        movilidadDental: higiene.movilidadDental ? 'Sí' : 'No',
+        usaProtesis: higiene.usaProtesis ? 'Sí' : 'No',
+        usaOrtodoncia: higiene.usaOrtodoncia ? 'Sí' : 'No',
+        limpiezaProtesis: higiene.limpiezaProtesis ? 'Sí' : 'No',
+
+        declaracionAceptada: !!historia.declaracionAceptada,
+      },
+      { emitEvent: false },
+    );
+
+    this.resetMedicamentos();
 
     if (medicamentos.length > 0) {
       this.medicamentosArray.clear();
       medicamentos.forEach((item: any) => {
-        this.medicamentosArray.push(
-          this.fb.group({
-            medicamento: [item.medicamento || ''],
-            dosis: [item.dosis || ''],
-            frecuencia: [item.frecuencia || '']
-          })
-        );
+        this.medicamentosArray.push(this.createMedicamentoGroup(item));
       });
     }
   }
@@ -277,7 +383,7 @@ export class HistoriaClinica implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const value = this.historiaForm.value;
+    const value = this.historiaForm.getRawValue();
 
     const payload = {
       pacienteId: this.pacienteId,
@@ -300,41 +406,44 @@ export class HistoriaClinica implements OnInit {
         endocrinas: value.sistEndocrinas,
         neurologicas: value.sistNeurologicas,
         ets: value.sistEts,
-        observaciones: value.sistObservaciones
+        observaciones: value.sistObservaciones,
       },
       antecedentesQuirurgicos: JSON.stringify({
         hospitalizado: value.hospitalizado,
         cirugiasPrevias: value.cirugiasPrevias,
-        detalle: value.quirurgicosDetalle
+        detalle: value.quirurgicosDetalle,
       }),
-      medicacionActual: value.tomaMedicamentos === 'Sí' ? value.medicamentos : [],
+      medicacionActual:
+        value.tomaMedicamentos === 'Sí'
+          ? value.medicamentos.filter((m: any) => m.medicamento || m.dosis || m.frecuencia)
+          : [],
       alergiasGenerales: JSON.stringify({
         medicamentos: value.alergiaMedicamentos,
         anestesia: value.alergiaAnestesia,
         latex: value.alergiaLatex,
-        descripcion: value.alergiasDescripcion
+        descripcion: value.alergiasDescripcion,
       }),
       antecedentesHematologicos: JSON.stringify({
         sangraFacilidad: value.sangraFacilidad,
         problemasCoagulacion: value.problemasCoagulacion,
-        observaciones: value.hematologicosObservaciones
+        observaciones: value.hematologicosObservaciones,
       }),
       ginecoObstetricos: JSON.stringify({
         embarazo: value.embarazo,
         trimestre: value.trimestre,
-        lactancia: value.lactancia
+        lactancia: value.lactancia,
       }),
       habitos: JSON.stringify({
         fuma: value.fuma,
         cigarrillosDia: value.cigarrillosDia,
         alcohol: value.alcohol,
         sustanciasPsicoactivas: value.sustanciasPsicoactivas,
-        observaciones: value.habitosObservaciones
+        observaciones: value.habitosObservaciones,
       }),
       antecedentesOdontologicos: JSON.stringify({
         complicacionesPrevias: value.complicacionesPrevias,
         reaccionesAnestesia: value.reaccionesAnestesia,
-        observaciones: value.antecedentesOdontoObservaciones
+        observaciones: value.antecedentesOdontoObservaciones,
       }),
       higieneOral: {
         cepilladoVecesDia: value.cepilladoVecesDia,
@@ -342,7 +451,7 @@ export class HistoriaClinica implements OnInit {
         momentosCepillado: [
           value.momentoManana ? 'Mañana' : null,
           value.momentoDespuesComidas ? 'Después de comidas' : null,
-          value.momentoNoche ? 'Noche' : null
+          value.momentoNoche ? 'Noche' : null,
         ].filter(Boolean),
         tipoCepillo: value.tipoCepillo,
         cremaConFluor: value.cremaConFluor === 'Sí',
@@ -361,52 +470,44 @@ export class HistoriaClinica implements OnInit {
         movilidadDental: value.movilidadDental === 'Sí',
         usaProtesis: value.usaProtesis === 'Sí',
         usaOrtodoncia: value.usaOrtodoncia === 'Sí',
-        limpiezaProtesis: value.limpiezaProtesis === 'Sí'
+        limpiezaProtesis: value.limpiezaProtesis === 'Sí',
       },
-      declaracionAceptada: value.declaracionAceptada
+      declaracionAceptada: value.declaracionAceptada,
     };
 
-    this.historiaClinicaService.saveHistoria(payload).subscribe({
-      next: (response) => {
-        this.successMessage = response.message || 'Historia clínica guardada correctamente';
-        this.loading = false;
-      },
-      error: (err) => {
-        this.errorMessage = err?.error?.message || 'No se pudo guardar la historia clínica';
-        this.loading = false;
-      }
-    });
+    this.historiaClinicaService
+      .saveHistoria(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          console.log(response);
+          this.successMessage = response?.message || 'Historia clínica guardada correctamente';
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.log(err);
+          this.errorMessage = err?.error?.message || 'No se pudo guardar la historia clínica';
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   goToOdontogram(): void {
-    this.router.navigate(['/odontogram'], {
-      queryParams: { pacienteId: this.pacienteId }
-    });
-  }
-
-  get progressPercent(): number {
-    const fields = this.historiaForm.value;
-    const checks = [
-      fields.numeroHistoria,
-      fields.motivoConsulta,
-      fields.estadoCivil,
-      fields.sexo,
-      fields.ocupacion,
-      fields.lugarResidencia,
-      fields.tipoCepillo,
-      fields.frecuenciaOdontologo
-    ];
-
-    const completed = checks.filter((item) => !!item).length;
-    return Math.round((completed / checks.length) * 100);
+    this.router.navigate(['/odontogram', this.pacienteId]);
   }
 
   formatDateTime(value: any): string {
     const date = new Date(value);
 
+    if (isNaN(date.getTime())) {
+      return '';
+    }
+
     return date.toLocaleString('es-CO', {
       dateStyle: 'short',
-      timeStyle: 'short'
+      timeStyle: 'short',
     });
   }
 

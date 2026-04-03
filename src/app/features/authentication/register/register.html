@@ -7,6 +7,9 @@
     </div>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+
+      <p class="message success" *ngIf="successMessage">{{ successMessage }}</p>
+      <p class="message error" *ngIf="errorMessage">{{ errorMessage }}</p>
       <div class="form-group">
         <label for="nombre">Nombre</label>
         <input id="nombre" type="text" formControlName="nombre" placeholder="Ingresa tu nombre" />
@@ -69,8 +72,7 @@
         <a routerLink="/">Ir a iniciar sesión</a>
       </p>
 
-      <p class="message success" *ngIf="successMessage">{{ successMessage }}</p>
-      <p class="message error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      
     </form>
 
   </div>

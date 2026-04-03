@@ -42,8 +42,8 @@ export interface QuickInfo {
   providedIn: 'root'
 })
 export class PatientsService {
-  private api = 'http://192.168.2.7:3000/pacientes'
-  //private api = '/api/pacientes'
+ // private api = 'http://192.168.2.7:3000/pacientes'
+  private api = '/api/pacientes'
 
   constructor(private http: HttpClient) {}
 

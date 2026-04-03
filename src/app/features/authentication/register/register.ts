@@ -67,11 +67,14 @@ export class Register {
         this.successMessage = resp.message || 'Cuenta creada correctamente.';
         this.registerForm.reset();
         this.loading = false;
+        this.cdr.detectChanges();
+        console.log(resp);
       },
       error: (err) => {
         this.errorMessage = err?.error?.message || 'No se pudo crear la cuenta.';
         this.loading = false;
         this.cdr.detectChanges();
+        console.log(err);
       },
     });
   }

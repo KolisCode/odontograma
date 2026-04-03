@@ -232,6 +232,9 @@
         <button type="button" class="save-btn" (click)="save()" [disabled]="isSaving">
           {{ isSaving ? 'Guardando...' : 'Guardar odontograma' }}
         </button>
+        <button class="btn btn-secondary" type="button" (click)="goToHistoria()">
+            Ir a Historia clínica
+          </button>
 
         <div *ngIf="saveMessage" class="save-message" [ngClass]="{
             'save-success': saveMessageType === 'success',

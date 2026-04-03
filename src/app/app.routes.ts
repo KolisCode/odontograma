@@ -7,16 +7,17 @@ import { Finance } from './features/wallet/finance/finance';
 import { List } from './features/user/list/list';
 import { Appointment } from './features/user/appointment/appointment';
 import { HistoriaClinica } from './features/historia-clinica/historia-clinica';
+import { authGuard } from './features/authentication/service/auth-guard/auth-guard';
 
 export const routes: Routes = [
   { path: '', component: Login },
   { path: 'login', component: Login },
-  { path: 'odontogram/:id', component: OdontogramComponent },
+  { path: 'odontogram/:id', component: OdontogramComponent , canActivate: [authGuard] },
   { path: 'register', component: Register },
-  { path: 'dashboard', component: Dashboard },
-  { path: 'finance', component: Finance },
-  { path: 'patients', component: List },
-  { path: 'appointments', component: Appointment },
-  { path: 'history/:id', component: HistoriaClinica },
+  { path: 'dashboard', component: Dashboard , canActivate: [authGuard] },
+  { path: 'finance', component: Finance , canActivate: [authGuard] },
+  { path: 'patients', component: List , canActivate: [authGuard] },
+  { path: 'appointments', component: Appointment , canActivate: [authGuard] },
+  { path: 'history/:id', component: HistoriaClinica , canActivate: [authGuard] },
   { path: '**', component: Login },
 ];
