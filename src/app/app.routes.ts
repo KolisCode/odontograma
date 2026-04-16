@@ -7,6 +7,7 @@ import { Finance } from './features/wallet/finance/finance';
 import { List } from './features/user/list/list';
 import { Appointment } from './features/user/appointment/appointment';
 import { HistoriaClinica } from './features/historia-clinica/historia-clinica';
+import { Tratamientos } from './features/tratamientos/tratamientos';
 import { authGuard } from './features/authentication/service/auth-guard/auth-guard';
 
 export const routes: Routes = [
@@ -19,5 +20,6 @@ export const routes: Routes = [
   { path: 'patients', component: List , canActivate: [authGuard] },
   { path: 'appointments', component: Appointment , canActivate: [authGuard] },
   { path: 'history/:id', component: HistoriaClinica , canActivate: [authGuard] },
+  { path: 'tratamientos/:id', component: Tratamientos , canActivate: [authGuard] },
   { path: '**', component: Login },
 ];

@@ -1,0 +1,205 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+
+import { Navbar } from '../complements/navbar/navbar';
+import { Footer } from '../complements/footer/footer';
+import { TratamientosService, TratamientoRow } from './service/tratamientos.service';
+import { PatientsService } from '../user/service/pacientes.service';
+
+@Component({
+  selector: 'app-tratamientos',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, Navbar, Footer],
+  templateUrl: './tratamientos.html',
+  styleUrl: './tratamientos.css',
+})
+export class Tratamientos implements OnInit {
+  pacienteId!: number;
+  patientName = '';
+
+  tratamientos: TratamientoRow[] = [];
+  loading = false;
+  errorMessage = '';
+  successMessage = '';
+
+  form: FormGroup;
+  formVisible = false;
+  editingId: number | null = null;
+
+  estados = ['ACTIVO', 'FINALIZADO', 'PAUSADO'];
+
+  constructor(
+    private route: ActivatedRoute,
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
+    private tratamientosService: TratamientosService,
+    private patientsService: PatientsService,
+  ) {
+    this.form = this.fb.group({
+      descripcion: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
+      estado: ['ACTIVO'],
+      monto: [null],
+      fechaInicio: [null],
+      fechaFin: [null],
+    });
+  }
+
+  ngOnInit(): void {
+    this.route.paramMap.subscribe((params) => {
+      const id = params.get('id');
+      if (!id || isNaN(Number(id))) return;
+      this.pacienteId = Number(id);
+      this.loadPatient();
+      this.loadTratamientos();
+    });
+  }
+
+  private loadPatient(): void {
+    this.patientsService.getPatientById(this.pacienteId).subscribe({
+      next: (res: any) => {
+        this.patientName = `${res.data.nombre} ${res.data.apellido}`.trim();
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.patientName = `Paciente #${this.pacienteId}`;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  loadTratamientos(): void {
+    this.loading = true;
+    this.tratamientosService.getByPaciente(this.pacienteId).subscribe({
+      next: (res) => {
+        this.tratamientos = res.data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.errorMessage = 'No se pudieron cargar los tratamientos';
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  showForm(): void {
+    this.formVisible = true;
+    this.editingId = null;
+    this.form.reset({ estado: 'ACTIVO' });
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  editTratamiento(t: TratamientoRow): void {
+    this.editingId = t.id;
+    this.formVisible = true;
+    this.form.patchValue({
+      descripcion: t.descripcion,
+      estado: t.estado,
+      monto: t.monto,
+      fechaInicio: t.fechaInicio ? t.fechaInicio.substring(0, 10) : null,
+      fechaFin: t.fechaFin ? t.fechaFin.substring(0, 10) : null,
+    });
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  cancelForm(): void {
+    this.formVisible = false;
+    this.editingId = null;
+    this.form.reset({ estado: 'ACTIVO' });
+  }
+
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const raw = this.form.getRawValue();
+    const data = {
+      descripcion: raw.descripcion.trim(),
+      estado: raw.estado,
+      monto: raw.monto !== null && raw.monto !== '' ? Number(raw.monto) : null,
+      fechaInicio: raw.fechaInicio || null,
+      fechaFin: raw.fechaFin || null,
+    };
+
+    if (this.editingId) {
+      this.tratamientosService.update(this.editingId, data).subscribe({
+        next: () => {
+          this.successMessage = 'Tratamiento actualizado correctamente';
+          this.cancelForm();
+          this.loadTratamientos();
+        },
+        error: (err: any) => {
+          this.errorMessage = err?.error?.message || 'No se pudo actualizar el tratamiento';
+          this.cdr.detectChanges();
+        },
+      });
+    } else {
+      this.tratamientosService.create({ ...data, pacienteId: this.pacienteId }).subscribe({
+        next: () => {
+          this.successMessage = 'Tratamiento registrado correctamente';
+          this.cancelForm();
+          this.loadTratamientos();
+        },
+        error: (err: any) => {
+          this.errorMessage = err?.error?.message || 'No se pudo registrar el tratamiento';
+          this.cdr.detectChanges();
+        },
+      });
+    }
+  }
+
+  cambiarEstado(t: TratamientoRow, nuevoEstado: string): void {
+    this.tratamientosService.update(t.id, { estado: nuevoEstado }).subscribe({
+      next: () => this.loadTratamientos(),
+      error: () => {
+        this.errorMessage = 'No se pudo actualizar el estado';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  eliminar(id: number): void {
+    if (!confirm('¿Eliminar este tratamiento? Esta acción no se puede deshacer.')) return;
+
+    this.tratamientosService.delete(id).subscribe({
+      next: () => {
+        this.successMessage = 'Tratamiento eliminado';
+        this.loadTratamientos();
+      },
+      error: () => {
+        this.errorMessage = 'No se pudo eliminar el tratamiento';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  getEstadoClass(estado: string): string {
+    const map: Record<string, string> = {
+      ACTIVO: 'badge--active',
+      FINALIZADO: 'badge--done',
+      PAUSADO: 'badge--paused',
+    };
+    return map[estado] ?? '';
+  }
+
+  getEstadoLabel(estado: string): string {
+    const map: Record<string, string> = {
+      ACTIVO: 'Activo',
+      FINALIZADO: 'Finalizado',
+      PAUSADO: 'Pausado',
+    };
+    return map[estado] ?? estado;
+  }
+
+  hasError(field: string): boolean {
+    const c = this.form.get(field);
+    return !!(c && c.invalid && c.touched);
+  }
+}

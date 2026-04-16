@@ -1,0 +1,114 @@
+<app-navbar></app-navbar>
+
+<section class="trat-page">
+
+  <div class="trat-header">
+    <div>
+      <h1>Tratamientos</h1>
+      <p *ngIf="patientName">{{ patientName }}</p>
+    </div>
+    <button class="btn btn-primary" (click)="showForm()">+ Nuevo tratamiento</button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert--error">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="alert alert--success">{{ successMessage }}</div>
+
+  <!-- Formulario -->
+  <div *ngIf="formVisible" class="trat-form-card">
+    <h2>{{ editingId ? 'Editar tratamiento' : 'Nuevo tratamiento' }}</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Descripción <span class="required">*</span></label>
+        <textarea
+          formControlName="descripcion"
+          rows="3"
+          placeholder="Describe el tratamiento a realizar..."
+          [class.input-error]="hasError('descripcion')"
+        ></textarea>
+        <span *ngIf="hasError('descripcion')" class="error-text">La descripción es obligatoria (mínimo 3 caracteres).</span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Estado</label>
+          <select formControlName="estado">
+            <option *ngFor="let e of estados" [value]="e">{{ getEstadoLabel(e) }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Monto ($)</label>
+          <input type="number" formControlName="monto" placeholder="0.00" min="0" step="0.01" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha inicio</label>
+          <input type="date" formControlName="fechaInicio" />
+        </div>
+
+        <div class="form-group">
+          <label>Fecha fin estimada</label>
+          <input type="date" formControlName="fechaFin" />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancelForm()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">{{ editingId ? 'Guardar cambios' : 'Registrar' }}</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabla -->
+  <div class="trat-table-card">
+    <div *ngIf="loading" class="trat-empty">Cargando tratamientos...</div>
+
+    <div *ngIf="!loading && tratamientos.length === 0" class="trat-empty">
+      No hay tratamientos registrados para este paciente.
+    </div>
+
+    <table *ngIf="!loading && tratamientos.length > 0" class="trat-table">
+      <thead>
+        <tr>
+          <th>Descripción</th>
+          <th>Estado</th>
+          <th>Monto</th>
+          <th>Inicio</th>
+          <th>Fin estimado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of tratamientos">
+          <td class="trat-descripcion">{{ t.descripcion }}</td>
+          <td>
+            <span class="badge" [ngClass]="getEstadoClass(t.estado)">
+              {{ getEstadoLabel(t.estado) }}
+            </span>
+          </td>
+          <td>{{ t.monto !== null ? ('$' + t.monto.toLocaleString()) : '—' }}</td>
+          <td>{{ t.fechaInicio ? (t.fechaInicio | date:'dd/MM/yyyy') : '—' }}</td>
+          <td>{{ t.fechaFin ? (t.fechaFin | date:'dd/MM/yyyy') : '—' }}</td>
+          <td class="trat-actions">
+            <select
+              *ngIf="t.estado !== 'FINALIZADO'"
+              class="estado-select"
+              [value]="t.estado"
+              (change)="cambiarEstado(t, $any($event.target).value)"
+            >
+              <option *ngFor="let e of estados" [value]="e">{{ getEstadoLabel(e) }}</option>
+            </select>
+            <button class="btn-icon btn-edit" title="Editar" (click)="editTratamiento(t)">✏️</button>
+            <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(t.id)">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</section>
+
+<app-footer></app-footer>
