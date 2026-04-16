@@ -25,6 +25,14 @@ export class Tooth {
     Obturacion: 'diagnosis-obturacion',
     Fractura: 'diagnosis-fractura',
     Sellante: 'diagnosis-sellante',
+    Extraccion: 'diagnosis-extraccion',
+    Corona: 'diagnosis-corona',
+    Puente: 'diagnosis-puente',
+    Implante: 'diagnosis-implante',
+    Endodoncia: 'diagnosis-endodoncia',
+    TratamientoConducto: 'diagnosis-tratamiento-conducto',
+    Protesis: 'diagnosis-protesis',
+    Sano: 'diagnosis-sano',
   };
 
   faceClicked(surface: ToothSurface) {

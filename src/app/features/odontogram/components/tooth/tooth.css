@@ -70,11 +70,59 @@
   stroke: #2b8a3e !important;
 }
 
+/* Diagnósticos adicionales */
+.diagnosis-extraccion {
+  fill: #495057 !important;
+  stroke: #212529 !important;
+}
+
+.diagnosis-corona {
+  fill: #fcc419 !important;
+  stroke: #f08c00 !important;
+}
+
+.diagnosis-puente {
+  fill: #9775fa !important;
+  stroke: #7048e8 !important;
+}
+
+.diagnosis-implante {
+  fill: #3bc9db !important;
+  stroke: #0c8599 !important;
+}
+
+.diagnosis-endodoncia {
+  fill: #f783ac !important;
+  stroke: #d6336c !important;
+}
+
+.diagnosis-tratamiento-conducto {
+  fill: #e64980 !important;
+  stroke: #a61e4d !important;
+}
+
+.diagnosis-protesis {
+  fill: #a9e34b !important;
+  stroke: #74b816 !important;
+}
+
+.diagnosis-sano {
+  fill: #b2f2bb !important;
+  stroke: #2f9e44 !important;
+}
+
 /* Cuando el centro tiene color, el número debe verse blanco */
 .center-surface.diagnosis-caries + .tooth-number,
 .center-surface.diagnosis-obturacion + .tooth-number,
 .center-surface.diagnosis-fractura + .tooth-number,
-.center-surface.diagnosis-sellante + .tooth-number {
+.center-surface.diagnosis-sellante + .tooth-number,
+.center-surface.diagnosis-extraccion + .tooth-number,
+.center-surface.diagnosis-corona + .tooth-number,
+.center-surface.diagnosis-puente + .tooth-number,
+.center-surface.diagnosis-implante + .tooth-number,
+.center-surface.diagnosis-endodoncia + .tooth-number,
+.center-surface.diagnosis-tratamiento-conducto + .tooth-number,
+.center-surface.diagnosis-protesis + .tooth-number {
   fill: #ffffff;
 }
 

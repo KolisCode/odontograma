@@ -47,6 +47,14 @@ export class OdontogramComponent implements OnInit {
     { type: 'Obturacion', label: 'Obturación', cssClass: 'diagnosis-obturacion' },
     { type: 'Fractura', label: 'Fractura', cssClass: 'diagnosis-fractura' },
     { type: 'Sellante', label: 'Sellante', cssClass: 'diagnosis-sellante' },
+    { type: 'Extraccion', label: 'Extracción', cssClass: 'diagnosis-extraccion' },
+    { type: 'Corona', label: 'Corona', cssClass: 'diagnosis-corona' },
+    { type: 'Puente', label: 'Puente', cssClass: 'diagnosis-puente' },
+    { type: 'Implante', label: 'Implante', cssClass: 'diagnosis-implante' },
+    { type: 'Endodoncia', label: 'Endodoncia', cssClass: 'diagnosis-endodoncia' },
+    { type: 'TratamientoConducto', label: 'Trat. Conducto', cssClass: 'diagnosis-tratamiento-conducto' },
+    { type: 'Protesis', label: 'Prótesis', cssClass: 'diagnosis-protesis' },
+    { type: 'Sano', label: 'Sano', cssClass: 'diagnosis-sano' },
   ];
 
   patientId!: number;
@@ -508,6 +516,14 @@ export class OdontogramComponent implements OnInit {
       Obturacion: 'Obturacion',
       Fractura: 'Fractura',
       Sellante: 'Sellante',
+      Extraccion: 'Extraccion',
+      Corona: 'Corona',
+      Puente: 'Puente',
+      Implante: 'Implante',
+      Endodoncia: 'Endodoncia',
+      TratamientoConducto: 'TratamientoConducto',
+      Protesis: 'Protesis',
+      Sano: 'Sano',
     };
 
     return diagnosisMap[diagnosis] ?? null;
