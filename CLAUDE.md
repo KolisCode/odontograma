@@ -62,7 +62,7 @@ npx tsc --noEmit
 
 - **Runtime**: Node.js con CommonJS (`require`/`module.exports`)
 - **Puerto**: 3000
-- **ORM**: Prisma con PostgreSQL
+- **ORM**: Prisma con **SQLite** (`DATABASE_URL` en `.env`)
 - **Base URL frontend**: `http://localhost:3000` (configurado en los servicios Angular)
 - **Autenticación**: JWT — middleware `auth.middleware.js` protege las rutas
 - **Rutas API principales**:
@@ -74,6 +74,40 @@ npx tsc --noEmit
   - `/historias-clinicas` — historia clínica
   - `/tratamientos` — tratamientos por paciente
   - `/dashboard` — estadísticas generales
+
+## Schema Prisma — modelos clave
+
+```
+Paciente       id, nombre, apellido, documento (unique), telefono?, correo?,
+               fechaNacimiento?, direccion?, eps?, alergias?, observaciones?,
+               activo (bool), historiaClinicaCompleta (bool)
+
+Usuario        id, nombre, apellido, correo (unique), password, rol (enum),
+               telefono?, documento?, activo
+               Roles: ADMIN | ODONTOLOGO | AUXILIAR | RECEPCION
+
+Cita           id, pacienteId, usuarioId?, fecha (DateTime), motivo, tipoAtencion?,
+               estado (EstadoCita: PROGRAMADA|CONFIRMADA|CANCELADA|ATENDIDA)
+               NOTA: hora se guarda dentro del campo DateTime de fecha
+
+Movimiento     id, tipo (INGRESO|EGRESO), concepto, monto, fecha, metodoPago?,
+               estado (PENDIENTE|PAGADO|CANCELADO), pacienteId?, citaId?, odontogramaId?
+
+Odontograma    id, pacienteId, fecha, version (int), activo (bool)
+  └─ Diente    id, numero, odontogramaId
+      └─ DiagnosticoSuperficie  id, superficie (String), diagnostico (Json), dienteId
+         NOTA: diagnostico es Json libre — no hay enum en BD, no requiere migración
+
+Tratamiento    id, pacienteId, usuarioId?, odontogramaId?, descripcion, estado
+               (ACTIVO|FINALIZADO|PAUSADO), monto?, fechaInicio?, fechaFin?
+
+HistoriaClinica  id, pacienteId, usuarioId?, odontogramaId?, numeroHistoria (unique),
+                 campos simples (estadoCivil, sexo, ocupacion, etc.)
+                 campos JSON: enfermedadesSistemicas, medicacionActual, alergiasGenerales,
+                              antecedentesHematologicos, ginecoObstetricos, habitos,
+                              antecedentesOdontologicos, higieneOral
+                 declaracionAceptada (bool)
+```
 
 ## Odontograma — sistema de dos categorías
 
@@ -93,6 +127,20 @@ El odontograma distingue entre:
 - `appointment.html`: botón **"Ver calendario"** — sin acción
 - `historia-clinica.html`: botón **"Vista previa"** — sin acción
 - `historia-clinica.html`: sección **"Módulos clínicos asociados"** — comentada (~líneas 603-647)
+
+## Historia clínica — notas de implementación
+
+- Formulario enorme (~135 campos) en un solo `FormGroup` plano — los campos JSON del backend se deserializan/serializan en `patchHistoria()` / `onSave()`
+- Los campos `antecedentesQuirurgicos`, `alergiasGenerales`, `antecedentesHematologicos`, `ginecoObstetricos`, `habitos`, `antecedentesOdontologicos` se guardan como `JSON.stringify({...})` (string)
+- Los campos `enfermedadesSistemicas` e `higieneOral` se guardan como objeto JSON directo
+- `medicacionActual` es un array de `{medicamento, dosis, frecuencia}` — manejado con `FormArray`
+- `numeroHistoria` se auto-genera como `HC-{año}-{pacienteId padded 4}`
+
+## Odontograma — notas de implementación
+
+- `buildBackendStructure()` tiene una limitación: para piezas, escribe una sola entrada `superficie:'P'` por diente (la última gana). El frontend soporta múltiples piezas por diente pero el backend solo persiste una. Pendiente de revisar.
+- `localStorage` guarda diagnósticos y piezas como caché temporal (efecto en constructor)
+- Superficies backend: `M`=Mesial, `D`=Distal, `V`/`C`=Centro, `L`=Lingual, `O`=Oclusal, `P`=Pieza protésica
 
 ## Qué NO hacer
 
