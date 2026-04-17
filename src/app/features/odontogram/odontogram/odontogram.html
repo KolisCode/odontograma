@@ -55,53 +55,46 @@
         <span class="record-counter">{{ groupedDiagnosesByTooth().length }} dientes</span>
       </div>
 
-      <div *ngIf="groupedDiagnosesByTooth().length > 0; else noRecords" class="record-grid">
-        <div *ngFor="let record of groupedDiagnosesByTooth(); let i = index" class="record-item">
-          <div class="record-top">
-            <div class="record-id">Diente #{{ record.tooth }}</div>
-          </div>
-
-          <div class="record-body">
-            <div class="record-row-inline">
-              <span class="record-label">Diente</span>
-              <span class="record-tooth">{{ record.tooth }}</span>
-            </div>
-
-            <div class="record-row">
-              <span class="record-label">Caras y diagnósticos</span>
-
-              <div class="record-surfaces">
-                <div class="surface-record" *ngFor="let surface of record.surfaces">
-                  <div class="surface-record-top">
-                    <div class="surface-name">{{ surface.surface }}</div>
-
-                    <button class="delete-btn surface-delete-btn"
-                      (click)="removeSurfaceRecord(record.tooth, surface.surface)" title="Eliminar esta cara del diente"
-                      type="button">
-                      ✕
-                    </button>
-                  </div>
-
-                  <div class="surface-diagnoses">
-                    <span class="record-badge" *ngFor="let diagnosis of surface.diagnoses" [ngClass]="{
-                  'badge-caries': diagnosis === 'Caries',
-                  'badge-obturacion': diagnosis === 'Obturacion',
-                  'badge-fractura': diagnosis === 'Fractura',
-                  'badge-sellante': diagnosis === 'Sellante'
-                }">
-                      {{ diagnosis }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="record-row">
-              <span class="record-label">Fecha</span>
-              <span class="record-date">{{ record.date | date: 'short' }}</span>
-            </div>
-          </div>
-        </div>
+      <div *ngIf="groupedDiagnosesByTooth().length > 0; else noRecords" class="record-table-wrapper">
+        <table class="record-table">
+          <thead>
+            <tr>
+              <th>Diente</th>
+              <th>Cara</th>
+              <th>Diagnóstico(s)</th>
+              <th>Fecha</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let record of groupedDiagnosesByTooth()">
+              <tr *ngFor="let surface of record.surfaces; let first = first" class="record-row-table">
+                <td *ngIf="first" [attr.rowspan]="record.surfaces.length" class="record-cell-tooth">
+                  <span class="record-tooth">{{ record.tooth }}</span>
+                </td>
+                <td class="record-cell-surface">{{ surface.surface }}</td>
+                <td class="record-cell-diagnoses">
+                  <span class="record-badge" *ngFor="let diagnosis of surface.diagnoses" [ngClass]="{
+                    'badge-caries': diagnosis === 'Caries',
+                    'badge-obturacion': diagnosis === 'Obturacion',
+                    'badge-fractura': diagnosis === 'Fractura',
+                    'badge-sellante': diagnosis === 'Sellante'
+                  }">{{ diagnosis }}</span>
+                </td>
+                <td *ngIf="first" [attr.rowspan]="record.surfaces.length" class="record-cell-date">
+                  {{ record.date | date: 'dd/MM/yy' }}
+                </td>
+                <td class="record-cell-action">
+                  <button
+                    class="delete-btn surface-delete-btn"
+                    (click)="removeSurfaceRecord(record.tooth, surface.surface)"
+                    title="Eliminar cara"
+                    type="button">✕</button>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
       </div>
 
       <ng-template #noRecords>

@@ -339,57 +339,70 @@
   font-weight: 700;
 }
 
-.record-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+.record-table-wrapper {
+  overflow-x: auto;
 }
 
-.record-item {
-  background: linear-gradient(180deg, #fbfdff 0%, #f7faff 100%);
-  border-radius: 16px;
-  padding: 16px;
-  border: 1px solid #e3ebf5;
-  transition: 0.2s ease;
+.record-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
 }
 
-.record-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
-}
-
-.record-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.record-id {
-  font-size: 12px;
+.record-table thead th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 11px;
   font-weight: 800;
-  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  color: #64748b;
+  border-bottom: 2px solid #eef2f7;
+  background: #f8fafc;
 }
 
-.record-body {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.record-table thead th:last-child {
+  width: 36px;
 }
 
-.record-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.record-table tbody tr.record-row-table:hover td {
+  background: #f8fafc;
 }
 
-.record-row-inline {
+.record-table tbody td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f4f8;
+  vertical-align: middle;
+  color: #334155;
+}
+
+.record-cell-tooth {
+  white-space: nowrap;
+}
+
+.record-cell-surface {
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.record-cell-diagnoses {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.record-cell-date {
+  white-space: nowrap;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.record-cell-action {
+  text-align: center;
+  white-space: nowrap;
 }
 
 .record-label {
@@ -537,10 +550,6 @@
 
   .right-column {
     position: static;
-  }
-
-  .record-grid {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -762,47 +771,10 @@
   }
 }
 
-.record-surfaces {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.surface-record {
-  background: #f8fafc;
-  border: 1px solid #e5edf5;
-  border-radius: 12px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.surface-name {
-  font-size: 13px;
-  font-weight: 800;
-  color: #334155;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.surface-diagnoses {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.surface-record-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
 .surface-delete-btn {
-  width: 30px;
-  height: 30px;
-  font-size: 16px;
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
   border-radius: 8px;
   flex-shrink: 0;
 }
