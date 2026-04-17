@@ -16,7 +16,11 @@ export class Tooth {
 
   @Input() filledFaces: SurfaceDiagnosis[] = [];
 
-  @Input() piece: PieceType | null = null;
+  @Input() pieces: PieceType[] = [];
+
+  hasPiece(type: PieceType): boolean {
+    return this.pieces.includes(type);
+  }
 
   @Output() surfaceClick = new EventEmitter<{
     tooth: number;

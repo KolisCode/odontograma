@@ -24,7 +24,7 @@
             *ngFor="let tooth of upperRight"
             [number]="tooth"
             [filledFaces]="toothFaceMap().get(tooth) || []"
-            [piece]="piecesMap().get(tooth) ?? null"
+            [pieces]="piecesMap().get(tooth) ?? []"
             (surfaceClick)="applyDiagnosis($event)">
           </app-tooth>
         </div>
@@ -33,7 +33,7 @@
             *ngFor="let tooth of upperLeft"
             [number]="tooth"
             [filledFaces]="toothFaceMap().get(tooth) || []"
-            [piece]="piecesMap().get(tooth) ?? null"
+            [pieces]="piecesMap().get(tooth) ?? []"
             (surfaceClick)="applyDiagnosis($event)">
           </app-tooth>
         </div>
@@ -47,7 +47,7 @@
             *ngFor="let tooth of lowerRight"
             [number]="tooth"
             [filledFaces]="toothFaceMap().get(tooth) || []"
-            [piece]="piecesMap().get(tooth) ?? null"
+            [pieces]="piecesMap().get(tooth) ?? []"
             (surfaceClick)="applyDiagnosis($event)">
           </app-tooth>
         </div>
@@ -56,7 +56,7 @@
             *ngFor="let tooth of lowerLeft"
             [number]="tooth"
             [filledFaces]="toothFaceMap().get(tooth) || []"
-            [piece]="piecesMap().get(tooth) ?? null"
+            [pieces]="piecesMap().get(tooth) ?? []"
             (surfaceClick)="applyDiagnosis($event)">
           </app-tooth>
         </div>
@@ -80,8 +80,8 @@
         <div class="pieces-list">
           <div class="piece-tag" *ngFor="let p of pieces()" [ngClass]="'piece-tag--' + p.type.toLowerCase()">
             <span class="piece-tag__tooth">#{{ p.tooth }}</span>
-            <span class="piece-tag__label">{{ p.type }}</span>
-            <button type="button" class="piece-tag__remove" (click)="removePiece(p.tooth)" title="Quitar pieza">✕</button>
+            <span class="piece-tag__label">{{ getPieceLabel(p.type) }}</span>
+            <button type="button" class="piece-tag__remove" (click)="removePiece(p.tooth, p.type)" title="Quitar pieza">✕</button>
           </div>
         </div>
       </div>
@@ -106,11 +106,11 @@
                 <td class="record-cell-surface">{{ surface.surface }}</td>
                 <td class="record-cell-diagnoses">
                   <span class="record-badge" *ngFor="let diagnosis of surface.diagnoses" [ngClass]="{
-                    'badge-caries': diagnosis === 'Caries',
-                    'badge-obturacion': diagnosis === 'Obturacion',
-                    'badge-fractura': diagnosis === 'Fractura',
+                    'badge-caries':    diagnosis === 'Caries',
+                    'badge-obturacion':diagnosis === 'Obturacion',
+                    'badge-fractura':  diagnosis === 'Fractura',
                     'badge-sellante': diagnosis === 'Sellante'
-                  }">{{ diagnosis }}</span>
+                  }">{{ getDiagnosisLabel(diagnosis) }}</span>
                 </td>
                 <td *ngIf="first" [attr.rowspan]="record.surfaces.length" class="record-cell-date">
                   {{ record.date | date: 'dd/MM/yy' }}

@@ -144,32 +144,29 @@ export class OdontogramComponent implements OnInit {
   private togglePiece(tooth: number) {
     const pieceType = this.selectedPiece!;
     this.pieces.update((current) => {
-      const existingIndex = current.findIndex((p) => p.tooth === tooth);
-
-      if (existingIndex === -1) {
-        return [...current, { tooth, type: pieceType, date: new Date().toISOString() }];
-      }
-
-      // Si es la misma pieza: quitar (toggle). Si es distinta: reemplazar.
-      if (current[existingIndex].type === pieceType) {
+      const existingIndex = current.findIndex(
+        (p) => p.tooth === tooth && p.type === pieceType,
+      );
+      // Toggle: si ya existe esa combinación diente+tipo, se quita; si no, se añade
+      if (existingIndex !== -1) {
         return current.filter((_, i) => i !== existingIndex);
       }
-
-      return current.map((p, i) =>
-        i === existingIndex ? { ...p, type: pieceType, date: new Date().toISOString() } : p,
-      );
+      return [...current, { tooth, type: pieceType, date: new Date().toISOString() }];
     });
   }
 
-  removePiece(tooth: number) {
-    this.pieces.update((current) => current.filter((p) => p.tooth !== tooth));
+  removePiece(tooth: number, type: PieceType) {
+    this.pieces.update((current) =>
+      current.filter((p) => !(p.tooth === tooth && p.type === type)),
+    );
   }
 
   // ── Maps computados ───────────────────────────────────────────────────────
   piecesMap = computed(() => {
-    const map = new Map<number, PieceType>();
+    const map = new Map<number, PieceType[]>();
     for (const p of this.pieces()) {
-      map.set(p.tooth, p.type);
+      if (!map.has(p.tooth)) map.set(p.tooth, []);
+      map.get(p.tooth)!.push(p.type);
     }
     return map;
   });
@@ -238,6 +235,34 @@ export class OdontogramComponent implements OnInit {
     }
     return summary;
   });
+
+  private readonly diagnosisLabels: Record<DiagnosisType, string> = {
+    Caries: 'Caries',
+    Obturacion: 'Obturación',
+    Fractura: 'Fractura',
+    Sellante: 'Sellante',
+    Extraccion: 'Extracción',
+    Endodoncia: 'Endodoncia',
+    TratamientoConducto: 'Trat. Conducto',
+    Sano: 'Sano',
+  };
+
+  private readonly pieceLabels: Record<PieceType, string> = {
+    Corona: 'Corona',
+    Puente: 'Puente',
+    Implante: 'Implante',
+    ProtesisParcial: 'Prót. Parcial',
+    ProtesisTotal: 'Prót. Total',
+    DienteAusente: 'Diente Ausente',
+  };
+
+  getDiagnosisLabel(type: DiagnosisType): string {
+    return this.diagnosisLabels[type] ?? type;
+  }
+
+  getPieceLabel(type: PieceType): string {
+    return this.pieceLabels[type] ?? type;
+  }
 
   // ── Estado del odontograma ────────────────────────────────────────────────
   odontogram: Odontogram | null = null;
