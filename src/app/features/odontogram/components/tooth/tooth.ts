@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ToothSurface } from '../../types/tooth-surface';
 import { SurfaceDiagnosis } from '../../interfaces/surface-diagnosis';
+import { PieceType } from '../../types/piece-type';
 
 @Component({
   selector: 'app-tooth',
@@ -15,6 +16,8 @@ export class Tooth {
 
   @Input() filledFaces: SurfaceDiagnosis[] = [];
 
+  @Input() piece: PieceType | null = null;
+
   @Output() surfaceClick = new EventEmitter<{
     tooth: number;
     surface: ToothSurface;
@@ -26,12 +29,8 @@ export class Tooth {
     Fractura: 'diagnosis-fractura',
     Sellante: 'diagnosis-sellante',
     Extraccion: 'diagnosis-extraccion',
-    Corona: 'diagnosis-corona',
-    Puente: 'diagnosis-puente',
-    Implante: 'diagnosis-implante',
     Endodoncia: 'diagnosis-endodoncia',
     TratamientoConducto: 'diagnosis-tratamiento-conducto',
-    Protesis: 'diagnosis-protesis',
     Sano: 'diagnosis-sano',
   };
 

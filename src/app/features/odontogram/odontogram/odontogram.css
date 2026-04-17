@@ -106,10 +106,39 @@
   line-height: 1.4;
 }
 
+/* ── Tabs de selección ────────────────────────────────────────── */
+.selection-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.selection-tab {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  border-radius: 9px;
+  padding: 8px 10px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.selection-tab.active {
+  background: #fff;
+  color: #111827;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+/* ── Botones de diagnóstico ───────────────────────────────────── */
 .diagnosis-toolbar {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
 }
 
 .diagnosis-btn {
@@ -117,14 +146,15 @@
   background: #f8fafc;
   color: #334155;
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 9px 10px;
   font-weight: 600;
+  font-size: 13px;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: 0.18s ease;
+  text-align: center;
 }
 
 .diagnosis-btn:hover {
-  transform: translateY(-1px);
   border-color: #cbd5e1;
   background: #f1f5f9;
 }
@@ -132,24 +162,68 @@
 .diagnosis-btn.active {
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
-.diagnosis-btn.active.diagnosis-caries {
-  background: #b93340;
+.diagnosis-btn--caries.active          { background: #dc2626; }
+.diagnosis-btn--obturacion.active      { background: #2563eb; }
+.diagnosis-btn--fractura.active        { background: #ea580c; }
+.diagnosis-btn--sellante.active        { background: #16a34a; }
+.diagnosis-btn--extraccion.active      { background: #374151; }
+.diagnosis-btn--endodoncia.active      { background: #db2777; }
+.diagnosis-btn--tratamientoconducto.active { background: #9d174d; }
+.diagnosis-btn--sano.active            { background: #15803d; }
+
+/* ── Botones de pieza ─────────────────────────────────────────── */
+.piece-toolbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
-.diagnosis-btn.active.diagnosis-obturacion {
-  background: #0d6efd;
+.piece-btn {
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+  border-radius: 12px;
+  padding: 10px 8px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
-.diagnosis-btn.active.diagnosis-fractura {
-  background: #fd7e14;
+.piece-btn:hover {
+  background: #f1f5f9;
 }
 
-.diagnosis-btn.active.diagnosis-sellante {
-  background: #198754;
+.piece-btn.active {
+  border-style: solid;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.14);
 }
+
+.piece-btn__icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.piece-btn__label {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Colores activos por tipo de pieza */
+.piece-btn--corona.active         { background: #d97706; border-color: #d97706; }
+.piece-btn--puente.active         { background: #92400e; border-color: #92400e; }
+.piece-btn--implante.active       { background: #0369a1; border-color: #0369a1; }
+.piece-btn--protesisparcial.active { background: #7c3aed; border-color: #7c3aed; }
+.piece-btn--protesistotal.active  { background: #be185d; border-color: #be185d; }
+.piece-btn--dienteausente.active  { background: #475569; border-color: #475569; }
 
 .clear-diagnosis-btn {
   border: 1px dashed #cbd5e1;
@@ -175,15 +249,20 @@
   background: linear-gradient(135deg, #f8fafc, #eef4ff);
   border: 1px solid #dbe7ff;
   border-radius: 14px;
-  padding: 16px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .active-diagnosis-card.empty {
   background: #f8fafc;
   border-color: #e5e7eb;
+}
+
+.active-diagnosis-card.is-piece {
+  background: linear-gradient(135deg, #fdf8f0, #fff7ed);
+  border-color: #fed7aa;
 }
 
 .active-diagnosis-label {
@@ -205,54 +284,6 @@
   color: #6b7280;
 }
 
-.diagnosis-legend {
-  border-top: 1px solid #eef2f7;
-  padding-top: 14px;
-}
-
-.legend-title {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 10px;
-  color: #334155;
-}
-
-.legend-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #475569;
-  font-size: 14px;
-}
-
-.legend-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.legend-dot.diagnosis-caries {
-  background: #dc3545;
-}
-
-.legend-dot.diagnosis-obturacion {
-  background: #0d6efd;
-}
-
-.legend-dot.diagnosis-fractura {
-  background: #fd7e14;
-}
-
-.legend-dot.diagnosis-sellante {
-  background: #198754;
-}
 
 .save-section {
   display: flex;
@@ -330,6 +361,12 @@
   color: #111827;
 }
 
+.record-counters {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
 .record-counter {
   background: #eff6ff;
   color: #1d4ed8;
@@ -338,6 +375,68 @@
   font-size: 12px;
   font-weight: 700;
 }
+
+.record-counter--piece {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ── Piezas en el registro ────────────────────────────────────── */
+.pieces-record {
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.pieces-record__title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.pieces-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.piece-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  padding: 4px 10px 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid transparent;
+}
+
+.piece-tag__tooth {
+  opacity: 0.75;
+  font-size: 11px;
+}
+
+.piece-tag__remove {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  opacity: 0.65;
+  padding: 0;
+  line-height: 1;
+}
+
+.piece-tag__remove:hover { opacity: 1; }
+
+.piece-tag--corona          { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+.piece-tag--puente          { background: #fde8d0; color: #7c2d12; border-color: #fdba74; }
+.piece-tag--implante        { background: #e0f2fe; color: #075985; border-color: #7dd3fc; }
+.piece-tag--protesisparcial { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
+.piece-tag--protesistotal   { background: #fce7f3; color: #9d174d; border-color: #f9a8d4; }
+.piece-tag--dienteausente   { background: #f1f5f9; color: #334155; border-color: #94a3b8; }
 
 .record-table-wrapper {
   overflow-x: auto;

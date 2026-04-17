@@ -4,10 +4,6 @@ export type DiagnosisType =
   | 'Fractura'
   | 'Sellante'
   | 'Extraccion'
-  | 'Corona'
-  | 'Puente'
-  | 'Implante'
   | 'Endodoncia'
   | 'TratamientoConducto'
-  | 'Protesis'
   | 'Sano';

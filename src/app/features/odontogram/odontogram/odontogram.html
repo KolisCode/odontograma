@@ -20,13 +20,20 @@
 
       <div class="arch upper">
         <div class="quadrant">
-          <app-tooth *ngFor="let tooth of upperRight; let i = index" [number]="tooth"
-            [filledFaces]="toothFaceMap().get(tooth) || []" (surfaceClick)="applyDiagnosis($event)">
+          <app-tooth
+            *ngFor="let tooth of upperRight"
+            [number]="tooth"
+            [filledFaces]="toothFaceMap().get(tooth) || []"
+            [piece]="piecesMap().get(tooth) ?? null"
+            (surfaceClick)="applyDiagnosis($event)">
           </app-tooth>
         </div>
-
         <div class="quadrant">
-          <app-tooth *ngFor="let tooth of upperLeft" [number]="tooth" [filledFaces]="toothFaceMap().get(tooth) || []"
+          <app-tooth
+            *ngFor="let tooth of upperLeft"
+            [number]="tooth"
+            [filledFaces]="toothFaceMap().get(tooth) || []"
+            [piece]="piecesMap().get(tooth) ?? null"
             (surfaceClick)="applyDiagnosis($event)">
           </app-tooth>
         </div>
@@ -36,13 +43,20 @@
 
       <div class="arch lower">
         <div class="quadrant">
-          <app-tooth *ngFor="let tooth of lowerRight" [number]="tooth" [filledFaces]="toothFaceMap().get(tooth) || []"
+          <app-tooth
+            *ngFor="let tooth of lowerRight"
+            [number]="tooth"
+            [filledFaces]="toothFaceMap().get(tooth) || []"
+            [piece]="piecesMap().get(tooth) ?? null"
             (surfaceClick)="applyDiagnosis($event)">
           </app-tooth>
         </div>
-
         <div class="quadrant">
-          <app-tooth *ngFor="let tooth of lowerLeft" [number]="tooth" [filledFaces]="toothFaceMap().get(tooth) || []"
+          <app-tooth
+            *ngFor="let tooth of lowerLeft"
+            [number]="tooth"
+            [filledFaces]="toothFaceMap().get(tooth) || []"
+            [piece]="piecesMap().get(tooth) ?? null"
             (surfaceClick)="applyDiagnosis($event)">
           </app-tooth>
         </div>
@@ -52,7 +66,24 @@
     <section class="diagnostic-record">
       <div class="section-header">
         <h3>Registro</h3>
-        <span class="record-counter">{{ groupedDiagnosesByTooth().length }} dientes</span>
+        <div class="record-counters">
+          <span class="record-counter">{{ groupedDiagnosesByTooth().length }} diagnósticos</span>
+          <span class="record-counter record-counter--piece" *ngIf="pieces().length > 0">
+            {{ pieces().length }} piezas
+          </span>
+        </div>
+      </div>
+
+      <!-- Piezas registradas -->
+      <div *ngIf="pieces().length > 0" class="pieces-record">
+        <div class="pieces-record__title">Piezas protésicas</div>
+        <div class="pieces-list">
+          <div class="piece-tag" *ngFor="let p of pieces()" [ngClass]="'piece-tag--' + p.type.toLowerCase()">
+            <span class="piece-tag__tooth">#{{ p.tooth }}</span>
+            <span class="piece-tag__label">{{ p.type }}</span>
+            <button type="button" class="piece-tag__remove" (click)="removePiece(p.tooth)" title="Quitar pieza">✕</button>
+          </div>
+        </div>
       </div>
 
       <div *ngIf="groupedDiagnosesByTooth().length > 0; else noRecords" class="record-table-wrapper">
@@ -107,136 +138,134 @@
 
   <div class="right-column">
     <aside class="diagnostic-panel">
+
+      <!-- Estado del odontograma -->
       <div class="odontogram-status-card" *ngIf="originalOdontogram">
         <div class="status-row">
-          <span class="status-label">Odontograma </span>
+          <span class="status-label">Odontograma</span>
           <span class="status-badge">Activo</span>
         </div>
-
         <div class="status-meta">
           <div>
             <div class="status-meta-label">Fecha</div>
-            <div class="status-meta-value">
-              {{ originalOdontogram.date | date: 'short' }}
-            </div>
+            <div class="status-meta-value">{{ originalOdontogram.date | date: 'short' }}</div>
           </div>
-
           <div *ngIf="originalOdontogram.version">
             <div class="status-meta-label">Versión</div>
-            <div class="status-meta-value">
-              {{ originalOdontogram.version }}
-            </div>
+            <div class="status-meta-value">{{ originalOdontogram.version }}</div>
           </div>
         </div>
       </div>
 
-      <div class="panel-header">
-        <div class="tooth-guide-card">
-          <div class="tooth-guide-header">
-            <div>
-              <div class="tooth-guide-title">Guía de caras</div>
-              <div class="tooth-guide-subtitle">Identifica cada superficie del diente</div>
-            </div>
-
-            <button type="button" class="tooth-guide-btn" (click)="openToothGuideModal()">
-              Ver guía
-            </button>
+      <!-- Guía de caras -->
+      <div class="tooth-guide-card">
+        <div class="tooth-guide-header">
+          <div>
+            <div class="tooth-guide-title">Guía de caras</div>
+            <div class="tooth-guide-subtitle">Identifica cada superficie</div>
           </div>
-
-          <div class="tooth-guide-preview" (click)="openToothGuideModal()">
-            <svg class="guide-preview-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg"
-              aria-label="Guía del diente" role="img">
-              <path class="guide-outline" d="M30,8
-           C18,8 10,18 10,32
-           L10,54
-           C10,66 16,76 24,84
-           C28,88 30,94 30,102
-           C30,110 35,116 42,116
-           C47,116 50,112 50,106
-           C50,112 53,116 58,116
-           C65,116 70,110 70,102
-           C70,94 72,88 76,84
-           C84,76 90,66 90,54
-           L90,32
-           C90,18 82,8 70,8
-           Z" />
-
-              <rect x="39" y="14" width="22" height="20" rx="8" class="guide-surface guide-top" />
-              <rect x="14" y="42" width="20" height="28" rx="8" class="guide-surface guide-left" />
-              <rect x="36" y="42" width="28" height="28" rx="8" class="guide-surface guide-center" />
-              <rect x="66" y="42" width="20" height="28" rx="8" class="guide-surface guide-right" />
-              <rect x="39" y="78" width="22" height="24" rx="8" class="guide-surface guide-bottom" />
-            </svg>
-
-            <div class="guide-preview-hint">Haz clic para ampliar</div>
-          </div>
+          <button type="button" class="tooth-guide-btn" (click)="openToothGuideModal()">Ver guía</button>
         </div>
-        <h3 class="panel-title">Diagnóstico rápido</h3>
-        <p class="panel-subtitle">
-          Selecciona un diagnóstico y luego haz clic sobre la cara del diente.
-        </p>
+        <div class="tooth-guide-preview" (click)="openToothGuideModal()">
+          <svg class="guide-preview-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" aria-label="Guía del diente" role="img">
+            <path class="guide-outline" d="M30,8 C18,8 10,18 10,32 L10,54 C10,66 16,76 24,84 C28,88 30,94 30,102 C30,110 35,116 42,116 C47,116 50,112 50,106 C50,112 53,116 58,116 C65,116 70,110 70,102 C70,94 72,88 76,84 C84,76 90,66 90,54 L90,32 C90,18 82,8 70,8 Z" />
+            <rect x="39" y="14" width="22" height="20" rx="8" class="guide-surface guide-top" />
+            <rect x="14" y="42" width="20" height="28" rx="8" class="guide-surface guide-left" />
+            <rect x="36" y="42" width="28" height="28" rx="8" class="guide-surface guide-center" />
+            <rect x="66" y="42" width="20" height="28" rx="8" class="guide-surface guide-right" />
+            <rect x="39" y="78" width="22" height="24" rx="8" class="guide-surface guide-bottom" />
+          </svg>
+          <div class="guide-preview-hint">Haz clic para ampliar</div>
+        </div>
       </div>
 
-      <div class="diagnosis-toolbar">
-        <button *ngFor="let diagnosis of quickDiagnoses" type="button" class="diagnosis-btn"
-          [class.active]="selectedDiagnosis === diagnosis.type" [class.diagnosis-caries]="diagnosis.type === 'Caries'"
-          [class.diagnosis-obturacion]="diagnosis.type === 'Obturacion'"
-          [class.diagnosis-fractura]="diagnosis.type === 'Fractura'"
-          [class.diagnosis-sellante]="diagnosis.type === 'Sellante'" (click)="selectDiagnosis(diagnosis.type)">
-          {{ diagnosis.label }}
+      <!-- Tabs: Diagnósticos / Piezas -->
+      <div class="selection-tabs">
+        <button
+          type="button"
+          class="selection-tab"
+          [class.active]="activeTab === 'diagnoses'"
+          (click)="switchTab('diagnoses')">
+          Diagnósticos
+        </button>
+        <button
+          type="button"
+          class="selection-tab"
+          [class.active]="activeTab === 'pieces'"
+          (click)="switchTab('pieces')">
+          Piezas
         </button>
       </div>
 
-      <button type="button" class="clear-diagnosis-btn" (click)="clearActiveDiagnosis()"
-        [disabled]="!selectedDiagnosis">
+      <!-- Panel de diagnósticos -->
+      <ng-container *ngIf="activeTab === 'diagnoses'">
+        <p class="panel-subtitle">Selecciona y haz clic en la cara del diente.</p>
+        <div class="diagnosis-toolbar">
+          <button
+            *ngFor="let d of quickDiagnoses"
+            type="button"
+            class="diagnosis-btn"
+            [class.active]="selectedDiagnosis === d.type"
+            [ngClass]="'diagnosis-btn--' + d.type.toLowerCase()"
+            (click)="selectDiagnosis(d.type)">
+            {{ d.label }}
+          </button>
+        </div>
+      </ng-container>
+
+      <!-- Panel de piezas -->
+      <ng-container *ngIf="activeTab === 'pieces'">
+        <p class="panel-subtitle">Selecciona y haz clic en cualquier cara del diente.</p>
+        <div class="piece-toolbar">
+          <button
+            *ngFor="let p of quickPieces"
+            type="button"
+            class="piece-btn"
+            [class.active]="selectedPiece === p.type"
+            [ngClass]="'piece-btn--' + p.type.toLowerCase()"
+            (click)="selectPiece(p.type)">
+            <span class="piece-btn__icon">{{ p.icon }}</span>
+            <span class="piece-btn__label">{{ p.label }}</span>
+          </button>
+        </div>
+      </ng-container>
+
+      <!-- Selección activa -->
+      <button
+        type="button"
+        class="clear-diagnosis-btn"
+        (click)="clearActiveSelection()"
+        [disabled]="!selectedDiagnosis && !selectedPiece">
         Limpiar selección
       </button>
 
-      <div class="active-diagnosis-card" [class.empty]="!selectedDiagnosis">
-        <div class="active-diagnosis-label">Diagnóstico activo</div>
-
-        <div *ngIf="selectedDiagnosis; else noQuickDiagnosisSelected" class="active-diagnosis-value">
-          {{ selectedDiagnosis }}
+      <div class="active-diagnosis-card" [class.empty]="!selectedDiagnosis && !selectedPiece" [class.is-piece]="!!selectedPiece">
+        <div class="active-diagnosis-label">
+          {{ selectedPiece ? 'Pieza activa' : 'Diagnóstico activo' }}
         </div>
-
-        <ng-template #noQuickDiagnosisSelected>
-          <div class="active-diagnosis-empty">
-            No hay diagnóstico seleccionado
-          </div>
+        <ng-container *ngIf="selectedDiagnosis || selectedPiece; else noSelection">
+          <div class="active-diagnosis-value">{{ selectedDiagnosis || selectedPiece }}</div>
+        </ng-container>
+        <ng-template #noSelection>
+          <div class="active-diagnosis-empty">Sin selección activa</div>
         </ng-template>
       </div>
 
-      <div class="diagnosis-legend">
-        <div class="legend-title">Leyenda</div>
-
-        <div class="legend-list">
-          <div class="legend-item" *ngFor="let diagnosis of quickDiagnoses">
-            <span class="legend-dot" [class.diagnosis-caries]="diagnosis.type === 'Caries'"
-              [class.diagnosis-obturacion]="diagnosis.type === 'Obturacion'"
-              [class.diagnosis-fractura]="diagnosis.type === 'Fractura'"
-              [class.diagnosis-sellante]="diagnosis.type === 'Sellante'">
-            </span>
-            <span>{{ diagnosis.label }}</span>
-          </div>
-        </div>
-      </div>
-
+      <!-- Guardar -->
       <div class="save-section">
         <button type="button" class="save-btn" (click)="save()" [disabled]="isSaving">
           {{ isSaving ? 'Guardando...' : 'Guardar odontograma' }}
         </button>
         <button class="btn btn-secondary" type="button" (click)="goToHistoria()">
-            Ir a Historia clínica
-          </button>
-
+          Ir a Historia clínica
+        </button>
         <div *ngIf="saveMessage" class="save-message" [ngClass]="{
-            'save-success': saveMessageType === 'success',
-            'save-error': saveMessageType === 'error',
-            'save-info': saveMessageType === 'info'
-          }">
-          {{ saveMessage }}
-        </div>
+          'save-success': saveMessageType === 'success',
+          'save-error': saveMessageType === 'error',
+          'save-info': saveMessageType === 'info'
+        }">{{ saveMessage }}</div>
       </div>
+
     </aside>
 
     <section class="resumen-panel">
