@@ -3,7 +3,6 @@
 <section class="appointments-page">
   <div class="appointments-header">
     <div class="appointments-header__text">
-      <h1>Citas</h1>
       <p>Programación, control y seguimiento de agenda clínica</p>
     </div>
 
@@ -205,6 +204,7 @@
       <table class="appointments-table">
         <thead>
           <tr>
+            <th>Fecha</th>
             <th>Hora</th>
             <th>Paciente</th>
             <th>Profesional</th>
@@ -214,14 +214,23 @@
         </thead>
         <tbody>
           <tr *ngFor="let item of appointments">
+            <td>{{ item.fecha }}</td>
             <td>{{ item.hora }}</td>
             <td>{{ item.pacienteNombre }}</td>
             <td>{{ item.profesional }}</td>
             <td>{{ item.motivo }}</td>
             <td>
-              <span class="status-badge" [ngClass]="getStatusClass(item.estado)">
-                {{ getStatusLabel(item.estado) }}
-              </span>
+              <select
+                class="estado-select"
+                [ngClass]="getStatusClass(item.estado)"
+                [value]="item.estado"
+                (change)="cambiarEstado(item.id, $any($event.target).value)"
+              >
+                <option value="PROGRAMADA">Programada</option>
+                <option value="CONFIRMADA">Confirmada</option>
+                <option value="ATENDIDA">Atendida</option>
+                <option value="CANCELADA">Cancelada</option>
+              </select>
             </td>
           </tr>
 

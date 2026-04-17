@@ -2,33 +2,30 @@
 <section class="finance-page">
   <div class="finance-header">
     <div class="finance-header__text">
-      <h1>Cartera</h1>
       <p>Registro de ingresos y egresos del consultorio</p>
     </div>
-
-    <div class="finance-header__actions">
-      <button class="btn btn-secondary" type="button">Exportar</button>
-      <button class="btn btn-primary" type="button">Nuevo movimiento</button>
-    </div>
   </div>
+
+  <div *ngIf="errorMessage" class="finance-alert finance-alert--error">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="finance-alert finance-alert--success">{{ successMessage }}</div>
 
   <div class="finance-stats">
     <article class="stat-card">
       <span class="stat-card__label">Ingresos del mes</span>
-      <h2>$ 8.450.000</h2>
+      <h2>{{ ingresosMes | currency:'COP ':'symbol':'1.0-0' }}</h2>
       <p>Pagos de consultas y tratamientos</p>
     </article>
 
     <article class="stat-card">
       <span class="stat-card__label">Egresos del mes</span>
-      <h2>$ 2.180.000</h2>
+      <h2>{{ egresosMes | currency:'COP ':'symbol':'1.0-0' }}</h2>
       <p>Insumos, proveedores y gastos</p>
     </article>
 
     <article class="stat-card">
       <span class="stat-card__label">Balance</span>
-      <h2>$ 6.270.000</h2>
-      <p>Saldo operativo actual</p>
+      <h2>{{ balance | currency:'COP ':'symbol':'1.0-0' }}</h2>
+      <p>Saldo operativo del mes</p>
     </article>
   </div>
 
@@ -42,41 +39,53 @@
         <span class="status-badge status-badge--active">Control diario</span>
       </div>
 
-      <form class="finance-form">
+      <form class="finance-form" [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="form-group">
           <label>Tipo de movimiento</label>
-          <select>
-            <option>Ingreso</option>
-            <option>Egreso</option>
+          <select formControlName="tipo">
+            <option value="INGRESO">Ingreso</option>
+            <option value="EGRESO">Egreso</option>
           </select>
         </div>
 
         <div class="form-group">
           <label>Monto</label>
-          <input type="number" placeholder="Ej. 150000" />
+          <input type="number" formControlName="monto" placeholder="Ej. 150000" min="0" />
+          <span *ngIf="hasError('monto')" class="field-error">El monto es obligatorio y debe ser mayor a 0.</span>
         </div>
 
         <div class="form-group form-group--full">
           <label>Concepto</label>
-          <input type="text" placeholder="Describe el concepto del movimiento" />
+          <input type="text" formControlName="concepto" placeholder="Describe el concepto del movimiento" />
+          <span *ngIf="hasError('concepto')" class="field-error">El concepto es obligatorio (mín. 3 caracteres).</span>
         </div>
 
         <div class="form-group">
           <label>Fecha</label>
-          <input type="date" />
+          <input type="date" formControlName="fecha" />
+          <span *ngIf="hasError('fecha')" class="field-error">La fecha es obligatoria.</span>
         </div>
 
         <div class="form-group">
-          <label>Medio</label>
-          <select>
-            <option>Efectivo</option>
-            <option>Transferencia</option>
-            <option>Tarjeta</option>
+          <label>Medio de pago</label>
+          <select formControlName="metodoPago">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia</option>
+            <option value="Tarjeta">Tarjeta</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Estado</label>
+          <select formControlName="estado">
+            <option value="PENDIENTE">Pendiente</option>
+            <option value="PAGADO">Pagado</option>
+            <option value="CANCELADO">Cancelado</option>
           </select>
         </div>
 
         <div class="form-actions form-group--full">
-          <button class="btn btn-secondary" type="button">Limpiar</button>
+          <button class="btn btn-secondary" type="button" (click)="limpiar()">Limpiar</button>
           <button class="btn btn-primary" type="submit">Guardar movimiento</button>
         </div>
       </form>
@@ -87,33 +96,25 @@
         <div class="finance-card__header finance-card__header--compact">
           <div>
             <h3>Movimientos recientes</h3>
-            <span>Últimos registros financieros</span>
+            <span>Últimos 3 registros</span>
           </div>
         </div>
 
-        <div class="movement-list">
-          <div class="movement-item">
-            <div>
-              <strong>Pago consulta general</strong>
-              <p>13/03/2026 · Efectivo</p>
-            </div>
-            <span class="money money--in">+ $120.000</span>
-          </div>
+        <div *ngIf="loading" class="empty-state">Cargando...</div>
 
-          <div class="movement-item">
-            <div>
-              <strong>Compra de insumos</strong>
-              <p>13/03/2026 · Transferencia</p>
-            </div>
-            <span class="money money--out">- $85.000</span>
-          </div>
+        <div *ngIf="!loading && recentMovimientos.length === 0" class="empty-state">
+          Sin movimientos registrados.
+        </div>
 
-          <div class="movement-item">
+        <div class="movement-list" *ngIf="!loading && recentMovimientos.length > 0">
+          <div class="movement-item" *ngFor="let m of recentMovimientos">
             <div>
-              <strong>Abono tratamiento</strong>
-              <p>12/03/2026 · Tarjeta</p>
+              <strong>{{ m.concepto }}</strong>
+              <p>{{ formatFecha(m.fecha) }} · {{ m.metodoPago ?? '—' }}</p>
             </div>
-            <span class="money money--in">+ $250.000</span>
+            <span class="money" [class.money--in]="m.tipo === 'INGRESO'" [class.money--out]="m.tipo === 'EGRESO'">
+              {{ m.tipo === 'INGRESO' ? '+' : '-' }} {{ m.monto | currency:'COP ':'symbol':'1.0-0' }}
+            </span>
           </div>
         </div>
       </section>
@@ -129,15 +130,17 @@
         <div class="info-stack">
           <div class="info-box">
             <strong>Mayor ingreso</strong>
-            <span>Tratamiento estético · $850.000</span>
+            <span *ngIf="mayorIngreso">{{ mayorIngreso.concepto }} · {{ mayorIngreso.monto | currency:'COP ':'symbol':'1.0-0' }}</span>
+            <span *ngIf="!mayorIngreso">Sin ingresos</span>
           </div>
           <div class="info-box">
             <strong>Mayor egreso</strong>
-            <span>Compra de equipos · $430.000</span>
+            <span *ngIf="mayorEgreso">{{ mayorEgreso.concepto }} · {{ mayorEgreso.monto | currency:'COP ':'symbol':'1.0-0' }}</span>
+            <span *ngIf="!mayorEgreso">Sin egresos</span>
           </div>
           <div class="info-box">
-            <strong>Fecha con más movimiento</strong>
-            <span>12/03/2026</span>
+            <strong>Total de movimientos</strong>
+            <span>{{ movimientos.length }} registros</span>
           </div>
         </div>
       </section>
@@ -148,11 +151,17 @@
     <div class="finance-card__header">
       <div>
         <h3>Historial de movimientos</h3>
-        <span>Control financiero básico para demostración</span>
+        <span>Todos los registros financieros</span>
       </div>
     </div>
 
-    <div class="table-wrapper">
+    <div *ngIf="loading" class="empty-state">Cargando historial...</div>
+
+    <div *ngIf="!loading && movimientos.length === 0" class="empty-state">
+      No hay movimientos registrados.
+    </div>
+
+    <div class="table-wrapper" *ngIf="!loading && movimientos.length > 0">
       <table class="finance-table">
         <thead>
           <tr>
@@ -160,30 +169,26 @@
             <th>Tipo</th>
             <th>Concepto</th>
             <th>Medio</th>
+            <th>Estado</th>
             <th>Monto</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>13/03/2026</td>
-            <td><span class="status-badge status-badge--active">Ingreso</span></td>
-            <td>Pago consulta general</td>
-            <td>Efectivo</td>
-            <td>$120.000</td>
-          </tr>
-          <tr>
-            <td>13/03/2026</td>
-            <td><span class="status-badge status-badge--danger">Egreso</span></td>
-            <td>Compra de insumos</td>
-            <td>Transferencia</td>
-            <td>$85.000</td>
-          </tr>
-          <tr>
-            <td>12/03/2026</td>
-            <td><span class="status-badge status-badge--active">Ingreso</span></td>
-            <td>Abono tratamiento</td>
-            <td>Tarjeta</td>
-            <td>$250.000</td>
+          <tr *ngFor="let m of movimientos">
+            <td>{{ formatFecha(m.fecha) }}</td>
+            <td><span class="status-badge" [ngClass]="getTipoClass(m.tipo)">{{ getTipoLabel(m.tipo) }}</span></td>
+            <td>{{ m.concepto }}</td>
+            <td>{{ m.metodoPago ?? '—' }}</td>
+            <td><span class="status-badge" [ngClass]="getEstadoClass(m.estado)">{{ m.estado }}</span></td>
+            <td>
+              <span [class.money--in]="m.tipo === 'INGRESO'" [class.money--out]="m.tipo === 'EGRESO'">
+                {{ m.monto | currency:'COP ':'symbol':'1.0-0' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn-delete" type="button" (click)="eliminar(m.id)" title="Eliminar">✕</button>
+            </td>
           </tr>
         </tbody>
       </table>

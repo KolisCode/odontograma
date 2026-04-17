@@ -3,7 +3,6 @@
 <section class="patients-page">
   <div class="patients-header">
     <div class="patients-header__text">
-      <h1>Pacientes</h1>
       <p>Registro y administración de información básica del paciente</p>
     </div>
 
@@ -25,10 +24,12 @@
     <section class="patients-card patients-card--form">
       <div class="patients-card__header">
         <div>
-          <h2>Formulario de paciente</h2>
-          <span>Completa la ficha inicial del paciente</span>
+          <h2>{{ editingId ? 'Editar paciente' : 'Formulario de paciente' }}</h2>
+          <span>{{ editingId ? 'Modifica los datos del paciente seleccionado' : 'Completa la ficha inicial del paciente' }}</span>
         </div>
-        <span class="status-badge status-badge--active">Activo</span>
+        <span class="status-badge" [ngClass]="editingId ? 'status-badge--warning' : 'status-badge--active'">
+          {{ editingId ? 'Editando' : 'Activo' }}
+        </span>
       </div>
 
       <form class="patients-form" [formGroup]="patientForm" (ngSubmit)="onSubmit()">
@@ -158,9 +159,11 @@
         </div>
 
         <div class="form-actions form-group--full">
-          <button class="btn btn-secondary" type="button" (click)="clearForm()">Limpiar</button>
+          <button class="btn btn-secondary" type="button" (click)="clearForm()">
+            {{ editingId ? 'Cancelar edición' : 'Limpiar' }}
+          </button>
           <button class="btn btn-primary" type="submit" [disabled]="loading">
-            {{ loading ? 'Guardando...' : 'Guardar paciente' }}
+            {{ loading ? 'Guardando...' : (editingId ? 'Actualizar paciente' : 'Guardar paciente') }}
           </button>
         </div>
       </form>
@@ -252,11 +255,17 @@
             <td>{{ patient.ultimaCita || 'Sin cita' }}</td>
             <td>
               <div class="table-actions">
+                <button class="btn-table btn-table-edit" type="button" (click)="editPatient(patient.id)">
+                  Editar
+                </button>
                 <button class="btn-table btn-table-secondary" type="button" (click)="goToHistory(patient.id)">
                   Historia
                 </button>
                 <button class="btn-table btn-table-primary" type="button" (click)="goToOdontogram(patient.id)">
                   Odontograma
+                </button>
+                <button class="btn-table btn-table-secondary" type="button" (click)="goToTratamientos(patient.id)">
+                  Tratamientos
                 </button>
               </div>
             </td>
