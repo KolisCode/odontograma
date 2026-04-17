@@ -9,17 +9,18 @@ import { Appointment } from './features/user/appointment/appointment';
 import { HistoriaClinica } from './features/historia-clinica/historia-clinica';
 import { Tratamientos } from './features/tratamientos/tratamientos';
 import { authGuard } from './features/authentication/service/auth-guard/auth-guard';
+import { guestGuard } from './features/authentication/service/auth-guard/guest-guard';
 
 export const routes: Routes = [
-  { path: '', component: Login },
-  { path: 'login', component: Login },
-  { path: 'odontogram/:id', component: OdontogramComponent , canActivate: [authGuard] },
-  { path: 'register', component: Register },
-  { path: 'dashboard', component: Dashboard , canActivate: [authGuard] },
-  { path: 'finance', component: Finance , canActivate: [authGuard] },
-  { path: 'patients', component: List , canActivate: [authGuard] },
-  { path: 'appointments', component: Appointment , canActivate: [authGuard] },
-  { path: 'history/:id', component: HistoriaClinica , canActivate: [authGuard] },
-  { path: 'tratamientos/:id', component: Tratamientos , canActivate: [authGuard] },
-  { path: '**', component: Login },
+  { path: '', component: Login, canActivate: [guestGuard] },
+  { path: 'login', component: Login, canActivate: [guestGuard] },
+  { path: 'register', component: Register, canActivate: [guestGuard] },
+  { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
+  { path: 'finance', component: Finance, canActivate: [authGuard] },
+  { path: 'patients', component: List, canActivate: [authGuard] },
+  { path: 'appointments', component: Appointment, canActivate: [authGuard] },
+  { path: 'odontogram/:id', component: OdontogramComponent, canActivate: [authGuard] },
+  { path: 'history/:id', component: HistoriaClinica, canActivate: [authGuard] },
+  { path: 'tratamientos/:id', component: Tratamientos, canActivate: [authGuard] },
+  { path: '**', redirectTo: '/login' },
 ];

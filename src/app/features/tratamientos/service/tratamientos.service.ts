@@ -29,7 +29,7 @@ export interface TratamientoRow {
 
 @Injectable({ providedIn: 'root' })
 export class TratamientosService {
-  private api = '/api/tratamientos';
+  private api = 'http://localhost:3000/tratamientos';
 
   constructor(private http: HttpClient) {}
 

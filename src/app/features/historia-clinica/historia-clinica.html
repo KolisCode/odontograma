@@ -225,18 +225,21 @@
               <span>Frecuencia</span>
             </div>
 
-            <div class="mini-table__row" formArrayName="medicamentos"
-              *ngFor="let med of medicamentosArray.controls; let i = index">
-              <div [formGroupName]="i">
-                <input type="text" formControlName="medicamento" placeholder="Medicamento" />
+            <ng-container formArrayName="medicamentos">
+              <div class="mini-table__row"
+                *ngFor="let med of medicamentosArray.controls; let i = index"
+                [formGroupName]="i">
+                <div>
+                  <input type="text" formControlName="medicamento" placeholder="Medicamento" />
+                </div>
+                <div>
+                  <input type="text" formControlName="dosis" placeholder="Dosis" />
+                </div>
+                <div>
+                  <input type="text" formControlName="frecuencia" placeholder="Frecuencia" />
+                </div>
               </div>
-              <div [formGroupName]="i">
-                <input type="text" formControlName="dosis" placeholder="Dosis" />
-              </div>
-              <div [formGroupName]="i">
-                <input type="text" formControlName="frecuencia" placeholder="Frecuencia" />
-              </div>
-            </div>
+            </ng-container>
 
             <div class="mini-table-actions">
               <button class="btn btn-secondary" type="button" (click)="addMedicamento()">Agregar medicamento</button>

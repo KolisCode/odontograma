@@ -42,8 +42,8 @@ export interface QuickInfo {
   providedIn: 'root'
 })
 export class PatientsService {
- // private api = 'http://192.168.2.7:3000/pacientes'
-  private api = '/api/pacientes'
+  private api = 'http://localhost:3000/pacientes'
+  // private api = '/api/pacientes'
 
   constructor(private http: HttpClient) {}
 
@@ -65,5 +65,9 @@ export class PatientsService {
 
   getPatientById(id: number): Observable<any> {
     return this.http.get(`${this.api}/${id}`);
+  }
+
+  updatePatient(id: number, payload: PatientPayload): Observable<any> {
+    return this.http.patch(`${this.api}/${id}`, payload);
   }
 }

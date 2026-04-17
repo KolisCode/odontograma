@@ -38,9 +38,9 @@
         <label for="rol">Rol</label>
         <select id="rol" formControlName="rol">
           <option value="">Selecciona un rol</option>
-          <option value="odontologo">Odontólogo</option>
-          <option value="auxiliar">Auxiliar</option>
-          <option value="recepcion">Recepción</option>
+          <option value="ODONTOLOGO">Odontólogo</option>
+          <option value="AUXILIAR">Auxiliar</option>
+          <option value="RECEPCION">Recepción</option>
         </select>
         <small *ngIf="registerForm.get('rol')?.touched && registerForm.get('rol')?.invalid">
           Debes seleccionar un rol.

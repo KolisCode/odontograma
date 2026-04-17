@@ -48,7 +48,6 @@ export class Login {
       error: (err) => {
         this.loading = false;
         this.errorMessage = err?.error?.message || 'No se pudo iniciar sesión';
-        console.log(err);
         this.cdr.detectChanges();
       },
     });

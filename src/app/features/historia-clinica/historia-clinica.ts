@@ -480,13 +480,11 @@ export class HistoriaClinica implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log(response);
           this.successMessage = response?.message || 'Historia clínica guardada correctamente';
           this.loading = false;
           this.cdr.detectChanges();
         },
         error: (err) => {
-          console.log(err);
           this.errorMessage = err?.error?.message || 'No se pudo guardar la historia clínica';
           this.loading = false;
           this.cdr.detectChanges();

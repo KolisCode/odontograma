@@ -31,8 +31,8 @@ export interface DashboardSummaryResponse {
   providedIn: 'root'
 })
 export class DashboardService {
-  // private api = 'http://192.168.2.7:3000/dashboard';
-  private api = '/api/dashboard';
+  private api = 'http://localhost:3000/dashboard';
+  //private api = '/api/dashboard';
 
   constructor(private http: HttpClient) {}
 
