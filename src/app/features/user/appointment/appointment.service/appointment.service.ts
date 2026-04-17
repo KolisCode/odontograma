@@ -48,12 +48,12 @@ export interface AgendaSummary {
   providedIn: 'root'
 })
 export class AppointmentService {
-  // private api = 'http://192.168.2.7:3000/citas';
-  // private authApi = 'http://192.168.2.7:3000/auth';
-  // private patientsApi = 'http://192.168.2.7:3000/pacientes';
-  private api = '/api/citas';
-  private authApi = '/api/auth';
-  private patientsApi = '/api/pacientes';
+  private api = 'http://localhost:3000/citas';
+  private authApi = 'http://localhost:3000/auth';
+  private patientsApi = 'http://localhost:3000/pacientes';
+  // private api = '/api/citas';
+  // private authApi = '/api/auth';
+  // private patientsApi = '/api/pacientes';
 
 
   constructor(private http: HttpClient) {}
@@ -84,5 +84,9 @@ export class AppointmentService {
 
   getClinicalStaff(): Observable<any> {
     return this.http.get(`${this.authApi}/clinical-staff`);
+  }
+
+  updateEstado(id: number, estado: string): Observable<any> {
+    return this.http.patch(`${this.api}/${id}/estado`, { estado });
   }
 }

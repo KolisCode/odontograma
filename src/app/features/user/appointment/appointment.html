@@ -8,7 +8,7 @@
 
     <div class="appointments-header__actions">
       <button class="btn btn-secondary" type="button">Ver calendario</button>
-      <button class="btn btn-primary" type="button" (click)="clearForm()">Nueva cita</button>
+      <button class="btn btn-primary" type="button" (click)="openForm()">Nueva cita</button>
     </div>
   </div>
 
@@ -42,13 +42,22 @@
 
   <div class="appointments-layout">
     <section class="appointments-card appointments-card--form">
-      <div class="appointments-card__header">
-        <div>
-          <h2>Agendar cita</h2>
-          <span>Registra una nueva atención en la agenda</span>
-        </div>
-        <span class="status-badge status-badge--pending">Agenda del día</span>
+
+      <!-- Trigger colapsado -->
+      <div class="form-trigger" *ngIf="!formVisible" (click)="openForm()">
+        <div class="form-trigger__icon">+</div>
+        <span class="form-trigger__text">Agendar nueva cita...</span>
       </div>
+
+      <!-- Contenido expandido -->
+      <ng-container *ngIf="formVisible">
+        <div class="appointments-card__header">
+          <div>
+            <h2>Agendar cita</h2>
+            <span>Registra una nueva atención en la agenda</span>
+          </div>
+          <span class="status-badge status-badge--pending">Agenda del día</span>
+        </div>
 
       <form class="appointments-form" [formGroup]="appointmentForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
@@ -134,6 +143,7 @@
           </button>
         </div>
       </form>
+      </ng-container>
     </section>
 
     <aside class="appointments-side">

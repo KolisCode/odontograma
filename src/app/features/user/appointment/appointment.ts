@@ -32,6 +32,7 @@ import {
 export class Appointment implements OnInit {
   appointmentForm: FormGroup;
 
+  formVisible = false;
   loading = false;
   tableLoading = false;
   errorMessage = '';
@@ -179,6 +180,7 @@ export class Appointment implements OnInit {
       next: (response) => {
         this.successMessage = response.message || 'Cita registrada correctamente';
         this.loading = false;
+        this.formVisible = false;
         this.cdr.detectChanges();
 
         this.resetForm();
@@ -192,10 +194,28 @@ export class Appointment implements OnInit {
     });
   }
 
+  openForm(): void {
+    this.formVisible = true;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   clearForm(): void {
+    this.formVisible = false;
     this.resetForm();
     this.errorMessage = '';
     this.successMessage = '';
+  }
+
+  cambiarEstado(id: number, estado: string): void {
+    this.appointmentService.updateEstado(id, estado).subscribe({
+      next: () => {
+        this.loadAppointmentsModuleData();
+      },
+      error: (err: any) => {
+        this.errorMessage = err?.error?.message || 'No se pudo actualizar el estado';
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   getStatusClass(estado: string): string {

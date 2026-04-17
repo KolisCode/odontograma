@@ -8,7 +8,7 @@
 
     <div class="patients-header__actions">
       <button class="btn btn-secondary" type="button">Importar</button>
-      <button class="btn btn-primary" type="button" (click)="clearForm()">Nuevo paciente</button>
+      <button class="btn btn-primary" type="button" (click)="openForm()">Nuevo paciente</button>
     </div>
   </div>
 
@@ -22,15 +22,24 @@
 
   <div class="patients-layout">
     <section class="patients-card patients-card--form">
-      <div class="patients-card__header">
-        <div>
-          <h2>{{ editingId ? 'Editar paciente' : 'Formulario de paciente' }}</h2>
-          <span>{{ editingId ? 'Modifica los datos del paciente seleccionado' : 'Completa la ficha inicial del paciente' }}</span>
-        </div>
-        <span class="status-badge" [ngClass]="editingId ? 'status-badge--warning' : 'status-badge--active'">
-          {{ editingId ? 'Editando' : 'Activo' }}
-        </span>
+
+      <!-- Trigger colapsado -->
+      <div class="form-trigger" *ngIf="!formVisible" (click)="openForm()">
+        <div class="form-trigger__icon">+</div>
+        <span class="form-trigger__text">Registrar nuevo paciente...</span>
       </div>
+
+      <!-- Contenido expandido -->
+      <ng-container *ngIf="formVisible">
+        <div class="patients-card__header">
+          <div>
+            <h2>{{ editingId ? 'Editar paciente' : 'Formulario de paciente' }}</h2>
+            <span>{{ editingId ? 'Modifica los datos del paciente seleccionado' : 'Completa la ficha inicial del paciente' }}</span>
+          </div>
+          <span class="status-badge" [ngClass]="editingId ? 'status-badge--warning' : 'status-badge--active'">
+            {{ editingId ? 'Editando' : 'Activo' }}
+          </span>
+        </div>
 
       <form class="patients-form" [formGroup]="patientForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
@@ -160,13 +169,14 @@
 
         <div class="form-actions form-group--full">
           <button class="btn btn-secondary" type="button" (click)="clearForm()">
-            {{ editingId ? 'Cancelar edición' : 'Limpiar' }}
+            {{ editingId ? 'Cancelar edición' : 'Cancelar' }}
           </button>
           <button class="btn btn-primary" type="submit" [disabled]="loading">
             {{ loading ? 'Guardando...' : (editingId ? 'Actualizar paciente' : 'Guardar paciente') }}
           </button>
         </div>
       </form>
+      </ng-container>
     </section>
 
     <aside class="patients-side">

@@ -31,13 +31,22 @@
 
   <div class="finance-layout">
     <section class="finance-card finance-card--form">
-      <div class="finance-card__header">
-        <div>
-          <h2>Registrar movimiento</h2>
-          <span>Ingresa la información financiera básica</span>
-        </div>
-        <span class="status-badge status-badge--active">Control diario</span>
+
+      <!-- Trigger colapsado -->
+      <div class="form-trigger" *ngIf="!formVisible" (click)="formVisible = true">
+        <div class="form-trigger__icon">+</div>
+        <span class="form-trigger__text">Registrar movimiento...</span>
       </div>
+
+      <!-- Contenido expandido -->
+      <ng-container *ngIf="formVisible">
+        <div class="finance-card__header">
+          <div>
+            <h2>Registrar movimiento</h2>
+            <span>Ingresa la información financiera básica</span>
+          </div>
+          <span class="status-badge status-badge--active">Control diario</span>
+        </div>
 
       <form class="finance-form" [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="form-group">
@@ -85,10 +94,11 @@
         </div>
 
         <div class="form-actions form-group--full">
-          <button class="btn btn-secondary" type="button" (click)="limpiar()">Limpiar</button>
+          <button class="btn btn-secondary" type="button" (click)="limpiar()">Cancelar</button>
           <button class="btn btn-primary" type="submit">Guardar movimiento</button>
         </div>
       </form>
+      </ng-container>
     </section>
 
     <aside class="finance-side">

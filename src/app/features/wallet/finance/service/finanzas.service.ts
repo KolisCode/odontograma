@@ -1,0 +1,62 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface MovimientoPayload {
+  tipo: string;
+  concepto: string;
+  monto: number;
+  fecha: string;
+  estado?: string;
+  metodoPago?: string | null;
+}
+
+export interface MovimientoRow {
+  id: number;
+  tipo: 'INGRESO' | 'EGRESO';
+  concepto: string;
+  monto: number;
+  fecha: string;
+  estado: 'PENDIENTE' | 'PAGADO' | 'CANCELADO';
+  metodoPago: string | null;
+  paciente: { id: number; nombre: string; apellido: string } | null;
+  createdAt: string;
+}
+
+export interface MovimientoFilters {
+  tipo?: string;
+  estado?: string;
+  fechaDesde?: string;
+  fechaHasta?: string;
+}
+
+@Injectable({ providedIn: 'root' })
+export class FinanzasService {
+  private api = 'http://localhost:3000/finanzas';
+
+  constructor(private http: HttpClient) {}
+
+  getAll(filters?: MovimientoFilters): Observable<{ ok: boolean; data: MovimientoRow[] }> {
+    let params = new HttpParams();
+    if (filters?.tipo) params = params.set('tipo', filters.tipo);
+    if (filters?.estado) params = params.set('estado', filters.estado);
+    if (filters?.fechaDesde) params = params.set('fechaDesde', filters.fechaDesde);
+    if (filters?.fechaHasta) params = params.set('fechaHasta', filters.fechaHasta);
+    return this.http.get<{ ok: boolean; data: MovimientoRow[] }>(this.api, { params });
+  }
+
+  create(payload: MovimientoPayload): Observable<{ ok: boolean; data: MovimientoRow }> {
+    return this.http.post<{ ok: boolean; data: MovimientoRow }>(this.api, payload);
+  }
+
+  updateEstado(id: number, estado: string): Observable<{ ok: boolean; data: MovimientoRow }> {
+    return this.http.patch<{ ok: boolean; data: MovimientoRow }>(
+      `${this.api}/${id}/estado`,
+      { estado },
+    );
+  }
+
+  delete(id: number): Observable<{ ok: boolean; message: string }> {
+    return this.http.delete<{ ok: boolean; message: string }>(`${this.api}/${id}`);
+  }
+}

@@ -31,10 +31,12 @@ import {
 export class List implements OnInit {
   patientForm: FormGroup;
 
+  formVisible = false;
   loading = false;
   tableLoading = false;
   errorMessage = '';
   successMessage = '';
+  editingId: number | null = null;
 
   patients: PatientRow[] = [];
   recentPatients: RecentPatient[] = [];
@@ -116,7 +118,6 @@ export class List implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err: any) => {
-        console.log(err);
         this.errorMessage = err?.error?.message || 'No se pudo cargar el listado de pacientes';
         this.tableLoading = false;
         this.cdr.detectChanges();
@@ -140,12 +141,10 @@ export class List implements OnInit {
   loadQuickInfo(): void {
     this.patientsService.getQuickInfo().subscribe({
       next: (response) => {
-        console.log(response);
         this.quickInfo = response.data;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.log(err);
+      error: () => {
         this.quickInfo = {
           alergiasRegistradas: 0,
           pacientesNuevosMes: 0,
@@ -154,6 +153,52 @@ export class List implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  openForm(): void {
+    this.editingId = null;
+    this.patientForm.reset();
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.formVisible = true;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  editPatient(id: number): void {
+    this.formVisible = true;
+    this.patientsService.getPatientById(id).subscribe({
+      next: (res: any) => {
+        const p = res.data;
+        this.editingId = id;
+        this.errorMessage = '';
+        this.successMessage = '';
+        this.patientForm.patchValue({
+          nombre: p.nombre,
+          apellido: p.apellido,
+          documento: p.documento,
+          fechaNacimiento: p.fechaNacimiento ? p.fechaNacimiento.substring(0, 10) : '',
+          telefono: p.telefono ?? '',
+          correo: p.correo ?? '',
+          direccion: p.direccion ?? '',
+          eps: p.eps ?? '',
+          alergias: p.alergias ?? '',
+          observaciones: p.observaciones ?? '',
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.errorMessage = 'No se pudo cargar el paciente para editar';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  cancelEdit(): void {
+    this.editingId = null;
+    this.patientForm.reset();
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 
   onSubmit(): void {
@@ -168,23 +213,45 @@ export class List implements OnInit {
 
     const payload = this.buildPayload();
 
-    this.patientsService.createPatient(payload).subscribe({
-      next: (response: any) => {
-        this.successMessage = response.message || 'Paciente registrado correctamente';
-        this.loading = false;
-        this.cdr.detectChanges();
-        this.patientForm.reset();
-        this.loadPatientsModuleData();
-      },
-      error: (err: any) => {
-        this.errorMessage = err?.error?.message || 'No se pudo registrar el paciente';
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-    });
+    if (this.editingId !== null) {
+      this.patientsService.updatePatient(this.editingId, payload).subscribe({
+        next: (response: any) => {
+          this.successMessage = response.message || 'Paciente actualizado correctamente';
+          this.loading = false;
+          this.editingId = null;
+          this.formVisible = false;
+          this.patientForm.reset();
+          this.cdr.detectChanges();
+          this.loadPatientsModuleData();
+        },
+        error: (err: any) => {
+          this.errorMessage = err?.error?.message || 'No se pudo actualizar el paciente';
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+      });
+    } else {
+      this.patientsService.createPatient(payload).subscribe({
+        next: (response: any) => {
+          this.successMessage = response.message || 'Paciente registrado correctamente';
+          this.loading = false;
+          this.formVisible = false;
+          this.patientForm.reset();
+          this.cdr.detectChanges();
+          this.loadPatientsModuleData();
+        },
+        error: (err: any) => {
+          this.errorMessage = err?.error?.message || 'No se pudo registrar el paciente';
+          this.loading = false;
+          this.cdr.detectChanges();
+        },
+      });
+    }
   }
 
   clearForm(): void {
+    this.editingId = null;
+    this.formVisible = false;
     this.patientForm.reset();
     this.errorMessage = '';
     this.successMessage = '';
@@ -204,6 +271,10 @@ export class List implements OnInit {
 
   goToOdontogram(patientId: number): void {
     this.router.navigate(['/odontogram', patientId]);
+  }
+
+  goToTratamientos(patientId: number): void {
+    this.router.navigate(['/tratamientos', patientId]);
   }
 
   getControl(controlName: string): AbstractControl | null {
