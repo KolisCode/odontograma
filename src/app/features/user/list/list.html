@@ -84,6 +84,7 @@
           <input
             type="date"
             formControlName="fechaNacimiento"
+            [min]="minBirthDate"
             [max]="maxBirthDate"
           />
           <small class="field-hint" *ngIf="getPatientAge() !== null">
@@ -180,6 +181,12 @@
     </section>
 
     <aside class="patients-side">
+      <div class="aside-toggle" (click)="asideVisible = !asideVisible">
+        <span class="aside-toggle__label">{{ asideVisible ? 'Ocultar información' : 'Ver recientes e información' }}</span>
+        <span class="aside-toggle__arrow">{{ asideVisible ? '▲' : '▼' }}</span>
+      </div>
+
+      <ng-container *ngIf="asideVisible">
       <section class="patients-card">
         <div class="patients-card__header patients-card__header--compact">
           <div>
@@ -223,6 +230,7 @@
           </div>
         </div>
       </section>
+      </ng-container>
     </aside>
   </div>
 
@@ -230,7 +238,15 @@
     <div class="patients-card__header">
       <div>
         <h3>Listado de pacientes</h3>
-        <span>Vista rápida para demostración al cliente</span>
+        <span>{{ filteredPatients.length }} de {{ patients.length }} registros</span>
+      </div>
+      <div class="patients-search-wrapper">
+        <input
+          class="patients-search"
+          type="text"
+          placeholder="Buscar por nombre, documento o teléfono..."
+          [(ngModel)]="searchTerm"
+        />
       </div>
     </div>
 
@@ -244,6 +260,7 @@
           <tr>
             <th>Paciente</th>
             <th>Documento</th>
+            <th>Edad</th>
             <th>Teléfono</th>
             <th>EPS</th>
             <th>Estado</th>
@@ -252,9 +269,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let patient of patients">
+          <tr *ngFor="let patient of filteredPatients">
             <td>{{ patient.nombreCompleto }}</td>
             <td>{{ patient.documento }}</td>
+            <td>{{ calcularEdad(patient.fechaNacimiento) !== null ? (calcularEdad(patient.fechaNacimiento) + ' años') : '—' }}</td>
             <td>{{ patient.telefono || 'Sin teléfono' }}</td>
             <td>{{ patient.eps || 'Sin registro' }}</td>
             <td>
@@ -274,8 +292,8 @@
                 <button class="btn-table btn-table-primary" type="button" (click)="goToOdontogram(patient.id)">
                   Odontograma
                 </button>
-                <button class="btn-table btn-table-secondary" type="button" (click)="goToTratamientos(patient.id)">
-                  Tratamientos
+                <button class="btn-table btn-table-secondary" type="button" (click)="goToResumen(patient.id)">
+                  Resumen
                 </button>
                 <button class="btn-table btn-table-secondary" type="button" (click)="goToFinance(patient.id)">
                   Finanzas
@@ -284,8 +302,8 @@
             </td>
           </tr>
 
-          <tr *ngIf="patients.length === 0">
-            <td colspan="7" class="empty-table">
+          <tr *ngIf="filteredPatients.length === 0">
+            <td colspan="8" class="empty-table">
               No hay pacientes registrados todavía.
             </td>
           </tr>

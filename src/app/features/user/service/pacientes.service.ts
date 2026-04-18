@@ -22,6 +22,7 @@ export interface PatientRow {
   telefono: string | null;
   eps: string | null;
   activo: boolean;
+  fechaNacimiento: string | null;
   ultimaCita: string;
 }
 

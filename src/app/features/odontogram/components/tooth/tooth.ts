@@ -18,6 +18,8 @@ export class Tooth {
 
   @Input() pieces: PieceType[] = [];
 
+  @Input() isPrimary = false;
+
   hasPiece(type: PieceType): boolean {
     return this.pieces.includes(type);
   }
@@ -36,6 +38,8 @@ export class Tooth {
     Endodoncia: 'diagnosis-endodoncia',
     TratamientoConducto: 'diagnosis-tratamiento-conducto',
     Sano: 'diagnosis-sano',
+    Pulpotomia: 'diagnosis-pulpotomia',
+    Pulpectomia: 'diagnosis-pulpectomia',
   };
 
   faceClicked(surface: ToothSurface) {
@@ -81,7 +85,8 @@ export class Tooth {
 
     if (lastDigit === 1 || lastDigit === 2) return 'incisor';
     if (lastDigit === 3) return 'canine';
-    if (lastDigit === 4 || lastDigit === 5) return 'premolar';
+    // Dientes primarios: posiciones 4 y 5 son molares, no premolares
+    if (lastDigit === 4 || lastDigit === 5) return this.isPrimary ? 'molar' : 'premolar';
 
     return 'molar';
   }

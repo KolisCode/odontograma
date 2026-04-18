@@ -431,12 +431,12 @@
 
 .piece-tag__remove:hover { opacity: 1; }
 
-.piece-tag--corona          { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
-.piece-tag--puente          { background: #fde8d0; color: #7c2d12; border-color: #fdba74; }
-.piece-tag--implante        { background: #e0f2fe; color: #075985; border-color: #7dd3fc; }
-.piece-tag--protesisparcial { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
-.piece-tag--protesistotal   { background: #fce7f3; color: #9d174d; border-color: #f9a8d4; }
-.piece-tag--dienteausente   { background: #f1f5f9; color: #334155; border-color: #94a3b8; }
+.piece-tag--corona          { color: #92400e; border-color: #e5e7eb; }
+.piece-tag--puente          { color: #7c2d12; border-color: #e5e7eb; }
+.piece-tag--implante        { color: #075985; border-color: #e5e7eb; }
+.piece-tag--protesisparcial { color: #5b21b6; border-color: #e5e7eb; }
+.piece-tag--protesistotal   { color: #9d174d; border-color: #e5e7eb; }
+.piece-tag--dienteausente   { color: #475569; border-color: #e5e7eb; }
 
 .record-table-wrapper {
   overflow-x: auto;
@@ -1162,4 +1162,327 @@
   gap: 10px;
   justify-content: flex-end;
   margin-top: 4px;
+}
+
+/* ── Panel de alertas clínicas ───────────────────────────────────────────── */
+.alertas-panel {
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  overflow: hidden;
+  margin-bottom: 2px;
+}
+
+.alertas-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.alertas-toggle:hover {
+  background: #f1f5f9;
+}
+
+.alertas-toggle__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+  flex-shrink: 0;
+}
+
+.alertas-toggle__dot--critica {
+  background: #ef4444;
+}
+
+.alertas-toggle__label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.alertas-toggle__count {
+  background: #e2e8f0;
+  color: #475569;
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.alertas-toggle__arrow {
+  font-size: 9px;
+  color: #94a3b8;
+  opacity: 0.9;
+}
+
+.alertas-body {
+  padding: 8px 12px 10px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.alerta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 0;
+}
+
+.alerta-row--critica { color: #991b1b; }
+.alerta-row--advertencia { color: #78350f; }
+
+.alerta-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.alerta-dot--critica { background: #ef4444; }
+.alerta-dot--advertencia { background: #f59e0b; }
+
+/* ── Modo pediátrico — badge de contexto ─────────────────────────────────── */
+.patient-context-badge-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.odontogram-mode-badge {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.odontogram-mode-badge--pediatrico {
+  background: #f0fdf4;
+  color: #065f46;
+  border-color: #a7f3d0;
+}
+
+/* ── Modal de sugerencia pediátrica ──────────────────────────────────────── */
+.pediatric-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pediatric-modal {
+  background: #fff;
+  border-radius: 20px;
+  width: min(520px, 100%);
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.22);
+  overflow: hidden;
+}
+
+.pediatric-modal-header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.pediatric-modal-header h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.pediatric-modal-header p {
+  margin: 0;
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.pediatric-modal-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 20px 24px 24px;
+}
+
+.pediatric-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 14px;
+  border-radius: 14px;
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: 0.2s ease;
+  text-align: center;
+}
+
+.pediatric-option:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+}
+
+.pediatric-option strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.pediatric-option span {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.pediatric-option-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.pediatric-option--adulto:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.pediatric-option--pediatrico {
+  border-color: #a7f3d0;
+  background: #f0fdf4;
+}
+
+.pediatric-option--pediatrico:hover {
+  border-color: #059669;
+  background: #ecfdf5;
+}
+
+/* ── Selector de modo en el panel ────────────────────────────────────────── */
+.mode-selector {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mode-selector-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+.mode-selector-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.mode-btn {
+  padding: 8px 10px;
+  border-radius: 9px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.mode-btn.active {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.mode-btn--pediatrico.active {
+  background: #f0fdf4;
+  color: #065f46;
+  border-color: #a7f3d0;
+}
+
+/* ── Diagnósticos pediátricos — botones ──────────────────────────────────── */
+.diagnosis-btn--pulpotomia.active  { background: #a855f7; }
+.diagnosis-btn--pulpectomia.active { background: #6d28d9; }
+
+/* ── Pieza pediátrica — mantenedor espacio ───────────────────────────────── */
+.piece-btn--mantenedorespacio.active { background: #0f766e; border-color: #0f766e; }
+.piece-tag--mantenedorespacio { color: #065f46; border-color: #e5e7eb; }
+
+/* ── Odontogram status card ──────────────────────────────────────────────── */
+.odontogram-status-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.status-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.status-badge {
+  background: #dcfce7;
+  color: #15803d;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.status-meta {
+  display: flex;
+  gap: 16px;
+}
+
+.status-meta-label {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status-meta-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-top: 2px;
 }

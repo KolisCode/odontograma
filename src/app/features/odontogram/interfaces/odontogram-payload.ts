@@ -1,5 +1,6 @@
 export interface OdontogramPayload {
   pacienteId: number;
+  tipo?: string;
   dientes: OdontogramPayloadTooth[];
 }
 

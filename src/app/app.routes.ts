@@ -7,7 +7,7 @@ import { Finance } from './features/wallet/finance/finance';
 import { List } from './features/user/list/list';
 import { Appointment } from './features/user/appointment/appointment';
 import { HistoriaClinica } from './features/historia-clinica/historia-clinica';
-import { Tratamientos } from './features/tratamientos/tratamientos';
+import { ResumenHistoria } from './features/historia-clinica/resumen/resumen';
 import { authGuard } from './features/authentication/service/auth-guard/auth-guard';
 import { guestGuard } from './features/authentication/service/auth-guard/guest-guard';
 
@@ -21,6 +21,6 @@ export const routes: Routes = [
   { path: 'appointments', component: Appointment, canActivate: [authGuard] },
   { path: 'odontogram/:id', component: OdontogramComponent, canActivate: [authGuard] },
   { path: 'history/:id', component: HistoriaClinica, canActivate: [authGuard] },
-  { path: 'tratamientos/:id', component: Tratamientos, canActivate: [authGuard] },
+  { path: 'resumen/:id', component: ResumenHistoria, canActivate: [authGuard] },
   { path: '**', redirectTo: '/login' },
 ];

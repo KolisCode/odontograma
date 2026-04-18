@@ -431,3 +431,54 @@
 .form-trigger__text {
   flex: 1;
 }
+
+
+/* ── Aside colapsable ─────────────────────────────────────────── */
+.aside-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1.5px dashed #d1d5db;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  user-select: none;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.aside-toggle:hover {
+  background: #f1f5f9;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.aside-toggle__arrow {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* ── Buscador de pacientes ───────────────────────────────────────────────── */
+.patients-search-wrapper {
+  flex-shrink: 0;
+}
+
+.patients-search {
+  padding: 8px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #1e293b;
+  background: #f8fafc;
+  outline: none;
+  width: 280px;
+  transition: border-color 0.15s;
+}
+
+.patients-search:focus {
+  border-color: #2f7d57;
+  background: #fff;
+}

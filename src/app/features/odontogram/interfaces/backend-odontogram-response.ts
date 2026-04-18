@@ -4,6 +4,7 @@ export interface BackendOdontogramResponse {
   fecha: string;
   version: number;
   activo: boolean;
+  tipo?: string;
   dientes: BackendOdontogramTooth[];
 }
 

@@ -9,58 +9,146 @@
       </p>
     </div>
 
-    <div class="patient-context-badge">
-      Odontograma
+    <div class="patient-context-badge-row">
+      <div class="patient-context-badge">
+        Odontograma
+      </div>
+      <div class="odontogram-mode-badge" [class.odontogram-mode-badge--pediatrico]="isPediatric">
+        {{ isPediatric ? 'Dentición pediátrica' : 'Dentición adulta' }}
+      </div>
     </div>
   </div>
 </section>
+
+<!-- Modal: Sugerencia de modo pediátrico -->
+<div class="pediatric-modal-backdrop" *ngIf="showPediatricModal">
+  <div class="pediatric-modal">
+    <div class="pediatric-modal-header">
+      <h3>Tipo de dentición</h3>
+      <p *ngIf="patientAge !== null">
+        El paciente tiene <strong>{{ patientAge }} años</strong>. Selecciona el tipo de odontograma adecuado.
+      </p>
+      <p *ngIf="patientAge === null">
+        Selecciona el tipo de odontograma adecuado para este paciente.
+      </p>
+    </div>
+    <div class="pediatric-modal-options">
+      <button type="button" class="pediatric-option pediatric-option--adulto" (click)="setOdontogramMode('ADULTO')">
+        <span class="pediatric-option-icon">🦷</span>
+        <strong>Dentición adulta</strong>
+        <span>Dientes permanentes (FDI 11–48)</span>
+      </button>
+      <button type="button" class="pediatric-option pediatric-option--pediatrico" (click)="setOdontogramMode('PEDIATRICO')">
+        <span class="pediatric-option-icon">🌱</span>
+        <strong>Dentición pediátrica</strong>
+        <span>Dientes primarios / mixtos (FDI 51–85)</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="odontogram-layout">
   <div class="left-column">
     <section class="dental-chart">
 
-      <div class="arch upper">
-        <div class="quadrant">
-          <app-tooth
-            *ngFor="let tooth of upperRight"
-            [number]="tooth"
-            [filledFaces]="toothFaceMap().get(tooth) || []"
-            [pieces]="piecesMap().get(tooth) ?? []"
-            (surfaceClick)="applyDiagnosis($event)">
-          </app-tooth>
+      <!-- Arcada adulta -->
+      <ng-container *ngIf="!isPediatric">
+        <div class="arch upper">
+          <div class="quadrant">
+            <app-tooth
+              *ngFor="let tooth of upperRight"
+              [number]="tooth"
+              [isPrimary]="false"
+              [filledFaces]="toothFaceMap().get(tooth) || []"
+              [pieces]="piecesMap().get(tooth) ?? []"
+              (surfaceClick)="applyDiagnosis($event)">
+            </app-tooth>
+          </div>
+          <div class="quadrant">
+            <app-tooth
+              *ngFor="let tooth of upperLeft"
+              [number]="tooth"
+              [isPrimary]="false"
+              [filledFaces]="toothFaceMap().get(tooth) || []"
+              [pieces]="piecesMap().get(tooth) ?? []"
+              (surfaceClick)="applyDiagnosis($event)">
+            </app-tooth>
+          </div>
         </div>
-        <div class="quadrant">
-          <app-tooth
-            *ngFor="let tooth of upperLeft"
-            [number]="tooth"
-            [filledFaces]="toothFaceMap().get(tooth) || []"
-            [pieces]="piecesMap().get(tooth) ?? []"
-            (surfaceClick)="applyDiagnosis($event)">
-          </app-tooth>
+        <hr />
+        <div class="arch lower">
+          <div class="quadrant">
+            <app-tooth
+              *ngFor="let tooth of lowerRight"
+              [number]="tooth"
+              [isPrimary]="false"
+              [filledFaces]="toothFaceMap().get(tooth) || []"
+              [pieces]="piecesMap().get(tooth) ?? []"
+              (surfaceClick)="applyDiagnosis($event)">
+            </app-tooth>
+          </div>
+          <div class="quadrant">
+            <app-tooth
+              *ngFor="let tooth of lowerLeft"
+              [number]="tooth"
+              [isPrimary]="false"
+              [filledFaces]="toothFaceMap().get(tooth) || []"
+              [pieces]="piecesMap().get(tooth) ?? []"
+              (surfaceClick)="applyDiagnosis($event)">
+            </app-tooth>
+          </div>
         </div>
-      </div>
+      </ng-container>
 
-      <hr />
+      <!-- Arcada pediátrica -->
+      <ng-container *ngIf="isPediatric">
+        <div class="arch upper">
+          <div class="quadrant">
+            <app-tooth
+              *ngFor="let tooth of pediatricUpperRight"
+              [number]="tooth"
+              [isPrimary]="true"
+              [filledFaces]="toothFaceMap().get(tooth) || []"
+              [pieces]="piecesMap().get(tooth) ?? []"
+              (surfaceClick)="applyDiagnosis($event)">
+            </app-tooth>
+          </div>
+          <div class="quadrant">
+            <app-tooth
+              *ngFor="let tooth of pediatricUpperLeft"
+              [number]="tooth"
+              [isPrimary]="true"
+              [filledFaces]="toothFaceMap().get(tooth) || []"
+              [pieces]="piecesMap().get(tooth) ?? []"
+              (surfaceClick)="applyDiagnosis($event)">
+            </app-tooth>
+          </div>
+        </div>
+        <hr />
+        <div class="arch lower">
+          <div class="quadrant">
+            <app-tooth
+              *ngFor="let tooth of pediatricLowerRight"
+              [number]="tooth"
+              [isPrimary]="true"
+              [filledFaces]="toothFaceMap().get(tooth) || []"
+              [pieces]="piecesMap().get(tooth) ?? []"
+              (surfaceClick)="applyDiagnosis($event)">
+            </app-tooth>
+          </div>
+          <div class="quadrant">
+            <app-tooth
+              *ngFor="let tooth of pediatricLowerLeft"
+              [number]="tooth"
+              [isPrimary]="true"
+              [filledFaces]="toothFaceMap().get(tooth) || []"
+              [pieces]="piecesMap().get(tooth) ?? []"
+              (surfaceClick)="applyDiagnosis($event)">
+            </app-tooth>
+          </div>
+        </div>
+      </ng-container>
 
-      <div class="arch lower">
-        <div class="quadrant">
-          <app-tooth
-            *ngFor="let tooth of lowerRight"
-            [number]="tooth"
-            [filledFaces]="toothFaceMap().get(tooth) || []"
-            [pieces]="piecesMap().get(tooth) ?? []"
-            (surfaceClick)="applyDiagnosis($event)">
-          </app-tooth>
-        </div>
-        <div class="quadrant">
-          <app-tooth
-            *ngFor="let tooth of lowerLeft"
-            [number]="tooth"
-            [filledFaces]="toothFaceMap().get(tooth) || []"
-            [pieces]="piecesMap().get(tooth) ?? []"
-            (surfaceClick)="applyDiagnosis($event)">
-          </app-tooth>
-        </div>
-      </div>
     </section>
 
     <section class="diagnostic-record">
@@ -172,6 +260,27 @@
   <div class="right-column">
     <aside class="diagnostic-panel">
 
+      <!-- Alertas clínicas -->
+      <div class="alertas-panel" *ngIf="tieneAlertas">
+        <button type="button" class="alertas-toggle" (click)="alertasPanelVisible = !alertasPanelVisible">
+          <span class="alertas-toggle__dot" [class.alertas-toggle__dot--critica]="alertasCriticas.length > 0"></span>
+          <span class="alertas-toggle__label">
+            Condiciones del paciente
+            <span class="alertas-toggle__count">{{ alertasClinicas.length }}</span>
+          </span>
+          <span class="alertas-toggle__arrow">{{ alertasPanelVisible ? '▲' : '▼' }}</span>
+        </button>
+
+        <div class="alertas-body" *ngIf="alertasPanelVisible">
+          <div class="alerta-row alerta-row--critica" *ngFor="let a of alertasCriticas">
+            <span class="alerta-dot alerta-dot--critica"></span>{{ a.texto }}
+          </div>
+          <div class="alerta-row alerta-row--advertencia" *ngFor="let a of alertasAdvertencia">
+            <span class="alerta-dot alerta-dot--advertencia"></span>{{ a.texto }}
+          </div>
+        </div>
+      </div>
+
       <!-- Estado del odontograma -->
       <div class="odontogram-status-card" *ngIf="originalOdontogram">
         <div class="status-row">
@@ -187,6 +296,19 @@
             <div class="status-meta-label">Versión</div>
             <div class="status-meta-value">{{ originalOdontogram.version }}</div>
           </div>
+        </div>
+      </div>
+
+      <!-- Selector de modo (solo si no hay odontograma guardado) -->
+      <div class="mode-selector" *ngIf="!originalOdontogram">
+        <div class="mode-selector-label">Tipo de dentición</div>
+        <div class="mode-selector-buttons">
+          <button type="button" class="mode-btn" [class.active]="!isPediatric" (click)="setOdontogramMode('ADULTO')">
+            Adulta
+          </button>
+          <button type="button" class="mode-btn mode-btn--pediatrico" [class.active]="isPediatric" (click)="setOdontogramMode('PEDIATRICO')">
+            Pediátrica
+          </button>
         </div>
       </div>
 
@@ -292,6 +414,9 @@
         <button class="btn btn-secondary" type="button" (click)="goToHistoria()">
           Ir a Historia clínica
         </button>
+        <button class="btn btn-secondary" type="button" (click)="goToFinance()">
+          Ver movimientos
+        </button>
         <div *ngIf="saveMessage" class="save-message" [ngClass]="{
           'save-success': saveMessageType === 'success',
           'save-error': saveMessageType === 'error',
@@ -324,21 +449,17 @@
     </section>
   </div>
 </div>
+
+<!-- Modal guía del diente -->
 <div class="tooth-guide-modal-backdrop" *ngIf="showToothGuideModal" (click)="closeToothGuideModal()">
-
   <div class="tooth-guide-modal" (click)="$event.stopPropagation()">
-
     <div class="tooth-guide-modal-header">
       <div>
         <h3>Guía de caras del diente</h3>
         <p>Referencia visual para identificar cada superficie</p>
       </div>
-
-      <button type="button" class="tooth-guide-close" (click)="closeToothGuideModal()">
-        ✕
-      </button>
+      <button type="button" class="tooth-guide-close" (click)="closeToothGuideModal()">✕</button>
     </div>
-
     <div class="tooth-guide-modal-body">
       <div class="tooth-guide-large">
         <svg class="guide-large-svg" viewBox="0 0 220 260" xmlns="http://www.w3.org/2000/svg"
@@ -357,13 +478,11 @@
                L198,64
                C198,34 180,16 154,16
                Z" />
-
           <rect x="86" y="28" width="48" height="38" rx="12" class="guide-surface guide-top" />
           <rect x="34" y="90" width="42" height="60" rx="12" class="guide-surface guide-left" />
           <rect x="82" y="90" width="56" height="60" rx="12" class="guide-surface guide-center" />
           <rect x="144" y="90" width="42" height="60" rx="12" class="guide-surface guide-right" />
           <rect x="86" y="164" width="48" height="46" rx="12" class="guide-surface guide-bottom" />
-
           <text x="110" y="20" class="guide-label guide-label-top">Oclusal</text>
           <text x="10" y="125" class="guide-label">Mesial</text>
           <text x="188" y="125" class="guide-label">Distal</text>
@@ -371,31 +490,20 @@
           <text x="110" y="126" class="guide-label guide-label-center">Centro</text>
         </svg>
       </div>
-
       <div class="tooth-guide-legend">
-        <div class="guide-legend-item">
-          <strong>Oclusal:</strong> superficie superior del diente.
-        </div>
-        <div class="guide-legend-item">
-          <strong>Mesial:</strong> lado que mira hacia la línea media.
-        </div>
-        <div class="guide-legend-item">
-          <strong>Distal:</strong> lado opuesto a la línea media.
-        </div>
-        <div class="guide-legend-item">
-          <strong>Lingual:</strong> superficie interna.
-        </div>
-        <div class="guide-legend-item">
-          <strong>Centro:</strong> zona central de referencia.
-        </div>
+        <div class="guide-legend-item"><strong>Oclusal:</strong> superficie superior del diente.</div>
+        <div class="guide-legend-item"><strong>Mesial:</strong> lado que mira hacia la línea media.</div>
+        <div class="guide-legend-item"><strong>Distal:</strong> lado opuesto a la línea media.</div>
+        <div class="guide-legend-item"><strong>Lingual:</strong> superficie interna.</div>
+        <div class="guide-legend-item"><strong>Centro:</strong> zona central de referencia.</div>
       </div>
     </div>
   </div>
 </div>
+
 <!-- Modal: Generar cobro por diagnóstico -->
 <div class="cobro-modal-backdrop" *ngIf="cobroFormVisible" (click)="closeCobroForm()">
   <div class="cobro-modal" (click)="$event.stopPropagation()">
-
     <div class="cobro-modal-header">
       <div>
         <h3>Generar cobro</h3>
@@ -403,12 +511,9 @@
       </div>
       <button type="button" class="cobro-modal-close" (click)="closeCobroForm()">✕</button>
     </div>
-
-    <!-- Advertencia de duplicado -->
     <div *ngIf="cobroDuplicadoAdvertencia" class="cobro-duplicado-warning">
       <strong>Advertencia:</strong> ya existe un cobro registrado para este diagnóstico. ¿Deseas crear uno adicional de todas formas?
     </div>
-
     <form [formGroup]="cobroForm" (ngSubmit)="submitCobro()" class="cobro-form">
       <div class="cobro-form-group">
         <label>Concepto</label>
@@ -417,7 +522,6 @@
           El concepto es obligatorio (mín. 3 caracteres).
         </small>
       </div>
-
       <div class="cobro-form-group">
         <label>Monto (COP)</label>
         <input type="number" formControlName="monto" placeholder="Ej. 150000" min="1" />
@@ -425,7 +529,6 @@
           El monto es obligatorio y debe ser mayor a 0.
         </small>
       </div>
-
       <div class="cobro-form-group">
         <label>Fecha</label>
         <input type="date" formControlName="fecha" />
@@ -433,7 +536,6 @@
           La fecha es obligatoria.
         </small>
       </div>
-
       <div class="cobro-form-group">
         <label>Estado</label>
         <select formControlName="estado">
@@ -442,7 +544,6 @@
           <option value="CANCELADO">Cancelado</option>
         </select>
       </div>
-
       <div class="cobro-form-group">
         <label>Medio de pago</label>
         <select formControlName="metodoPago">
@@ -451,11 +552,9 @@
           <option value="Tarjeta">Tarjeta</option>
         </select>
       </div>
-
       <div *ngIf="cobroMensaje" class="cobro-mensaje" [class.cobro-mensaje--success]="cobroMensajeTipo === 'success'" [class.cobro-mensaje--error]="cobroMensajeTipo === 'error'">
         {{ cobroMensaje }}
       </div>
-
       <div class="cobro-form-actions">
         <button type="button" class="btn btn-secondary" (click)="closeCobroForm()">Cancelar</button>
         <button type="submit" class="btn btn-primary" [disabled]="cobroGuardando">

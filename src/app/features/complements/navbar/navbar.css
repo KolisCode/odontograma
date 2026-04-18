@@ -127,6 +127,74 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
 }
 
+/* ── Historia clínica dropdown ────────────────────────────────────────────── */
+.nav-historia-wrapper {
+  position: relative;
+}
+
+.nav-historia-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.nav-historia-btn:hover,
+.nav-historia-btn.active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.nav-historia-arrow {
+  font-size: 9px;
+  opacity: 0.8;
+}
+
+.nav-historia-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  padding: 14px;
+  min-width: 240px;
+  z-index: 500;
+}
+
+.nav-historia-label {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.nav-historia-select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #1e293b;
+  background: #f8fafc;
+  outline: none;
+  cursor: pointer;
+}
+
+.nav-historia-select:focus {
+  border-color: #2f7d57;
+}
+
 @media (max-width: 1100px) {
   .app-header {
     grid-template-columns: 1fr;

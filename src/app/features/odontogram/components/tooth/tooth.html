@@ -1,14 +1,15 @@
 <div class="tooth-wrapper">
   <svg
     class="tooth-svg"
-    [ngClass]="getToothType()"
+    [ngClass]="[getToothType(), isPrimary ? 'primary-tooth' : '']"
     viewBox="0 0 100 120"
     xmlns="http://www.w3.org/2000/svg"
     aria-label="Diente {{ number }}"
     role="img"
   >
-    <!-- Silueta general -->
+    <!-- Silueta adulto -->
     <path
+      *ngIf="!isPrimary"
       class="tooth-outline"
       d="M30,8
          C18,8 10,18 10,32
@@ -23,6 +24,24 @@
          C84,76 90,66 90,54
          L90,32
          C90,18 82,8 70,8
+         Z"
+    />
+
+    <!-- Silueta pediátrica: corona más redondeada, raíz única cónica -->
+    <path
+      *ngIf="isPrimary"
+      class="tooth-outline tooth-outline--primary"
+      d="M50,10
+         C28,10 12,22 12,38
+         L12,60
+         C12,74 20,84 32,91
+         C36,94 38,100 38,108
+         C38,114 43,118 50,118
+         C57,118 62,114 62,108
+         C62,100 64,94 68,91
+         C80,84 88,74 88,60
+         L88,38
+         C88,22 72,10 50,10
          Z"
     />
 
@@ -303,6 +322,13 @@
         fill="#be185d" fill-opacity="0.12" stroke="#be185d" stroke-width="3.5" stroke-dasharray="9 5" opacity="0.88"/>
       <rect x="30" y="4" width="40" height="6" rx="3" fill="#be185d" opacity="0.85"/>
       <rect x="30" y="110" width="40" height="6" rx="3" fill="#be185d" opacity="0.85"/>
+    </g>
+
+    <!-- MantenedorEspacio: banda metálica alrededor de la corona + alambre lateral -->
+    <g *ngIf="hasPiece('MantenedorEspacio')" class="piece-overlay">
+      <rect x="15" y="36" width="70" height="40" rx="5" fill="none" stroke="#0f766e" stroke-width="4" opacity="0.88"/>
+      <line x1="85" y1="54" x2="99" y2="54" stroke="#0f766e" stroke-width="3.5" stroke-linecap="round" opacity="0.9"/>
+      <line x1="99" y1="43" x2="99" y2="65" stroke="#0f766e" stroke-width="3.5" stroke-linecap="round" opacity="0.9"/>
     </g>
 
   </svg>

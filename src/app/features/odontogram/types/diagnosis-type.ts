@@ -6,4 +6,6 @@ export type DiagnosisType =
   | 'Extraccion'
   | 'Endodoncia'
   | 'TratamientoConducto'
-  | 'Sano';
+  | 'Sano'
+  | 'Pulpotomia'
+  | 'Pulpectomia';

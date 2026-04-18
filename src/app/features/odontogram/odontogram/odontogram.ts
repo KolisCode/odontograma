@@ -24,6 +24,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { PatientsService } from '../../user/service/pacientes.service';
 import { FinanzasService, MovimientoRow } from '../../wallet/finance/service/finanzas.service';
+import { HistoriaClinicaService } from '../../historia-clinica/historia-clinica.service/historia-clinica.service';
+import { AlertaClinica } from '../../historia-clinica/resumen/resumen';
 
 @Component({
   selector: 'app-odontogram',
@@ -33,12 +35,37 @@ import { FinanzasService, MovimientoRow } from '../../wallet/finance/service/fin
   styleUrl: './odontogram.css',
 })
 export class OdontogramComponent implements OnInit {
-  // Arcada superior
+  // ── Arcadas adulto ────────────────────────────────────────────────────────
   upperRight = [18, 17, 16, 15, 14, 13, 12, 11];
-  upperLeft = [21, 22, 23, 24, 25, 26, 27, 28];
-  // Arcada inferior
+  upperLeft  = [21, 22, 23, 24, 25, 26, 27, 28];
   lowerRight = [48, 47, 46, 45, 44, 43, 42, 41];
-  lowerLeft = [31, 32, 33, 34, 35, 36, 37, 38];
+  lowerLeft  = [31, 32, 33, 34, 35, 36, 37, 38];
+
+  // ── Arcadas pediátricas ───────────────────────────────────────────────────
+  pediatricUpperRight = [55, 54, 53, 52, 51];
+  pediatricUpperLeft  = [61, 62, 63, 64, 65];
+  pediatricLowerRight = [85, 84, 83, 82, 81];
+  pediatricLowerLeft  = [71, 72, 73, 74, 75];
+
+  // ── Modo del odontograma ──────────────────────────────────────────────────
+  odontogramTipo: 'ADULTO' | 'PEDIATRICO' = 'ADULTO';
+  showPediatricModal = false;
+
+  get isPediatric(): boolean {
+    return this.odontogramTipo === 'PEDIATRICO';
+  }
+
+  isPrimaryTooth(number: number): boolean {
+    return (number >= 51 && number <= 55) ||
+           (number >= 61 && number <= 65) ||
+           (number >= 71 && number <= 75) ||
+           (number >= 81 && number <= 85);
+  }
+
+  setOdontogramMode(tipo: 'ADULTO' | 'PEDIATRICO'): void {
+    this.odontogramTipo = tipo;
+    this.showPediatricModal = false;
+  }
 
   // ── Selección activa ──────────────────────────────────────────────────────
   selectedDiagnosis: DiagnosisType | null = null;
@@ -49,26 +76,51 @@ export class OdontogramComponent implements OnInit {
   diagnoses = signal<Diagnosis[]>([]);
   pieces = signal<ToothPiece[]>([]);
 
-  // ── Opciones de panel ─────────────────────────────────────────────────────
-  quickDiagnoses: { type: DiagnosisType; label: string }[] = [
-    { type: 'Caries',             label: 'Caries' },
-    { type: 'Obturacion',         label: 'Obturación' },
-    { type: 'Fractura',           label: 'Fractura' },
-    { type: 'Sellante',           label: 'Sellante' },
-    { type: 'Extraccion',         label: 'Extracción' },
-    { type: 'Endodoncia',         label: 'Endodoncia' },
-    { type: 'TratamientoConducto',label: 'Trat. Conducto' },
-    { type: 'Sano',               label: 'Sano' },
-  ];
+  // ── Opciones de panel (filtradas por modo) ────────────────────────────────
+  get quickDiagnoses(): { type: DiagnosisType; label: string }[] {
+    if (this.isPediatric) {
+      return [
+        { type: 'Caries',      label: 'Caries' },
+        { type: 'Obturacion',  label: 'Obturación' },
+        { type: 'Fractura',    label: 'Fractura' },
+        { type: 'Sellante',    label: 'Sellante' },
+        { type: 'Extraccion',  label: 'Extracción' },
+        { type: 'Pulpotomia',  label: 'Pulpotomía' },
+        { type: 'Pulpectomia', label: 'Pulpectomía' },
+        { type: 'Sano',        label: 'Sano' },
+      ];
+    }
+    return [
+      { type: 'Caries',              label: 'Caries' },
+      { type: 'Obturacion',          label: 'Obturación' },
+      { type: 'Fractura',            label: 'Fractura' },
+      { type: 'Sellante',            label: 'Sellante' },
+      { type: 'Extraccion',          label: 'Extracción' },
+      { type: 'Endodoncia',          label: 'Endodoncia' },
+      { type: 'TratamientoConducto', label: 'Trat. Conducto' },
+      { type: 'Sano',                label: 'Sano' },
+    ];
+  }
 
-  quickPieces: { type: PieceType; label: string; icon: string }[] = [
-    { type: 'Corona',         label: 'Corona',            icon: '♛' },
-    { type: 'Puente',         label: 'Puente',            icon: '⊓⊔' },
-    { type: 'Implante',       label: 'Implante',          icon: '⚙' },
-    { type: 'ProtesisParcial',label: 'Prót. Parcial',     icon: '⌒' },
-    { type: 'ProtesisTotal',  label: 'Prót. Total',       icon: '⊙' },
-    { type: 'DienteAusente',  label: 'Diente Ausente',    icon: '✕' },
-  ];
+  get quickPieces(): { type: PieceType; label: string; icon: string }[] {
+    if (this.isPediatric) {
+      return [
+        { type: 'Corona',            label: 'Corona',           icon: '♛' },
+        { type: 'Puente',            label: 'Puente',           icon: '⊓⊔' },
+        { type: 'ProtesisParcial',   label: 'Prót. Parcial',    icon: '⌒' },
+        { type: 'MantenedorEspacio', label: 'Mant. Espacio',    icon: '⊞' },
+        { type: 'DienteAusente',     label: 'Diente Ausente',   icon: '✕' },
+      ];
+    }
+    return [
+      { type: 'Corona',        label: 'Corona',          icon: '♛' },
+      { type: 'Puente',        label: 'Puente',          icon: '⊓⊔' },
+      { type: 'Implante',      label: 'Implante',        icon: '⚙' },
+      { type: 'ProtesisParcial',label: 'Prót. Parcial',  icon: '⌒' },
+      { type: 'ProtesisTotal', label: 'Prót. Total',     icon: '⊙' },
+      { type: 'DienteAusente', label: 'Diente Ausente',  icon: '✕' },
+    ];
+  }
 
   // ── Cobros por diagnóstico ────────────────────────────────────────────────
   cobros = signal<MovimientoRow[]>([]);
@@ -177,10 +229,48 @@ export class OdontogramComponent implements OnInit {
     });
   }
 
+  // ── Alertas clínicas ──────────────────────────────────────────────────────
+  alertasClinicas: AlertaClinica[] = [];
+  alertasPanelVisible = false;
+
+  get alertasCriticas(): AlertaClinica[] {
+    return this.alertasClinicas.filter(a => a.tipo === 'critica');
+  }
+
+  get alertasAdvertencia(): AlertaClinica[] {
+    return this.alertasClinicas.filter(a => a.tipo === 'advertencia');
+  }
+
+  get tieneAlertas(): boolean {
+    return this.alertasClinicas.some(a => a.tipo === 'critica' || a.tipo === 'advertencia');
+  }
+
   // ── Info del paciente ─────────────────────────────────────────────────────
   patientId!: number;
   patientName = 'Paciente';
   patientDocument = '';
+  patientAge: number | null = null;
+
+  private patientLoaded = false;
+  private odontogramChecked = false;
+
+  private calcularEdad(fechaNacimiento: string | null): number | null {
+    if (!fechaNacimiento) return null;
+    const hoy = new Date();
+    const nac = new Date(`${fechaNacimiento}T00:00:00`);
+    if (isNaN(nac.getTime())) return null;
+    let edad = hoy.getFullYear() - nac.getFullYear();
+    const m = hoy.getMonth() - nac.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+    return edad;
+  }
+
+  private maybeSuggestPediatric(): void {
+    if (this.originalOdontogram) return;
+    if (this.patientAge !== null && this.patientAge < 12) {
+      this.showPediatricModal = true;
+    }
+  }
 
   // ── Selección de diagnóstico ──────────────────────────────────────────────
   selectDiagnosis(diagnosis: DiagnosisType) {
@@ -256,7 +346,6 @@ export class OdontogramComponent implements OnInit {
       const existingIndex = current.findIndex(
         (p) => p.tooth === tooth && p.type === pieceType,
       );
-      // Toggle: si ya existe esa combinación diente+tipo, se quita; si no, se añade
       if (existingIndex !== -1) {
         return current.filter((_, i) => i !== existingIndex);
       }
@@ -354,6 +443,8 @@ export class OdontogramComponent implements OnInit {
     Endodoncia: 'Endodoncia',
     TratamientoConducto: 'Trat. Conducto',
     Sano: 'Sano',
+    Pulpotomia: 'Pulpotomía',
+    Pulpectomia: 'Pulpectomía',
   };
 
   private readonly pieceLabels: Record<PieceType, string> = {
@@ -363,6 +454,7 @@ export class OdontogramComponent implements OnInit {
     ProtesisParcial: 'Prót. Parcial',
     ProtesisTotal: 'Prót. Total',
     DienteAusente: 'Diente Ausente',
+    MantenedorEspacio: 'Mant. Espacio',
   };
 
   getDiagnosisLabel(type: DiagnosisType): string {
@@ -387,6 +479,7 @@ export class OdontogramComponent implements OnInit {
     private patientsService: PatientsService,
     private router: Router,
     private finanzasService: FinanzasService,
+    private historiaService: HistoriaClinicaService,
     private fb: FormBuilder,
   ) {
     this.cobroForm = this.fb.group({
@@ -430,12 +523,70 @@ export class OdontogramComponent implements OnInit {
       next: (patient) => {
         this.patientName = `${patient.data.nombre} ${patient.data.apellido}`.trim();
         this.patientDocument = patient.data.documento || '';
+        this.patientAge = this.calcularEdad(patient.data.fechaNacimiento ?? null);
+        this.patientLoaded = true;
+        if (this.odontogramChecked) this.maybeSuggestPediatric();
       },
       error: () => {
         this.patientName = `Paciente #${this.patientId}`;
         this.patientDocument = '';
+        this.patientLoaded = true;
+        if (this.odontogramChecked) this.maybeSuggestPediatric();
       },
     });
+    this.loadAlertas();
+  }
+
+  private loadAlertas(): void {
+    this.historiaService.getHistoriaByPaciente(this.patientId).subscribe({
+      next: (response) => {
+        const historia = response?.data?.historia;
+        if (!historia) return;
+        this.alertasClinicas = this.parseAlertas(historia);
+      },
+      error: () => {},
+    });
+  }
+
+  private parseJson(value: any): any {
+    if (!value) return {};
+    if (typeof value === 'object') return value;
+    try { return JSON.parse(value); } catch { return {}; }
+  }
+
+  private parseAlertas(historia: any): AlertaClinica[] {
+    const alertas: AlertaClinica[] = [];
+
+    const alergias = this.parseJson(historia.alergiasGenerales);
+    if (alergias.anestesia) alertas.push({ tipo: 'critica', texto: 'Alergia a la anestesia' });
+    if (alergias.medicamentos) {
+      const d = alergias.descripcion ? `: ${alergias.descripcion}` : '';
+      alertas.push({ tipo: 'critica', texto: `Alergia a medicamentos${d}` });
+    }
+    if (alergias.latex) alertas.push({ tipo: 'advertencia', texto: 'Alergia al látex' });
+
+    const odonto = this.parseJson(historia.antecedentesOdontologicos);
+    if (odonto.reaccionesAnestesia === 'Sí') alertas.push({ tipo: 'critica', texto: 'Reacciones previas a la anestesia' });
+    if (odonto.complicacionesPrevias === 'Sí') alertas.push({ tipo: 'advertencia', texto: 'Complicaciones en tratamientos previos' });
+
+    const hema = this.parseJson(historia.antecedentesHematologicos);
+    if (hema.sangraFacilidad === 'Sí') alertas.push({ tipo: 'critica', texto: 'Sangrado con facilidad' });
+    if (hema.problemasCoagulacion === 'Sí') alertas.push({ tipo: 'critica', texto: 'Problemas de coagulación' });
+
+    const enf = this.parseJson(historia.enfermedadesSistemicas);
+    const mapa: Record<string, string> = {
+      hipertension: 'Hipertensión arterial', diabetes: 'Diabetes',
+      cardiacas: 'Enfermedad cardíaca', renales: 'Enfermedad renal',
+      hepaticas: 'Enfermedad hepática', endocrinas: 'Enfermedad endocrina',
+    };
+    for (const [key, label] of Object.entries(mapa)) {
+      if (enf[key]) alertas.push({ tipo: 'advertencia', texto: label });
+    }
+
+    const gineco = this.parseJson(historia.ginecoObstetricos);
+    if (gineco.embarazo === 'Sí') alertas.push({ tipo: 'advertencia', texto: 'Embarazo' });
+
+    return alertas;
   }
 
   private loadOdontogram(): void {
@@ -446,7 +597,14 @@ export class OdontogramComponent implements OnInit {
           this.odontogram = { patientId: this.patientId, date: new Date().toISOString(), teeth: [] };
           this.diagnoses.set([]);
           this.pieces.set([]);
+          this.odontogramChecked = true;
+          if (this.patientLoaded) this.maybeSuggestPediatric();
           return;
+        }
+
+        // Leer tipo del odontograma existente
+        if (data.tipo === 'PEDIATRICO') {
+          this.odontogramTipo = 'PEDIATRICO';
         }
 
         this.originalOdontogram = {
@@ -461,6 +619,7 @@ export class OdontogramComponent implements OnInit {
         const { diagnoses, pieces } = this.buildDiagnosesFromBackend(data);
         this.diagnoses.set(diagnoses);
         this.pieces.set(pieces);
+        this.odontogramChecked = true;
         this.loadCobros();
       },
       error: () => {
@@ -468,6 +627,8 @@ export class OdontogramComponent implements OnInit {
         this.odontogram = { patientId: this.patientId, date: new Date().toISOString(), teeth: [] };
         this.diagnoses.set([]);
         this.pieces.set([]);
+        this.odontogramChecked = true;
+        if (this.patientLoaded) this.maybeSuggestPediatric();
         this.showSaveMessage('info', 'No se pudo consultar el odontograma del paciente.', true, 3000);
       },
     });
@@ -491,7 +652,6 @@ export class OdontogramComponent implements OnInit {
   private buildBackendStructure(): Tooth[] {
     const teethMap = new Map<number, Tooth>();
 
-    // Diagnósticos (por superficie)
     for (const d of this.diagnoses()) {
       for (const tooth of d.teeth) {
         if (!teethMap.has(tooth)) {
@@ -512,13 +672,11 @@ export class OdontogramComponent implements OnInit {
       }
     }
 
-    // Piezas protésicas (superficie especial 'P')
     for (const piece of this.pieces()) {
       if (!teethMap.has(piece.tooth)) {
         teethMap.set(piece.tooth, { number: piece.tooth, surfaces: [] });
       }
       const toothEntry = teethMap.get(piece.tooth)!;
-      // Reemplazar cualquier pieza previa del mismo diente
       const existingPieceIdx = toothEntry.surfaces.findIndex((s) => s.surface === ('P' as any));
       if (existingPieceIdx !== -1) {
         toothEntry.surfaces[existingPieceIdx].diagnoses = [piece.type as any];
@@ -534,6 +692,7 @@ export class OdontogramComponent implements OnInit {
     const teeth = this.buildBackendStructure();
     return {
       pacienteId: this.patientId,
+      tipo: this.odontogramTipo,
       dientes: teeth.map((tooth) => ({
         numero: tooth.number,
         superficies: tooth.surfaces.flatMap((surface) =>
@@ -566,7 +725,6 @@ export class OdontogramComponent implements OnInit {
         const rawSurface = superficie?.superficie;
         const rawDiagnosis = superficie?.diagnostico;
 
-        // Piezas protésicas (superficie especial 'P')
         if (rawSurface === 'P') {
           const pieceType = this.mapBackendPieceType(rawDiagnosis);
           if (numero && pieceType) {
@@ -637,6 +795,8 @@ export class OdontogramComponent implements OnInit {
       Endodoncia: 'Endodoncia',
       TratamientoConducto: 'TratamientoConducto',
       Sano: 'Sano',
+      Pulpotomia: 'Pulpotomia',
+      Pulpectomia: 'Pulpectomia',
     };
     return diagnosisMap[diagnosis] ?? null;
   }
@@ -646,10 +806,11 @@ export class OdontogramComponent implements OnInit {
       Corona: 'Corona',
       Puente: 'Puente',
       Implante: 'Implante',
-      Protesis: 'ProtesisParcial',       // compatibilidad con datos previos
+      Protesis: 'ProtesisParcial',
       ProtesisParcial: 'ProtesisParcial',
       ProtesisTotal: 'ProtesisTotal',
       DienteAusente: 'DienteAusente',
+      MantenedorEspacio: 'MantenedorEspacio',
     };
     return pieceMap[piece] ?? null;
   }
@@ -672,6 +833,9 @@ export class OdontogramComponent implements OnInit {
       .pipe(finalize(() => { this.isSaving = false; }))
       .subscribe({
         next: (response) => {
+          if (response.tipo === 'PEDIATRICO') {
+            this.odontogramTipo = 'PEDIATRICO';
+          }
           this.originalOdontogram = {
             id: response.id,
             patientId: response.pacienteId,
@@ -703,6 +867,10 @@ export class OdontogramComponent implements OnInit {
   // ── Navegación ────────────────────────────────────────────────────────────
   goToHistoria(): void {
     this.router.navigate(['/history', this.patientId]);
+  }
+
+  goToFinance(): void {
+    this.router.navigate(['/finance'], { queryParams: { pacienteId: this.patientId } });
   }
 
   // ── Mensajes ──────────────────────────────────────────────────────────────

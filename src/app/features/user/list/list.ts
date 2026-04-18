@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
   AbstractControl,
   FormBuilder,
@@ -24,7 +25,7 @@ import {
 @Component({
   selector: 'app-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, Navbar, Footer],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, Navbar, Footer],
   templateUrl: './list.html',
   styleUrls: ['./list.css'],
 })
@@ -32,6 +33,7 @@ export class List implements OnInit {
   patientForm: FormGroup;
 
   formVisible = false;
+  asideVisible = false;
   loading = false;
   tableLoading = false;
   errorMessage = '';
@@ -39,7 +41,29 @@ export class List implements OnInit {
   editingId: number | null = null;
 
   patients: PatientRow[] = [];
+  searchTerm = '';
   recentPatients: RecentPatient[] = [];
+
+  get filteredPatients(): PatientRow[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    if (!term) return this.patients;
+    return this.patients.filter(p =>
+      p.nombreCompleto.toLowerCase().includes(term) ||
+      p.documento.toLowerCase().includes(term) ||
+      (p.telefono ?? '').toLowerCase().includes(term)
+    );
+  }
+
+  calcularEdad(fechaNacimiento: string | null): number | null {
+    if (!fechaNacimiento) return null;
+    const hoy = new Date();
+    const nac = new Date(`${fechaNacimiento}T00:00:00`);
+    if (isNaN(nac.getTime())) return null;
+    let edad = hoy.getFullYear() - nac.getFullYear();
+    const m = hoy.getMonth() - nac.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+    return edad;
+  }
   quickInfo: QuickInfo = {
     alergiasRegistradas: 0,
     pacientesNuevosMes: 0,
@@ -47,6 +71,11 @@ export class List implements OnInit {
   };
 
   maxBirthDate = this.formatDateForInput(new Date());
+  minBirthDate = (() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 120);
+    return this.formatDateForInput(d);
+  })();
 
   constructor(
     private fb: FormBuilder,
@@ -273,8 +302,8 @@ export class List implements OnInit {
     this.router.navigate(['/odontogram', patientId]);
   }
 
-  goToTratamientos(patientId: number): void {
-    this.router.navigate(['/tratamientos', patientId]);
+  goToResumen(patientId: number): void {
+    this.router.navigate(['/resumen', patientId]);
   }
 
   goToFinance(patientId: number): void {

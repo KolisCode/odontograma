@@ -4,4 +4,5 @@ export type PieceType =
   | 'Implante'
   | 'ProtesisParcial'
   | 'ProtesisTotal'
-  | 'DienteAusente';
+  | 'DienteAusente'
+  | 'MantenedorEspacio';

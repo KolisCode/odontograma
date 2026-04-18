@@ -69,7 +69,7 @@ export class Dashboard implements OnInit {
   }
 
   goToOdontogram(): void {
-    this.router.navigate(['/odontogram']);
+    this.router.navigate(['/patients']);
   }
 
   getStatusClass(estado: string): string {

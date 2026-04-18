@@ -14,7 +14,7 @@
       routerLink="/dashboard"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }">
-      Dashboard
+      Inicio
     </a>
 
     <a
@@ -34,6 +34,25 @@
       routerLinkActive="active">
       Cartera
     </a>
+
+    <div class="nav-historia-wrapper">
+      <button
+        type="button"
+        class="nav-historia-btn"
+        [class.active]="historiaDropdownOpen"
+        (click)="toggleHistoriaDropdown()">
+        Historia clínica
+        <span class="nav-historia-arrow">{{ historiaDropdownOpen ? '▲' : '▼' }}</span>
+      </button>
+
+      <div class="nav-historia-dropdown" *ngIf="historiaDropdownOpen">
+        <p class="nav-historia-label">Selecciona un paciente</p>
+        <select class="nav-historia-select" (change)="selectHistoriaPaciente($event)">
+          <option value="">Ninguno seleccionado</option>
+          <option *ngFor="let p of patients" [value]="p.id">{{ p.nombreCompleto }}</option>
+        </select>
+      </div>
+    </div>
   </nav>
 
   <div class="header-right">

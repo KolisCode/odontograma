@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../authentication/service/auth-service/auth.service';
+import { PatientsService, PatientRow } from '../../user/service/pacientes.service';
 
 @Component({
   selector: 'app-navbar',
@@ -17,9 +18,13 @@ export class Navbar implements OnInit {
   userRole: string = 'Sin rol';
   avatarLetter: string = 'U';
 
+  patients: PatientRow[] = [];
+  historiaDropdownOpen = false;
+
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private patientsService: PatientsService,
   ) {}
 
   ngOnInit(): void {
@@ -30,6 +35,31 @@ export class Navbar implements OnInit {
       this.userName = fullName || 'Usuario';
       this.userRole = this.formatRole(user.rol);
       this.avatarLetter = (user.nombre?.charAt(0) || 'U').toUpperCase();
+    }
+
+    this.patientsService.getPatients().subscribe({
+      next: (res) => { this.patients = res.data; },
+      error: () => {},
+    });
+  }
+
+  toggleHistoriaDropdown(): void {
+    this.historiaDropdownOpen = !this.historiaDropdownOpen;
+  }
+
+  selectHistoriaPaciente(event: Event): void {
+    const id = (event.target as HTMLSelectElement).value;
+    if (id) {
+      this.historiaDropdownOpen = false;
+      this.router.navigate(['/history', id]);
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.nav-historia-wrapper')) {
+      this.historiaDropdownOpen = false;
     }
   }
 
