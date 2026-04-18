@@ -126,7 +126,7 @@ El odontograma distingue entre:
 - `list.html`: botón **"Importar"** — sin acción
 - `appointment.html`: botón **"Ver calendario"** — sin acción
 - `historia-clinica.html`: botón **"Vista previa"** — sin acción
-- `historia-clinica.html`: sección **"Módulos clínicos asociados"** — comentada (~líneas 603-647)
+- `resumen/:id` (ResumenHistoria): apartado para **subir documentos del paciente** (radiografías, exámenes, imágenes de interés) — pendiente de diseño e implementación. El backend no tiene endpoint aún.
 
 ## Historia clínica — notas de implementación
 

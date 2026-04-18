@@ -35,6 +35,8 @@
             patológicos</button>
           <button type="button" class="section-nav__item" (click)="scrollToSection('higiene-oral')">Higiene
             oral</button>
+          <button type="button" class="section-nav__item" (click)="scrollToSection('modulos')">Módulos
+            clínicos</button>
         </nav>
       </div>
     </aside>
@@ -600,7 +602,7 @@
         </div>
       </section>
 
-      <!-- <section class="clinical-card" id="modulos">
+      <section class="clinical-card" id="modulos">
         <div class="clinical-card__header">
           <div>
             <h2>Módulos clínicos asociados</h2>
@@ -610,41 +612,36 @@
 
         <div class="modules-grid">
           <div class="module-tile" (click)="goToOdontogram()">
-            <strong>Odontograma de enfermedad</strong>
-            <span>Registro clínico diagnóstico</span>
+            <strong>Odontograma</strong>
+            <span>Registro clínico diagnóstico del paciente</span>
           </div>
 
-          <div class="module-tile" (click)="goToOdontogram()">
-            <strong>Odontograma de tratamiento</strong>
-            <span>Plan y control terapéutico</span>
-          </div>
-
-          <div class="module-tile">
-            <strong>Enfermedades odontológicas no dentales</strong>
-            <span>Clasificación y apoyo clínico</span>
-          </div>
-
-          <div class="module-tile">
-            <strong>Fórmulas médicas</strong>
-            <span>Prescripción y seguimiento</span>
-          </div>
-
-          <div class="module-tile">
-            <strong>Evolución de tratamiento</strong>
-            <span>Notas clínicas y control médico</span>
-          </div>
-
-          <div class="module-tile">
+          <div class="module-tile" (click)="goToFinance()">
             <strong>Pagos y abonos</strong>
-            <span>Movimientos vinculados al tratamiento</span>
+            <span>Movimientos financieros vinculados al paciente</span>
           </div>
 
-          <div class="module-tile">
+          <div class="module-tile module-tile--disabled">
+            <strong>Fórmulas médicas</strong>
+            <span>Próximamente</span>
+          </div>
+
+          <div class="module-tile module-tile--disabled">
+            <strong>Evolución de tratamiento</strong>
+            <span>Próximamente</span>
+          </div>
+
+          <div class="module-tile module-tile--disabled">
+            <strong>Enfermedades odontológicas</strong>
+            <span>Próximamente</span>
+          </div>
+
+          <div class="module-tile module-tile--disabled">
             <strong>Presupuesto</strong>
-            <span>Asociado al odontograma de tratamiento</span>
+            <span>Próximamente</span>
           </div>
         </div>
-      </section> -->
+      </section>
     </main>
 
     <aside class="clinical-summary">

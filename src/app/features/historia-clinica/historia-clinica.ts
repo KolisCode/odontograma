@@ -496,6 +496,10 @@ export class HistoriaClinica implements OnInit, OnDestroy {
     this.router.navigate(['/odontogram', this.pacienteId]);
   }
 
+  goToFinance(): void {
+    this.router.navigate(['/finance'], { queryParams: { pacienteId: this.pacienteId } });
+  }
+
   formatDateTime(value: any): string {
     const date = new Date(value);
 

@@ -476,3 +476,9 @@
   transform: translateY(-1px);
   box-shadow: 0 10px 18px rgba(18, 38, 63, 0.07);
 }
+
+.module-tile--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+}
