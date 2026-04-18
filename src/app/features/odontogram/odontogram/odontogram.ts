@@ -723,6 +723,9 @@ export class OdontogramComponent implements OnInit {
     }, duration);
   }
 
+  // ── Hover de fila agrupada ────────────────────────────────────────────────
+  hoveredTooth: number | null = null;
+
   // ── Modal guía ────────────────────────────────────────────────────────────
   showToothGuideModal = false;
 

@@ -16,6 +16,7 @@ export class Finance implements OnInit {
   movimientos: MovimientoRow[] = [];
   formVisible = false;
   editingId: number | null = null;
+  confirmDeleteId: number | null = null;
   loading = false;
   errorMessage = '';
   successMessage = '';
@@ -172,7 +173,13 @@ export class Finance implements OnInit {
   }
 
   eliminar(id: number): void {
-    if (!confirm('¿Eliminar este movimiento? Esta acción no se puede deshacer.')) return;
+    this.confirmDeleteId = id;
+  }
+
+  confirmarEliminar(): void {
+    if (this.confirmDeleteId === null) return;
+    const id = this.confirmDeleteId;
+    this.confirmDeleteId = null;
 
     this.finanzasService.delete(id).subscribe({
       next: () => {
@@ -184,6 +191,10 @@ export class Finance implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  cancelarEliminar(): void {
+    this.confirmDeleteId = null;
   }
 
   getTipoClass(tipo: string): string {

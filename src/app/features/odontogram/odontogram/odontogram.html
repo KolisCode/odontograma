@@ -109,7 +109,11 @@
           </thead>
           <tbody>
             <ng-container *ngFor="let record of groupedDiagnosesByTooth()">
-              <tr *ngFor="let surface of record.surfaces; let first = first" class="record-row-table">
+              <tr *ngFor="let surface of record.surfaces; let first = first"
+                  class="record-row-table"
+                  [class.record-row-hovered]="hoveredTooth === record.tooth"
+                  (mouseenter)="hoveredTooth = record.tooth"
+                  (mouseleave)="hoveredTooth = null">
                 <td *ngIf="first" [attr.rowspan]="record.surfaces.length" class="record-cell-tooth">
                   <span class="record-tooth">{{ record.tooth }}</span>
                 </td>

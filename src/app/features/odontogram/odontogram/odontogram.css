@@ -464,8 +464,8 @@
   width: 36px;
 }
 
-.record-table tbody tr.record-row-table:hover td {
-  background: #f8fafc;
+.record-table tbody tr.record-row-hovered td {
+  background: #f1f5f9;
 }
 
 .record-table tbody td {
@@ -554,36 +554,14 @@
 .record-badge {
   display: inline-flex;
   width: fit-content;
-  border-radius: 999px;
-  padding: 7px 12px;
   font-size: 12px;
-  font-weight: 800;
-  border: 1px solid transparent;
+  font-weight: 700;
 }
 
-.badge-caries {
-  background: #fdebec;
-  color: #c54c43;
-  border-color: #f6c7cb;
-}
-
-.badge-obturacion {
-  background: #e8f1ff;
-  color: #3069cc;
-  border-color: #bfd6ff;
-}
-
-.badge-fractura {
-  background: #fff1e8;
-  color: #ca682b;
-  border-color: #ffd3b5;
-}
-
-.badge-sellante {
-  background: #eaf7ef;
-  color: #328b50;
-  border-color: #bfe3ca;
-}
+.badge-caries    { color: #c54c43; }
+.badge-obturacion{ color: #3069cc; }
+.badge-fractura  { color: #ca682b; }
+.badge-sellante  { color: #328b50; }
 
 .delete-btn {
   width: 34px;
@@ -960,20 +938,19 @@
   gap: 4px;
   padding: 3px 8px;
   border-radius: 6px;
-  border: 1.5px solid #16a34a;
-  background: #f0fdf4;
-  color: #16a34a;
+  border: none;
+  background: #16a34a;
+  color: #fff;
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s;
   margin: 2px 0;
   white-space: nowrap;
 }
 
 .cobrar-btn:hover {
-  background: #16a34a;
-  color: #fff;
+  background: #15803d;
 }
 
 .record-cell-cobro {
@@ -1129,6 +1106,36 @@
 .cobro-form-group select:focus {
   border-color: #6366f1;
   background: #fff;
+}
+
+.cobro-form-group input.ng-invalid.ng-touched,
+.cobro-form-group select.ng-invalid.ng-touched {
+  border-color: #dc2626;
+  background: #fff5f5;
+}
+
+.cobro-form .field-error {
+  font-size: 12px;
+  font-weight: 600;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cobro-form .field-error::before {
+  content: '!';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #dc2626;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  flex-shrink: 0;
 }
 
 .cobro-mensaje {
