@@ -369,6 +369,7 @@ export class Appointment implements OnInit {
 
         this.resetForm();
         this.loadAppointmentsModuleData();
+        if (this.calendarView) this.loadCalendarData();
       },
       error: (err) => {
         this.errorMessage = err?.error?.message || 'No se pudo registrar la cita';

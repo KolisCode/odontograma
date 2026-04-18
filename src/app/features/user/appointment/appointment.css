@@ -652,6 +652,38 @@
   border-color: #b8d0f0;
 }
 
+.cal-refresh-btn {
+  background: #f5f9fc;
+  border: 1px solid #e2eaf1;
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  font-size: 1.1rem;
+  color: #4a6070;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  transition: background 0.15s, transform 0.2s;
+}
+
+.cal-refresh-btn:hover:not(:disabled) {
+  background: #eaf2ff;
+  border-color: #b8d0f0;
+}
+
+.cal-refresh-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));

@@ -213,6 +213,9 @@
       <button class="cal-nav-btn" type="button" (click)="prevMonth()">&#8249;</button>
       <h3 class="cal-month-label">{{ calendarMonthLabel }}</h3>
       <button class="cal-nav-btn" type="button" (click)="nextMonth()">&#8250;</button>
+      <button class="cal-refresh-btn" type="button" (click)="loadCalendarData()" [disabled]="calendarLoading" title="Actualizar calendario">
+        &#8635;
+      </button>
     </div>
 
     <div *ngIf="calendarLoading" class="empty-box">Cargando citas del mes...</div>
