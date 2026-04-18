@@ -456,31 +456,35 @@
 .btn-edit {
   background: none;
   border: none;
-  color: #6366f1;
+  color: #475569;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 0.82rem;
+  font-weight: 600;
   padding: 4px 8px;
-  border-radius: 8px;
-  transition: background 0.2s;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
 }
 
 .btn-edit:hover {
-  background: #eef2ff;
+  background: #f1f5f9;
+  color: #1e293b;
 }
 
 .btn-delete {
   background: none;
   border: none;
-  color: #c94a4a;
+  color: #94a3b8;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
   padding: 4px 8px;
-  border-radius: 8px;
-  transition: background 0.2s;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
 }
 
 .btn-delete:hover {
   background: #fde8e8;
+  color: #c94a4a;
 }
 
 .row--editing {
