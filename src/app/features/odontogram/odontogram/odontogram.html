@@ -103,6 +103,7 @@
               <th>Cara</th>
               <th>Diagnóstico(s)</th>
               <th>Fecha</th>
+              <th>Cobro</th>
               <th></th>
             </tr>
           </thead>
@@ -124,22 +125,26 @@
                 <td *ngIf="first" [attr.rowspan]="record.surfaces.length" class="record-cell-date">
                   {{ record.date | date: 'dd/MM/yy' }}
                 </td>
-                <td class="record-cell-action">
-                  <ng-container *ngFor="let diagnosis of surface.diagnoses">
-                    <span
-                      *ngIf="originalOdontogram && hasCobro(buildDiagnosticoRef(record.tooth, surface.surface, diagnosis))"
-                      class="cobro-badge">Cobrado</span>
-                    <button
-                      *ngIf="originalOdontogram && !hasCobro(buildDiagnosticoRef(record.tooth, surface.surface, diagnosis))"
-                      type="button"
-                      class="cobrar-btn"
-                      title="Generar cobro"
-                      (click)="openCobroForm(
-                        buildDiagnosticoRef(record.tooth, surface.surface, diagnosis),
-                        getDiagnosisLabel(diagnosis) + ' - Diente ' + record.tooth + ' (' + surface.surface + ')',
-                        record.date
-                      )">$</button>
+                <td *ngIf="first" [attr.rowspan]="record.surfaces.length" class="record-cell-cobro">
+                  <ng-container *ngIf="originalOdontogram">
+                    <ng-container *ngFor="let diagType of getUniqueDiagnoses(record)">
+                      <span *ngIf="hasCobro(buildDiagnosticoRef(record.tooth, diagType))" class="cobro-badge">
+                        {{ getDiagnosisLabel(diagType) }}
+                      </span>
+                      <button
+                        *ngIf="!hasCobro(buildDiagnosticoRef(record.tooth, diagType))"
+                        type="button"
+                        class="cobrar-btn"
+                        [title]="'Cobrar ' + getDiagnosisLabel(diagType)"
+                        (click)="openCobroForm(
+                          buildDiagnosticoRef(record.tooth, diagType),
+                          getDiagnosisLabel(diagType) + ' - Diente ' + record.tooth,
+                          record.date
+                        )">$ {{ getDiagnosisLabel(diagType) }}</button>
+                    </ng-container>
                   </ng-container>
+                </td>
+                <td class="record-cell-action">
                   <button
                     class="delete-btn surface-delete-btn"
                     (click)="removeSurfaceRecord(record.tooth, surface.surface)"

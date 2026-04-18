@@ -93,8 +93,16 @@ export class OdontogramComponent implements OnInit {
     return this.cobrosMap().has(ref);
   }
 
-  buildDiagnosticoRef(tooth: number, surface: ToothSurface, type: DiagnosisType): string {
-    return `${tooth}-${surface}-${type}`;
+  buildDiagnosticoRef(tooth: number, type: DiagnosisType): string {
+    return `${tooth}-${type}`;
+  }
+
+  getUniqueDiagnoses(record: { surfaces: { surface: ToothSurface; diagnoses: DiagnosisType[] }[] }): DiagnosisType[] {
+    const seen = new Set<DiagnosisType>();
+    for (const surface of record.surfaces) {
+      for (const d of surface.diagnoses) seen.add(d);
+    }
+    return Array.from(seen);
   }
 
   buildPieceRef(tooth: number, type: PieceType): string {
