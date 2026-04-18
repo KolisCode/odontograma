@@ -488,9 +488,8 @@
 }
 
 .row--editing {
-  background: #faf5ff;
-  outline: 2px solid #a5b4fc;
-  outline-offset: -2px;
+  background: #f5f8fb;
+  border-left: 3px solid #2f73d9;
 }
 
 /* ── Modal confirmación eliminar ───────────────────────────────────────── */
