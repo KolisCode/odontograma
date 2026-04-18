@@ -42,10 +42,12 @@
       <ng-container *ngIf="formVisible">
         <div class="finance-card__header">
           <div>
-            <h2>Registrar movimiento</h2>
-            <span>Ingresa la información financiera básica</span>
+            <h2>{{ editingId ? 'Editar movimiento' : 'Registrar movimiento' }}</h2>
+            <span>{{ editingId ? 'Modifica los datos del movimiento seleccionado' : 'Ingresa la información financiera básica' }}</span>
           </div>
-          <span class="status-badge status-badge--active">Control diario</span>
+          <span class="status-badge" [ngClass]="editingId ? 'status-badge--warning' : 'status-badge--active'">
+            {{ editingId ? 'Editando' : 'Control diario' }}
+          </span>
         </div>
 
       <form class="finance-form" [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -94,8 +96,12 @@
         </div>
 
         <div class="form-actions form-group--full">
-          <button class="btn btn-secondary" type="button" (click)="limpiar()">Cancelar</button>
-          <button class="btn btn-primary" type="submit">Guardar movimiento</button>
+          <button class="btn btn-secondary" type="button" (click)="limpiar()">
+            {{ editingId ? 'Cancelar edición' : 'Cancelar' }}
+          </button>
+          <button class="btn btn-primary" type="submit">
+            {{ editingId ? 'Actualizar movimiento' : 'Guardar movimiento' }}
+          </button>
         </div>
       </form>
       </ng-container>
@@ -185,7 +191,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let m of movimientos">
+          <tr *ngFor="let m of movimientos" [class.row--editing]="m.id === editingId">
             <td>{{ formatFecha(m.fecha) }}</td>
             <td><span class="status-badge" [ngClass]="getTipoClass(m.tipo)">{{ getTipoLabel(m.tipo) }}</span></td>
             <td>{{ m.concepto }}</td>
@@ -196,7 +202,8 @@
                 {{ m.monto | currency:'COP ':'symbol':'1.0-0' }}
               </span>
             </td>
-            <td>
+            <td class="table-actions-cell">
+              <button class="btn-edit" type="button" (click)="editarMovimiento(m)" title="Editar">✎</button>
               <button class="btn-delete" type="button" (click)="eliminar(m.id)" title="Eliminar">✕</button>
             </td>
           </tr>

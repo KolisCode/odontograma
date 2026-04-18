@@ -60,6 +60,10 @@ export class FinanzasService {
     );
   }
 
+  update(id: number, payload: Partial<MovimientoPayload>): Observable<{ ok: boolean; data: MovimientoRow }> {
+    return this.http.put<{ ok: boolean; data: MovimientoRow }>(`${this.api}/${id}`, payload);
+  }
+
   getByOdontograma(odontogramaId: number): Observable<{ ok: boolean; data: MovimientoRow[] }> {
     return this.http.get<{ ok: boolean; data: MovimientoRow[] }>(
       `${this.api}/odontograma/${odontogramaId}`,

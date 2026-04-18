@@ -335,6 +335,27 @@
   color: #c94a4a;
 }
 
+.table-actions-cell {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.btn-edit {
+  background: none;
+  border: none;
+  color: #6366f1;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.btn-edit:hover {
+  background: #eef2ff;
+}
+
 .btn-delete {
   background: none;
   border: none;
@@ -348,6 +369,12 @@
 
 .btn-delete:hover {
   background: #fde8e8;
+}
+
+.row--editing {
+  background: #faf5ff;
+  outline: 2px solid #a5b4fc;
+  outline-offset: -2px;
 }
 
 @media (max-width: 1100px) {

@@ -15,6 +15,7 @@ import { FinanzasService, MovimientoRow } from './service/finanzas.service';
 export class Finance implements OnInit {
   movimientos: MovimientoRow[] = [];
   formVisible = false;
+  editingId: number | null = null;
   loading = false;
   errorMessage = '';
   successMessage = '';
@@ -97,6 +98,22 @@ export class Finance implements OnInit {
       .reduce((acc, m) => acc + m.monto, 0);
   }
 
+  editarMovimiento(m: MovimientoRow): void {
+    this.editingId = m.id;
+    this.formVisible = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.form.patchValue({
+      tipo: m.tipo,
+      monto: m.monto,
+      concepto: m.concepto,
+      fecha: new Date(m.fecha).toISOString().substring(0, 10),
+      metodoPago: m.metodoPago ?? 'Efectivo',
+      estado: m.estado,
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -112,6 +129,24 @@ export class Finance implements OnInit {
       metodoPago: raw.metodoPago || null,
       estado: raw.estado,
     };
+
+    if (this.editingId !== null) {
+      this.finanzasService.update(this.editingId, payload).subscribe({
+        next: () => {
+          this.successMessage = 'Movimiento actualizado correctamente';
+          this.errorMessage = '';
+          this.formVisible = false;
+          this.editingId = null;
+          this.form.reset({ tipo: 'INGRESO', metodoPago: 'Efectivo', estado: 'PENDIENTE' });
+          this.loadMovimientos();
+        },
+        error: (err: any) => {
+          this.errorMessage = err?.error?.message || 'No se pudo actualizar el movimiento';
+          this.cdr.detectChanges();
+        },
+      });
+      return;
+    }
 
     this.finanzasService.create(payload).subscribe({
       next: () => {
@@ -130,6 +165,7 @@ export class Finance implements OnInit {
 
   limpiar(): void {
     this.formVisible = false;
+    this.editingId = null;
     this.form.reset({ tipo: 'INGRESO', metodoPago: 'Efectivo', estado: 'PENDIENTE' });
     this.errorMessage = '';
     this.successMessage = '';
