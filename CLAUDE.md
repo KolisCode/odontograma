@@ -121,10 +121,33 @@ El odontograma distingue entre:
    - Un diente puede tener **múltiples piezas simultáneas** (Map<number, PieceType[]>)
    - Compatibilidad legacy: `Protesis` del backend se mapea a `ProtesisParcial`
 
-## Funcionalidades pendientes / botones sin implementar
+## Citas — notas de implementación
+
+- El listado tiene filtros por estado, tipo de atención, rango de fechas y **documento del paciente**
+- Filtro por documento: coincidencia exacta → envía `pacienteId` al backend; coincidencia parcial → filtra client-side via `displayedAppointments` getter usando `pacienteId` del `AppointmentRow`
+- `AppointmentRow` incluye `pacienteId?: number` (añadido al backend en `listCitasService`)
+- `fechaISO` en `AppointmentRow`: campo seguro para el calendario; fallback en `getFechaISO()` parsea formato `es-CO` "d/m/yyyy" → "yyyy-mm-dd"
+- Vista calendario: mes completo en cuadrícula 7×6, chips con hora + apellido, se refresca al guardar nueva cita
+
+## Lenguaje visual — convenciones de sobriedad
+
+El sistema aplica un estilo clínico-institucional consistente en todos los módulos:
+
+- **Status badges** (`status-badge--*`): solo color de texto, sin fondo ni `border-radius` de píldora
+- **Botones primarios**: color plano `#2f73d9`, hover oscurece a `#255fc0`. Sin gradiente ni `transform` en hover
+- **Tarjetas**: `border-radius: 14px`, `box-shadow: 0 2px 8px rgba(18,38,63,0.06)`
+- **Tipografía de títulos** (`h2`, `h3` en cards): `font-weight: 600`
+- **Acciones de tabla**: texto plano ("Editar", "Eliminar"), sin íconos simbólicos
+- **Fila en edición** (finance): fondo gris frío `#f5f8fb` + borde izquierdo `3px solid #2f73d9`
+- **Chips de calendario**: sin fondo, conservan `border-left` de color para escaneo del mes
+- Estos patrones aplican a: `finance.css`, `appointment.css`, `list.css`, `dashboard.css`, `navbar.css`, `login.css`
+
+## Funcionalidades pendientes
 
 - `list.html`: botón **"Importar"** — sin acción
 - `resumen/:id` (ResumenHistoria): apartado para **subir documentos del paciente** (radiografías, exámenes, imágenes de interés) — pendiente de diseño e implementación. El backend no tiene endpoint aún.
+- **Módulo de tratamientos** — frontend en pausa, esperando reunión con cliente que defina la UX
+- **Módulos clínicos "Próximamente"** en historia clínica: Fórmulas médicas, Evolución de tratamiento, Enfermedades odontológicas, Presupuesto
 
 ## Historia clínica — notas de implementación
 
@@ -136,9 +159,10 @@ El odontograma distingue entre:
 
 ## Odontograma — notas de implementación
 
-- `buildBackendStructure()` tiene una limitación: para piezas, escribe una sola entrada `superficie:'P'` por diente (la última gana). El frontend soporta múltiples piezas por diente pero el backend solo persiste una. Pendiente de revisar.
-- `localStorage` guarda diagnósticos y piezas como caché temporal (efecto en constructor)
+- `buildBackendStructure()`: múltiples piezas por diente se persisten correctamente (corregido). Cada pieza genera una entrada `superficie:'P'` independiente en el array.
+- `localStorage` guarda diagnósticos y piezas como caché temporal (efecto en constructor) — no apto para producción multi-tab
 - Superficies backend: `M`=Mesial, `D`=Distal, `V`/`C`=Centro, `L`=Lingual, `O`=Oclusal, `P`=Pieza protésica
+- Tabla de registros usa `rowspan` por diente; `record-row-last` marca la última fila de cada grupo para el separador entre dientes
 
 ## Qué NO hacer
 
@@ -148,3 +172,4 @@ El odontograma distingue entre:
 - No agregar `console.log` de debug al código final
 - No crear archivos README ni documentación salvo que se pida explícitamente
 - No refactorizar código que no está en el alcance del cambio pedido
+- No usar `transform: translateY` ni `box-shadow` animado en hover de botones — rompe el estilo institucional
