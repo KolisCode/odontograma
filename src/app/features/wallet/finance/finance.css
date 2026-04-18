@@ -146,8 +146,8 @@
 .stat-card {
   background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
   border: 1px solid #dce5ec;
-  border-radius: 22px;
-  box-shadow: 0 12px 28px rgba(18, 38, 63, 0.05);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(18, 38, 63, 0.06);
   padding: 20px;
 }
 
@@ -162,7 +162,7 @@
   margin: 0 0 8px;
   color: #183247;
   font-size: 1.75rem;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .stat-card p {
@@ -187,8 +187,8 @@
 .finance-card {
   background: #ffffff;
   border: 1px solid #dce5ec;
-  border-radius: 22px;
-  box-shadow: 0 12px 28px rgba(18, 38, 63, 0.05);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(18, 38, 63, 0.06);
   padding: 20px;
 }
 
@@ -212,7 +212,7 @@
 .finance-card__header h3 {
   margin: 0;
   color: #183247;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .finance-card__header span {
