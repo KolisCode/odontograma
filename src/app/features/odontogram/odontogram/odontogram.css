@@ -294,7 +294,7 @@
 
 .save-btn {
   border: none;
-  background: linear-gradient(135deg, #4778c2, #2566c7);
+  background: #2f73d9;
   color: #fff;
   border-radius: 12px;
   padding: 12px 16px;
@@ -304,8 +304,7 @@
 }
 
 .save-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(13, 110, 253, 0.2);
+  background: #255fc0;
 }
 
 .save-btn:disabled {
@@ -513,11 +512,11 @@
   min-width: 42px;
   min-height: 42px;
   padding: 8px 12px;
-  border-radius: 12px;
-  background: #eff6ff;
-  color: #426ee7d5;
+  border-radius: 8px;
+  border: 1px solid #d0dbe4;
+  color: #334155;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -539,12 +538,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #eef2f7;
-  color: #334155;
-  border-radius: 999px;
-  padding: 5px 10px;
+  color: #475569;
+  border-radius: 5px;
+  padding: 3px 8px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   border: 1px solid #dde6f0;
 }
 
@@ -1343,8 +1341,7 @@
 }
 
 .pediatric-option:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
 }
 
 .pediatric-option strong {
