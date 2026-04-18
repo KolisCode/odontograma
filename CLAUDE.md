@@ -124,7 +124,6 @@ El odontograma distingue entre:
 ## Funcionalidades pendientes / botones sin implementar
 
 - `list.html`: botón **"Importar"** — sin acción
-- `appointment.html`: botón **"Ver calendario"** — sin acción
 - `resumen/:id` (ResumenHistoria): apartado para **subir documentos del paciente** (radiografías, exámenes, imágenes de interés) — pendiente de diseño e implementación. El backend no tiene endpoint aún.
 
 ## Historia clínica — notas de implementación
