@@ -16,6 +16,7 @@ export interface AppointmentRow {
   id: number;
   hora: string;
   fecha: string;
+  fechaISO?: string;
   pacienteNombre: string;
   profesional: string;
   motivo: string;

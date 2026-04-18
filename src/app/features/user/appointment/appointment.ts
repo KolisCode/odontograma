@@ -1,4 +1,12 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+
+interface CalendarDay {
+  date: string;
+  day: number;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  appointments: AppointmentRow[];
+}
 import { CommonModule, NgClass } from '@angular/common';
 import {
   AbstractControl,
@@ -56,6 +64,120 @@ export class Appointment implements OnInit {
   upcomingAppointments: UpcomingAppointment[] = [];
   patients: any[] = [];
   clinicalStaff: any[] = [];
+
+  // ── Calendario ────────────────────────────────────────────────────────────
+  calendarView = false;
+  calendarYear = new Date().getFullYear();
+  calendarMonth = new Date().getMonth();
+  selectedCalendarDay: string | null = null;
+  calendarAppointments: AppointmentRow[] = [];
+  calendarLoading = false;
+
+  readonly MONTH_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  readonly WEEK_DAYS = ['Lu','Ma','Mi','Ju','Vi','Sa','Do'];
+
+  toggleCalendarView(): void {
+    this.calendarView = !this.calendarView;
+    this.selectedCalendarDay = null;
+    if (this.calendarView) this.loadCalendarData();
+  }
+
+  loadCalendarData(): void {
+    this.calendarLoading = true;
+    const fechaDesde = this.toDateKey(new Date(this.calendarYear, this.calendarMonth, 1));
+    const fechaHasta = this.toDateKey(new Date(this.calendarYear, this.calendarMonth + 1, 0));
+    this.appointmentService.getAppointments({ fechaDesde, fechaHasta }).subscribe({
+      next: (res) => {
+        this.calendarAppointments = res.data;
+        this.calendarLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.calendarAppointments = [];
+        this.calendarLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  prevMonth(): void {
+    if (this.calendarMonth === 0) { this.calendarMonth = 11; this.calendarYear--; }
+    else { this.calendarMonth--; }
+    this.selectedCalendarDay = null;
+    this.loadCalendarData();
+  }
+
+  nextMonth(): void {
+    if (this.calendarMonth === 11) { this.calendarMonth = 0; this.calendarYear++; }
+    else { this.calendarMonth++; }
+    this.selectedCalendarDay = null;
+    this.loadCalendarData();
+  }
+
+  get calendarMonthLabel(): string {
+    return `${this.MONTH_NAMES[this.calendarMonth]} ${this.calendarYear}`;
+  }
+
+  selectCalendarDay(day: CalendarDay): void {
+    if (!day.isCurrentMonth || day.appointments.length === 0) return;
+    this.selectedCalendarDay = this.selectedCalendarDay === day.date ? null : day.date;
+  }
+
+  get selectedDayAppointments(): AppointmentRow[] {
+    if (!this.selectedCalendarDay) return [];
+    return this.calendarAppointments.filter(a => a.fechaISO === this.selectedCalendarDay);
+  }
+
+  get calendarDays(): CalendarDay[] {
+    const todayKey = this.toDateKey(new Date());
+
+    const apptMap = new Map<string, AppointmentRow[]>();
+    for (const a of this.calendarAppointments) {
+      if (!a.fechaISO) continue;
+      if (!apptMap.has(a.fechaISO)) apptMap.set(a.fechaISO, []);
+      apptMap.get(a.fechaISO)!.push(a);
+    }
+
+    const days: CalendarDay[] = [];
+    const firstOfMonth = new Date(this.calendarYear, this.calendarMonth, 1);
+    const startWeekday = (firstOfMonth.getDay() + 6) % 7; // Lu=0
+
+    const prevY = this.calendarMonth === 0 ? this.calendarYear - 1 : this.calendarYear;
+    const prevM = this.calendarMonth === 0 ? 11 : this.calendarMonth - 1;
+    const daysInPrevMonth = new Date(this.calendarYear, this.calendarMonth, 0).getDate();
+    for (let i = startWeekday - 1; i >= 0; i--) {
+      const d = daysInPrevMonth - i;
+      const date = this.toDateKey(new Date(prevY, prevM, d));
+      days.push({ date, day: d, isCurrentMonth: false, isToday: date === todayKey, appointments: [] });
+    }
+
+    const daysInMonth = new Date(this.calendarYear, this.calendarMonth + 1, 0).getDate();
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = this.toDateKey(new Date(this.calendarYear, this.calendarMonth, d));
+      days.push({ date, day: d, isCurrentMonth: true, isToday: date === todayKey, appointments: apptMap.get(date) || [] });
+    }
+
+    const nextY = this.calendarMonth === 11 ? this.calendarYear + 1 : this.calendarYear;
+    const nextM = this.calendarMonth === 11 ? 0 : this.calendarMonth + 1;
+    let nd = 1;
+    while (days.length < 42) {
+      const date = this.toDateKey(new Date(nextY, nextM, nd));
+      days.push({ date, day: nd, isCurrentMonth: false, isToday: date === todayKey, appointments: [] });
+      nd++;
+    }
+
+    return days;
+  }
+
+  formatCalendarDayLabel(dateKey: string | null): string {
+    if (!dateKey) return '';
+    const [y, m, d] = dateKey.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+
+  private toDateKey(date: Date): string {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
 
   // ── Filtros ────────────────────────────────────────────────────────────────
   filtrosVisible = false;

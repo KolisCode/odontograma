@@ -7,7 +7,9 @@
     </div>
 
     <div class="appointments-header__actions">
-      <button class="btn btn-secondary" type="button">Ver calendario</button>
+      <button class="btn btn-secondary" type="button" (click)="toggleCalendarView()">
+        {{ calendarView ? 'Ver listado' : 'Ver calendario' }}
+      </button>
       <button class="btn btn-primary" type="button" (click)="openForm()">Nueva cita</button>
     </div>
   </div>
@@ -205,7 +207,58 @@
     </aside>
   </div>
 
-  <section class="appointments-card appointments-card--table">
+  <!-- Vista calendario -->
+  <section class="appointments-card appointments-card--calendar" *ngIf="calendarView">
+    <div class="cal-header">
+      <button class="cal-nav-btn" type="button" (click)="prevMonth()">&#8249;</button>
+      <h3 class="cal-month-label">{{ calendarMonthLabel }}</h3>
+      <button class="cal-nav-btn" type="button" (click)="nextMonth()">&#8250;</button>
+    </div>
+
+    <div *ngIf="calendarLoading" class="empty-box">Cargando citas del mes...</div>
+
+    <ng-container *ngIf="!calendarLoading">
+      <div class="cal-grid">
+        <div class="cal-weekday" *ngFor="let d of WEEK_DAYS">{{ d }}</div>
+        <div class="cal-day"
+             *ngFor="let day of calendarDays"
+             [class.cal-day--other]="!day.isCurrentMonth"
+             [class.cal-day--today]="day.isToday"
+             [class.cal-day--selected]="selectedCalendarDay === day.date"
+             [class.cal-day--clickable]="day.isCurrentMonth && day.appointments.length > 0"
+             (click)="selectCalendarDay(day)">
+          <span class="cal-day__num">{{ day.day }}</span>
+          <div class="cal-dots" *ngIf="day.isCurrentMonth && day.appointments.length > 0">
+            <span class="cal-dot"
+                  *ngFor="let a of day.appointments.slice(0, 3)"
+                  [ngClass]="getStatusClass(a.estado)"></span>
+            <span class="cal-dot-more" *ngIf="day.appointments.length > 3">+{{ day.appointments.length - 3 }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cal-day-panel" *ngIf="selectedCalendarDay && selectedDayAppointments.length > 0">
+        <div class="cal-day-panel__header">
+          <strong>{{ formatCalendarDayLabel(selectedCalendarDay) }}</strong>
+          <span class="status-badge status-badge--pending">
+            {{ selectedDayAppointments.length }} cita{{ selectedDayAppointments.length > 1 ? 's' : '' }}
+          </span>
+        </div>
+        <div class="cal-day-panel__list">
+          <div class="agenda-item" *ngFor="let a of selectedDayAppointments">
+            <div class="agenda-item__top">
+              <strong>{{ a.hora }} · {{ a.pacienteNombre }}</strong>
+              <span class="status-badge" [ngClass]="getStatusClass(a.estado)">{{ getStatusLabel(a.estado) }}</span>
+            </div>
+            <p>{{ a.motivo }} · {{ a.profesional }}</p>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </section>
+
+  <!-- Vista tabla -->
+  <section class="appointments-card appointments-card--table" *ngIf="!calendarView">
     <div class="appointments-card__header">
       <div>
         <h3>Listado de citas</h3>
