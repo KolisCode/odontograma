@@ -11,9 +11,9 @@
   width: 100%;
   max-width: 430px;
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: 14px;
   padding: 32px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
 }
 
 .logo-box {
@@ -29,7 +29,7 @@
 .logo-box h2 {
   margin: 0;
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 600;
   color: #1d1d1d;
 }
 
