@@ -174,24 +174,19 @@
 .status-badge {
   display: inline-flex;
   align-items: center;
-  padding: 7px 11px;
-  border-radius: 999px;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .status-badge--active {
-  background: #e8f7ee;
   color: #247447;
 }
 
 .status-badge--pending {
-  background: #fff3d8;
   color: #a56a00;
 }
 
 .status-badge--warning {
-  background: #fff0e0;
   color: #a06200;
 }
 
