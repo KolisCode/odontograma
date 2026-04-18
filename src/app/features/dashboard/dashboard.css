@@ -24,12 +24,16 @@
 
 .btn-primary {
   border: none;
-  background: linear-gradient(90deg, #217737a2, #1a853ac0);
+  background: #217737;
   color: white;
   padding: 12px 18px;
   border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #1a6830;
 }
 
 .stats-grid {
@@ -42,10 +46,10 @@
 .stat-card,
 .panel-card {
   background: #ffffff;
-  border-radius: 18px;
+  border-radius: 14px;
   padding: 20px;
   border: 1px solid #dde5ec;
-  box-shadow: 0 10px 24px rgba(18, 38, 63, 0.05);
+  box-shadow: 0 2px 8px rgba(18, 38, 63, 0.06);
 }
 
 .stat-label {
