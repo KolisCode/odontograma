@@ -292,13 +292,12 @@
 }
 
 .btn-primary {
-  background: linear-gradient(90deg, #2f73d9, #255fc0);
+  background: #2f73d9;
   color: #ffffff;
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 18px rgba(47, 115, 217, 0.18);
+  background: #255fc0;
 }
 
 .btn-secondary {
