@@ -490,9 +490,6 @@
 }
 
 .record-cell-diagnoses {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
   padding-top: 6px;
   padding-bottom: 6px;
 }
@@ -560,6 +557,7 @@
   width: fit-content;
   font-size: 12px;
   font-weight: 700;
+  margin-right: 5px;
 }
 
 .badge-caries    { color: #c54c43; }
