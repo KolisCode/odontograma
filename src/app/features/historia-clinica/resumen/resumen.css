@@ -1,0 +1,359 @@
+.resumen-page {
+  min-height: calc(100vh - 130px);
+  padding: 24px;
+  background: #eef3f7;
+}
+
+/* ── Cabecera ────────────────────────────────────────────────────────────── */
+.resumen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.resumen-header__eyebrow {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.resumen-header__text h1 {
+  margin: 0 0 4px;
+  font-size: 1.9rem;
+  font-weight: 600;
+  color: #183247;
+}
+
+.resumen-header__text p {
+  margin: 0;
+  color: #6e7f8f;
+  font-size: 0.95rem;
+}
+
+.resumen-header__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ── Botones ─────────────────────────────────────────────────────────────── */
+.btn {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-primary {
+  background: #2f73d9;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #255fc0;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #5a6d7d;
+  border: 1px solid #d0dbe4;
+}
+
+.btn-secondary:hover {
+  background: #f8fbfe;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+.resumen-layout {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.resumen-main,
+.resumen-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.resumen-card {
+  background: #fff;
+  border: 1px solid #dce5ec;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(18, 38, 63, 0.06);
+  padding: 20px 22px;
+}
+
+.resumen-card--critica {
+  border-left: 4px solid #ef4444;
+}
+
+.resumen-card--advertencia {
+  border-left: 4px solid #f59e0b;
+}
+
+.resumen-card--ok {
+  border-left: 4px solid #22c55e;
+}
+
+.resumen-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.resumen-card__header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #183247;
+}
+
+.resumen-card__subtitle {
+  margin: -8px 0 14px;
+  font-size: 0.85rem;
+  color: #6e7f8f;
+}
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.resumen-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.resumen-badge--critica {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.resumen-badge--advertencia {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.resumen-badge--info {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+/* ── Lista de alertas ────────────────────────────────────────────────────── */
+.alerta-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alerta-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.alerta-item:last-child {
+  border-bottom: none;
+}
+
+.alerta-item--critica {
+  color: #991b1b;
+}
+
+.alerta-item--advertencia {
+  color: #78350f;
+}
+
+.alerta-item--info {
+  color: #1e40af;
+}
+
+.alerta-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  background: currentColor;
+  color: inherit;
+}
+
+.alerta-item--critica .alerta-icon {
+  background: #b91c1c;
+  color: #fff;
+}
+
+.alerta-item--advertencia .alerta-icon {
+  background: #d97706;
+  color: #fff;
+}
+
+.alerta-item--info .alerta-icon {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* ── OK (sin alertas) ────────────────────────────────────────────────────── */
+.resumen-ok-text {
+  margin: 0;
+  color: #6e7f8f;
+  font-size: 0.9rem;
+}
+
+/* ── Tabla de medicación ─────────────────────────────────────────────────── */
+.resumen-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.resumen-table thead th {
+  text-align: left;
+  padding: 8px 12px;
+  background: #f5f9fc;
+  color: #536779;
+  font-size: 0.82rem;
+  border-bottom: 1px solid #e1e8ef;
+}
+
+.resumen-table tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #edf2f6;
+  color: #183247;
+}
+
+/* ── Texto libre ─────────────────────────────────────────────────────────── */
+.resumen-texto {
+  margin: 0;
+  color: #334155;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* ── Info stack (lado) ───────────────────────────────────────────────────── */
+.resumen-info-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resumen-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  gap: 8px;
+}
+
+.resumen-info-label {
+  color: #6e7f8f;
+  font-weight: 500;
+}
+
+.resumen-info-value {
+  color: #183247;
+  font-weight: 600;
+  text-align: right;
+}
+
+.valor--si { color: #16a34a; }
+.valor--no { color: #94a3b8; }
+
+/* ── Síntomas ────────────────────────────────────────────────────────────── */
+.resumen-sintomas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.resumen-sintoma-tag {
+  color: #92400e;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* ── Estados de carga ────────────────────────────────────────────────────── */
+.resumen-loading {
+  text-align: center;
+  color: #6e7f8f;
+  padding: 40px 0;
+  font-size: 0.95rem;
+}
+
+.resumen-alert--error {
+  background: #fde8e8;
+  color: #c94a4a;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+/* ── Sin historia ────────────────────────────────────────────────────────── */
+.resumen-empty {
+  text-align: center;
+  padding: 60px 24px;
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #dce5ec;
+}
+
+.resumen-empty__icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.resumen-empty h3 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #183247;
+}
+
+.resumen-empty p {
+  margin: 0 0 24px;
+  color: #6e7f8f;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 1100px) {
+  .resumen-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .resumen-page { padding: 16px; }
+  .resumen-header { flex-direction: column; align-items: stretch; }
+}
