@@ -492,6 +492,10 @@ export class HistoriaClinica implements OnInit, OnDestroy {
       });
   }
 
+  goToResumen(): void {
+    this.router.navigate(['/resumen', this.pacienteId]);
+  }
+
   goToOdontogram(): void {
     this.router.navigate(['/odontogram', this.pacienteId]);
   }

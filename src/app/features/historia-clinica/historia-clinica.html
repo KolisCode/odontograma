@@ -8,7 +8,7 @@
     </div>
 
     <div class="clinical-header__actions">
-      <button class="btn btn-secondary" type="button">Vista previa</button>
+      <button class="btn btn-secondary" type="button" (click)="goToResumen()">Vista previa</button>
       <button class="btn btn-primary" type="button" (click)="onSave()" [disabled]="loading">
         {{ loading ? 'Guardando...' : 'Guardar historia' }}
       </button>

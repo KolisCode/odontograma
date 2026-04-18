@@ -1,0 +1,188 @@
+<app-navbar></app-navbar>
+
+<section class="resumen-page">
+
+  <!-- Cabecera del paciente -->
+  <div class="resumen-header">
+    <div class="resumen-header__text">
+      <span class="resumen-header__eyebrow">Resumen clínico</span>
+      <h1>{{ patientName || 'Cargando...' }}</h1>
+      <p *ngIf="patientDocument">CC {{ patientDocument }}<span *ngIf="numeroHistoria"> · {{ numeroHistoria }}</span></p>
+    </div>
+    <div class="resumen-header__actions">
+      <button class="btn btn-secondary" type="button" (click)="goToPatients()">← Pacientes</button>
+      <button class="btn btn-secondary" type="button" (click)="goToOdontogram()">Odontograma</button>
+      <button class="btn btn-primary" type="button" (click)="goToHistoria()">Ver historia completa</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="resumen-loading">Cargando historia clínica...</div>
+
+  <div *ngIf="errorMessage" class="resumen-alert resumen-alert--error">{{ errorMessage }}</div>
+
+  <!-- Sin historia registrada -->
+  <div *ngIf="!loading && sinHistoria" class="resumen-empty">
+    <div class="resumen-empty__icon">📋</div>
+    <h3>Sin historia clínica</h3>
+    <p>Este paciente aún no tiene historia clínica registrada.</p>
+    <button class="btn btn-primary" type="button" (click)="goToHistoria()">Registrar historia clínica</button>
+  </div>
+
+  <div class="resumen-layout" *ngIf="!loading && !sinHistoria">
+
+    <!-- Columna principal -->
+    <div class="resumen-main">
+
+      <!-- Alertas clínicas críticas -->
+      <section class="resumen-card resumen-card--critica" *ngIf="alertasCriticas.length > 0">
+        <div class="resumen-card__header">
+          <h2>Alertas críticas</h2>
+          <span class="resumen-badge resumen-badge--critica">{{ alertasCriticas.length }} alerta{{ alertasCriticas.length > 1 ? 's' : '' }}</span>
+        </div>
+        <p class="resumen-card__subtitle">Condiciones que requieren atención antes del procedimiento</p>
+        <ul class="alerta-list">
+          <li class="alerta-item alerta-item--critica" *ngFor="let a of alertasCriticas">
+            <span class="alerta-icon">✕</span>
+            {{ a.texto }}
+          </li>
+        </ul>
+      </section>
+
+      <!-- Advertencias -->
+      <section class="resumen-card resumen-card--advertencia" *ngIf="alertasAdvertencia.length > 0">
+        <div class="resumen-card__header">
+          <h2>Condiciones a considerar</h2>
+          <span class="resumen-badge resumen-badge--advertencia">{{ alertasAdvertencia.length }}</span>
+        </div>
+        <ul class="alerta-list">
+          <li class="alerta-item alerta-item--advertencia" *ngFor="let a of alertasAdvertencia">
+            <span class="alerta-icon">!</span>
+            {{ a.texto }}
+          </li>
+        </ul>
+      </section>
+
+      <!-- Sin alertas -->
+      <section class="resumen-card resumen-card--ok" *ngIf="alertasCriticas.length === 0 && alertasAdvertencia.length === 0">
+        <div class="resumen-card__header">
+          <h2>Sin alertas clínicas</h2>
+        </div>
+        <p class="resumen-ok-text">No se registraron alergias, enfermedades sistémicas ni condiciones de riesgo.</p>
+      </section>
+
+      <!-- Medicación actual -->
+      <section class="resumen-card" *ngIf="medicamentos.length > 0">
+        <div class="resumen-card__header">
+          <h2>Medicación actual</h2>
+          <span class="resumen-badge resumen-badge--info">{{ medicamentos.length }}</span>
+        </div>
+        <table class="resumen-table">
+          <thead>
+            <tr>
+              <th>Medicamento</th>
+              <th>Dosis</th>
+              <th>Frecuencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of medicamentos">
+              <td>{{ m.medicamento }}</td>
+              <td>{{ m.dosis || '—' }}</td>
+              <td>{{ m.frecuencia || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Motivo de consulta -->
+      <section class="resumen-card" *ngIf="motivoConsulta">
+        <div class="resumen-card__header">
+          <h2>Motivo de consulta</h2>
+        </div>
+        <p class="resumen-texto">{{ motivoConsulta }}</p>
+      </section>
+
+      <!-- Información adicional (info) -->
+      <section class="resumen-card" *ngIf="alertasInfo.length > 0">
+        <div class="resumen-card__header">
+          <h2>Información adicional</h2>
+        </div>
+        <ul class="alerta-list">
+          <li class="alerta-item alerta-item--info" *ngFor="let a of alertasInfo">
+            <span class="alerta-icon">i</span>
+            {{ a.texto }}
+          </li>
+        </ul>
+      </section>
+
+    </div>
+
+    <!-- Columna lateral -->
+    <aside class="resumen-side">
+
+      <!-- Higiene oral -->
+      <section class="resumen-card">
+        <div class="resumen-card__header">
+          <h2>Higiene oral</h2>
+        </div>
+        <div class="resumen-info-stack">
+          <div class="resumen-info-row" *ngIf="higiene.cepilladoVecesDia">
+            <span class="resumen-info-label">Cepillado</span>
+            <span class="resumen-info-value">{{ higiene.cepilladoVecesDia }}x/día</span>
+          </div>
+          <div class="resumen-info-row" *ngIf="higiene.momentos.length > 0">
+            <span class="resumen-info-label">Momentos</span>
+            <span class="resumen-info-value">{{ higiene.momentos.join(', ') }}</span>
+          </div>
+          <div class="resumen-info-row">
+            <span class="resumen-info-label">Seda dental</span>
+            <span class="resumen-info-value" [class.valor--si]="higiene.sedaDental" [class.valor--no]="!higiene.sedaDental">
+              {{ higiene.sedaDental ? 'Sí' : 'No' }}
+            </span>
+          </div>
+          <div class="resumen-info-row">
+            <span class="resumen-info-label">Enjuague</span>
+            <span class="resumen-info-value">{{ higiene.enjuague ? 'Sí' : 'No' }}</span>
+          </div>
+          <div class="resumen-info-row" *ngIf="higiene.frecuenciaOdontologo">
+            <span class="resumen-info-label">Visita odontólogo</span>
+            <span class="resumen-info-value">{{ higiene.frecuenciaOdontologo }}</span>
+          </div>
+        </div>
+
+        <!-- Síntomas activos -->
+        <div class="resumen-sintomas" *ngIf="higiene.sangradoEncias || higiene.halitosis || higiene.sensibilidad || higiene.movilidadDental">
+          <div class="resumen-sintoma-tag" *ngIf="higiene.sangradoEncias">Sangrado de encías</div>
+          <div class="resumen-sintoma-tag" *ngIf="higiene.halitosis">Halitosis</div>
+          <div class="resumen-sintoma-tag" *ngIf="higiene.sensibilidad">Sensibilidad dental</div>
+          <div class="resumen-sintoma-tag" *ngIf="higiene.movilidadDental">Movilidad dental</div>
+        </div>
+      </section>
+
+      <!-- Contacto de emergencia -->
+      <section class="resumen-card" *ngIf="tieneAcompanante">
+        <div class="resumen-card__header">
+          <h2>Contacto de emergencia</h2>
+        </div>
+        <div class="resumen-info-stack">
+          <div class="resumen-info-row" *ngIf="acompanante.nombre">
+            <span class="resumen-info-label">Nombre</span>
+            <span class="resumen-info-value">{{ acompanante.nombre }}</span>
+          </div>
+          <div class="resumen-info-row" *ngIf="acompanante.parentesco">
+            <span class="resumen-info-label">Parentesco</span>
+            <span class="resumen-info-value">{{ acompanante.parentesco }}</span>
+          </div>
+          <div class="resumen-info-row" *ngIf="acompanante.telefono">
+            <span class="resumen-info-label">Teléfono</span>
+            <span class="resumen-info-value">{{ acompanante.telefono }}</span>
+          </div>
+        </div>
+      </section>
+
+    </aside>
+  </div>
+
+</section>
+
+<app-footer></app-footer>
