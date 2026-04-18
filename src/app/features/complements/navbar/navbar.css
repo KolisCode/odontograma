@@ -123,8 +123,7 @@
 }
 
 .btn-header-action:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  background: #f1f5f9;
 }
 
 /* ── Historia clínica dropdown ────────────────────────────────────────────── */
@@ -163,8 +162,9 @@
   top: calc(100% + 8px);
   left: 0;
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
   padding: 14px;
   min-width: 240px;
   z-index: 500;
