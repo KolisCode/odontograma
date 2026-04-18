@@ -676,13 +676,7 @@ export class OdontogramComponent implements OnInit {
       if (!teethMap.has(piece.tooth)) {
         teethMap.set(piece.tooth, { number: piece.tooth, surfaces: [] });
       }
-      const toothEntry = teethMap.get(piece.tooth)!;
-      const existingPieceIdx = toothEntry.surfaces.findIndex((s) => s.surface === ('P' as any));
-      if (existingPieceIdx !== -1) {
-        toothEntry.surfaces[existingPieceIdx].diagnoses = [piece.type as any];
-      } else {
-        toothEntry.surfaces.push({ surface: 'P' as any, diagnoses: [piece.type as any] });
-      }
+      teethMap.get(piece.tooth)!.surfaces.push({ surface: 'P' as any, diagnoses: [piece.type as any] });
     }
 
     return Array.from(teethMap.values());
