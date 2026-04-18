@@ -470,9 +470,13 @@
 
 .record-table tbody td {
   padding: 8px 10px;
-  border-bottom: 1px solid #f0f4f8;
+  border-bottom: none;
   vertical-align: middle;
   color: #334155;
+}
+
+.record-table tbody tr.record-row-last td {
+  border-bottom: 1px solid #e2eaf1;
 }
 
 .record-cell-tooth {
