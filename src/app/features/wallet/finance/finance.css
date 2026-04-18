@@ -1,3 +1,89 @@
+/* ── Barra de contexto de paciente ─────────────────────────────────────── */
+.finance-patient-bar {
+  background: #fff;
+  border-bottom: 1px solid #e8edf2;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+}
+
+.finance-patient-bar__label {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.finance-patient-select {
+  padding: 7px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  background: #f8fafc;
+  cursor: pointer;
+  outline: none;
+  min-width: 240px;
+  transition: border-color 0.15s;
+}
+
+.finance-patient-select:focus {
+  border-color: #6366f1;
+}
+
+.finance-patient-context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
+}
+
+.finance-patient-context__info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.finance-patient-context__eyebrow {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.finance-patient-context__name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.finance-patient-context__doc {
+  font-size: 13px;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.finance-patient-context__clear {
+  background: none;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.finance-patient-context__clear:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
 .finance-page {
   min-height: calc(100vh - 130px);
   padding: 24px;

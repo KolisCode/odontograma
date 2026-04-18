@@ -1,4 +1,29 @@
 <app-navbar></app-navbar>
+
+<!-- Selector / contexto de paciente -->
+<div class="finance-patient-bar">
+  <ng-container *ngIf="!selectedPatient">
+    <span class="finance-patient-bar__label">Filtrando por:</span>
+    <select class="finance-patient-select" (change)="selectPatient($event)">
+      <option value="">Todos los pacientes</option>
+      <option *ngFor="let p of patients" [value]="p.id">{{ p.nombreCompleto }}</option>
+    </select>
+  </ng-container>
+
+  <ng-container *ngIf="selectedPatient">
+    <div class="finance-patient-context">
+      <div class="finance-patient-context__info">
+        <span class="finance-patient-context__eyebrow">Movimientos de</span>
+        <strong class="finance-patient-context__name">{{ selectedPatient.nombreCompleto }}</strong>
+        <span class="finance-patient-context__doc">CC {{ selectedPatient.documento }}</span>
+      </div>
+      <button class="finance-patient-context__clear" type="button" (click)="clearPatient()">
+        Ver todos los pacientes
+      </button>
+    </div>
+  </ng-container>
+</div>
+
 <section class="finance-page">
   <div class="finance-header">
     <div class="finance-header__text">

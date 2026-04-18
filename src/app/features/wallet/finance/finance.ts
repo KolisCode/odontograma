@@ -1,10 +1,12 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Footer } from '../../complements/footer/footer';
 import { Navbar } from '../../complements/navbar/navbar';
 import { FinanzasService, MovimientoRow } from './service/finanzas.service';
+import { PatientsService, PatientRow } from '../../user/service/pacientes.service';
 
 @Component({
   selector: 'app-finance',
@@ -20,6 +22,10 @@ export class Finance implements OnInit {
   loading = false;
   errorMessage = '';
   successMessage = '';
+
+  // ── Contexto de paciente ──────────────────────────────────────────────────
+  patients: PatientRow[] = [];
+  selectedPatient: PatientRow | null = null;
 
   form: FormGroup;
 
@@ -47,6 +53,9 @@ export class Finance implements OnInit {
   constructor(
     private fb: FormBuilder,
     private finanzasService: FinanzasService,
+    private patientsService: PatientsService,
+    private route: ActivatedRoute,
+    private router: Router,
     private cdr: ChangeDetectorRef,
   ) {
     this.form = this.fb.group({
@@ -60,12 +69,64 @@ export class Finance implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadMovimientos();
+    this.loadPatients();
+    this.route.queryParamMap.subscribe((params) => {
+      const id = params.get('pacienteId');
+      if (id && !isNaN(Number(id))) {
+        const numId = Number(id);
+        // Espera a que pacientes estén cargados para mostrar nombre
+        if (this.patients.length) {
+          this.selectedPatient = this.patients.find((p) => p.id === numId) ?? null;
+        } else {
+          // Carga puntual del paciente si los pacientes aún no llegaron
+          this.patientsService.getPatientById(numId).subscribe({
+            next: (res) => {
+              this.selectedPatient = {
+                id: res.data.id,
+                nombreCompleto: `${res.data.nombre} ${res.data.apellido}`.trim(),
+                documento: res.data.documento,
+                telefono: res.data.telefono,
+                eps: res.data.eps,
+                activo: res.data.activo,
+                ultimaCita: '',
+              };
+              this.cdr.detectChanges();
+            },
+          });
+        }
+      } else {
+        this.selectedPatient = null;
+      }
+      this.loadMovimientos();
+    });
+  }
+
+  loadPatients(): void {
+    this.patientsService.getPatients().subscribe({
+      next: (res) => {
+        this.patients = res.data;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  selectPatient(event: Event): void {
+    const id = Number((event.target as HTMLSelectElement).value);
+    if (!id) {
+      this.router.navigate([], { queryParams: {} });
+    } else {
+      this.router.navigate([], { queryParams: { pacienteId: id } });
+    }
+  }
+
+  clearPatient(): void {
+    this.router.navigate([], { queryParams: {} });
   }
 
   loadMovimientos(): void {
     this.loading = true;
-    this.finanzasService.getAll().subscribe({
+    const filters = this.selectedPatient ? { pacienteId: this.selectedPatient.id } : {};
+    this.finanzasService.getAll(filters).subscribe({
       next: (res) => {
         this.movimientos = res.data;
         this.calcularStats();
@@ -129,6 +190,7 @@ export class Finance implements OnInit {
       fecha: raw.fecha,
       metodoPago: raw.metodoPago || null,
       estado: raw.estado,
+      pacienteId: this.selectedPatient?.id ?? null,
     };
 
     if (this.editingId !== null) {

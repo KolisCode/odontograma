@@ -277,6 +277,10 @@ export class List implements OnInit {
     this.router.navigate(['/tratamientos', patientId]);
   }
 
+  goToFinance(patientId: number): void {
+    this.router.navigate(['/finance'], { queryParams: { pacienteId: patientId } });
+  }
+
   getControl(controlName: string): AbstractControl | null {
     return this.patientForm.get(controlName);
   }

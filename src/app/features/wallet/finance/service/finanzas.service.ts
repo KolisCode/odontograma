@@ -32,6 +32,7 @@ export interface MovimientoFilters {
   estado?: string;
   fechaDesde?: string;
   fechaHasta?: string;
+  pacienteId?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -46,6 +47,7 @@ export class FinanzasService {
     if (filters?.estado) params = params.set('estado', filters.estado);
     if (filters?.fechaDesde) params = params.set('fechaDesde', filters.fechaDesde);
     if (filters?.fechaHasta) params = params.set('fechaHasta', filters.fechaHasta);
+    if (filters?.pacienteId) params = params.set('pacienteId', filters.pacienteId.toString());
     return this.http.get<{ ok: boolean; data: MovimientoRow[] }>(this.api, { params });
   }
 
