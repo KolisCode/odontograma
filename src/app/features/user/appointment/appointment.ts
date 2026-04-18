@@ -125,7 +125,7 @@ export class Appointment implements OnInit {
 
   get selectedDayAppointments(): AppointmentRow[] {
     if (!this.selectedCalendarDay) return [];
-    return this.calendarAppointments.filter(a => a.fechaISO === this.selectedCalendarDay);
+    return this.calendarAppointments.filter(a => this.getFechaISO(a) === this.selectedCalendarDay);
   }
 
   get calendarDays(): CalendarDay[] {
@@ -133,9 +133,10 @@ export class Appointment implements OnInit {
 
     const apptMap = new Map<string, AppointmentRow[]>();
     for (const a of this.calendarAppointments) {
-      if (!a.fechaISO) continue;
-      if (!apptMap.has(a.fechaISO)) apptMap.set(a.fechaISO, []);
-      apptMap.get(a.fechaISO)!.push(a);
+      const key = this.getFechaISO(a);
+      if (!key) continue;
+      if (!apptMap.has(key)) apptMap.set(key, []);
+      apptMap.get(key)!.push(a);
     }
 
     const days: CalendarDay[] = [];
@@ -173,6 +174,35 @@ export class Appointment implements OnInit {
     if (!dateKey) return '';
     const [y, m, d] = dateKey.split('-').map(Number);
     return new Date(y, m - 1, d).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+
+  private getFechaISO(a: AppointmentRow): string {
+    if (a.fechaISO) return a.fechaISO;
+    // Fallback: parsear formato 'es-CO' "d/m/yyyy" → "yyyy-mm-dd"
+    const parts = a.fecha.split('/');
+    if (parts.length === 3) {
+      const [d, m, y] = parts;
+      return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+    }
+    return '';
+  }
+
+  getShortName(fullName: string): string {
+    const parts = fullName.trim().split(' ');
+    return parts[parts.length - 1] || fullName;
+  }
+
+  getStatusKey(estado: string): string {
+    const s = (estado || '').toUpperCase();
+    if (s === 'CONFIRMADA') return 'active';
+    if (s === 'ATENDIDA')   return 'done';
+    if (s === 'CANCELADA')  return 'cancelled';
+    return 'pending';
+  }
+
+  getChipHour(hora: string): string {
+    // Toma solo "09:00" de "09:00 a. m." o lo que devuelva el backend
+    return hora.split(' ')[0];
   }
 
   private toDateKey(date: Date): string {

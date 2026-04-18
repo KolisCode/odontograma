@@ -669,7 +669,7 @@
 }
 
 .cal-day {
-  min-height: 72px;
+  min-height: 88px;
   border: 1px solid #edf2f6;
   border-radius: 10px;
   padding: 8px 6px;
@@ -721,29 +721,48 @@
   line-height: 1;
 }
 
-.cal-dots {
+.cal-chips {
   display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.cal-chip {
+  display: flex;
   align-items: center;
+  gap: 4px;
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 1.4;
+  border-left: 2px solid transparent;
 }
 
-.cal-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
+.cal-chip--pending   { background: #fff3d8; color: #7a4d00; border-left-color: #a56a00; }
+.cal-chip--active    { background: #e8f7ee; color: #1a5e36; border-left-color: #247447; }
+.cal-chip--done      { background: #eaf2ff; color: #1d3d78; border-left-color: #2857a4; }
+.cal-chip--cancelled { background: #fde8e8; color: #9b2424; border-left-color: #c94a4a; }
+
+.cal-chip__hour {
   flex-shrink: 0;
+  font-weight: 700;
 }
 
-.cal-dot.status-badge--active    { background: #247447; }
-.cal-dot.status-badge--pending   { background: #a56a00; }
-.cal-dot.status-badge--done      { background: #2857a4; }
-.cal-dot.status-badge--cancelled { background: #b64040; }
+.cal-chip__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
 
-.cal-dot-more {
-  font-size: 0.68rem;
+.cal-chip-more {
+  font-size: 0.7rem;
   font-weight: 700;
-  color: #6e7f8f;
+  color: #5a6d7d;
+  padding-left: 4px;
 }
 
 /* ── Panel de día seleccionado ────────────────────────────────── */

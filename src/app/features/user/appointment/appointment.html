@@ -228,11 +228,14 @@
              [class.cal-day--clickable]="day.isCurrentMonth && day.appointments.length > 0"
              (click)="selectCalendarDay(day)">
           <span class="cal-day__num">{{ day.day }}</span>
-          <div class="cal-dots" *ngIf="day.isCurrentMonth && day.appointments.length > 0">
-            <span class="cal-dot"
-                  *ngFor="let a of day.appointments.slice(0, 3)"
-                  [ngClass]="getStatusClass(a.estado)"></span>
-            <span class="cal-dot-more" *ngIf="day.appointments.length > 3">+{{ day.appointments.length - 3 }}</span>
+          <div class="cal-chips" *ngIf="day.isCurrentMonth && day.appointments.length > 0">
+            <div class="cal-chip"
+                 *ngFor="let a of day.appointments.slice(0, 2)"
+                 [ngClass]="'cal-chip--' + getStatusKey(a.estado)">
+              <span class="cal-chip__hour">{{ getChipHour(a.hora) }}</span>
+              <span class="cal-chip__name">{{ getShortName(a.pacienteNombre) }}</span>
+            </div>
+            <span class="cal-chip-more" *ngIf="day.appointments.length > 2">+{{ day.appointments.length - 2 }}</span>
           </div>
         </div>
       </div>
