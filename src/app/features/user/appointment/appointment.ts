@@ -215,10 +215,13 @@ export class Appointment implements OnInit {
   filtroTipoAtencion = '';
   filtroFechaDesde = '';
   filtroFechaHasta = '';
+  filtroDocumento = '';
+  filtroPacienteId: number | null = null;
+  private documentoFiltroTimer: ReturnType<typeof setTimeout> | null = null;
 
   get filtrosActivos(): number {
     return [this.filtroEstado, this.filtroTipoAtencion, this.filtroFechaDesde, this.filtroFechaHasta]
-      .filter(v => !!v).length;
+      .filter(v => !!v).length + (this.filtroPacienteId !== null ? 1 : 0);
   }
 
   minDate = this.formatDateForInput(new Date());
@@ -295,6 +298,7 @@ export class Appointment implements OnInit {
     if (this.filtroTipoAtencion) filters.tipoAtencion = this.filtroTipoAtencion;
     if (this.filtroFechaDesde) filters.fechaDesde = this.filtroFechaDesde;
     if (this.filtroFechaHasta) filters.fechaHasta = this.filtroFechaHasta;
+    if (this.filtroPacienteId !== null) filters.pacienteId = this.filtroPacienteId;
 
     this.appointmentService.getAppointments(filters).subscribe({
       next: (response) => {
@@ -314,11 +318,40 @@ export class Appointment implements OnInit {
     this.loadAppointments();
   }
 
+  get displayedAppointments(): AppointmentRow[] {
+    const trimmed = this.filtroDocumento.trim();
+    // Exact match: backend already filtered — return as-is
+    if (!trimmed || this.filtroPacienteId !== null) return this.appointments;
+    // Partial match: filter client-side by patients whose documento contains the typed string
+    const matchingIds = new Set<number>(
+      this.patients
+        .filter((p: any) => p.documento.includes(trimmed))
+        .map((p: any) => p.id)
+    );
+    if (matchingIds.size === 0) return [];
+    return this.appointments.filter(a => a.pacienteId !== undefined && matchingIds.has(a.pacienteId));
+  }
+
+  onDocumentoFiltroChange(value: string): void {
+    this.filtroDocumento = value;
+    const match = this.patients.find((p: any) => p.documento === value.trim());
+    this.filtroPacienteId = match ? match.id : null;
+    if (this.documentoFiltroTimer) clearTimeout(this.documentoFiltroTimer);
+    this.documentoFiltroTimer = setTimeout(() => this.loadAppointments(), 300);
+  }
+
+  getPacienteNombreById(id: number): string {
+    const p = this.patients.find(p => p.id === id);
+    return p ? p.nombreCompleto : '';
+  }
+
   limpiarFiltros(): void {
     this.filtroEstado = '';
     this.filtroTipoAtencion = '';
     this.filtroFechaDesde = '';
     this.filtroFechaHasta = '';
+    this.filtroDocumento = '';
+    this.filtroPacienteId = null;
     this.loadAppointments();
   }
 
