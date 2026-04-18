@@ -952,3 +952,197 @@
     font-size: 20px;
   }
 }
+/* ── Cobros por diagnóstico ─────────────────────────────────────────────── */
+
+.cobrar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid #16a34a;
+  background: #f0fdf4;
+  color: #16a34a;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  margin-right: 4px;
+}
+
+.cobrar-btn:hover {
+  background: #16a34a;
+  color: #fff;
+}
+
+.cobro-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  margin-right: 4px;
+  border: 1px solid #bbf7d0;
+}
+
+.piece-tag__cobrar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid #16a34a;
+  background: transparent;
+  color: #16a34a;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  margin: 0 2px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.piece-tag__cobrar:hover {
+  background: #16a34a;
+  color: #fff;
+}
+
+/* ── Modal cobro ────────────────────────────────────────────────────────── */
+
+.cobro-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.cobro-modal {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+
+.cobro-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cobro-modal-header h3 {
+  margin: 0 0 2px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.cobro-modal-header p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.cobro-modal-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.cobro-modal-close:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.cobro-duplicado-warning {
+  margin: 0 24px 0;
+  padding: 10px 14px;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #92400e;
+  margin-top: 16px;
+}
+
+.cobro-form {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cobro-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cobro-form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.cobro-form-group input,
+.cobro-form-group select {
+  padding: 8px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  background: #f8fafc;
+  transition: border-color 0.15s;
+  outline: none;
+}
+
+.cobro-form-group input:focus,
+.cobro-form-group select:focus {
+  border-color: #6366f1;
+  background: #fff;
+}
+
+.cobro-mensaje {
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cobro-mensaje--success {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.cobro-mensaje--error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.cobro-form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}

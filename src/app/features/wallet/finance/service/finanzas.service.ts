@@ -9,6 +9,9 @@ export interface MovimientoPayload {
   fecha: string;
   estado?: string;
   metodoPago?: string | null;
+  diagnosticoRef?: string | null;
+  pacienteId?: number | null;
+  odontogramaId?: number | null;
 }
 
 export interface MovimientoRow {
@@ -19,6 +22,7 @@ export interface MovimientoRow {
   fecha: string;
   estado: 'PENDIENTE' | 'PAGADO' | 'CANCELADO';
   metodoPago: string | null;
+  diagnosticoRef: string | null;
   paciente: { id: number; nombre: string; apellido: string } | null;
   createdAt: string;
 }
@@ -53,6 +57,12 @@ export class FinanzasService {
     return this.http.patch<{ ok: boolean; data: MovimientoRow }>(
       `${this.api}/${id}/estado`,
       { estado },
+    );
+  }
+
+  getByOdontograma(odontogramaId: number): Observable<{ ok: boolean; data: MovimientoRow[] }> {
+    return this.http.get<{ ok: boolean; data: MovimientoRow[] }>(
+      `${this.api}/odontograma/${odontogramaId}`,
     );
   }
 

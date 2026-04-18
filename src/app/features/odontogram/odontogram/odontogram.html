@@ -81,6 +81,15 @@
           <div class="piece-tag" *ngFor="let p of pieces()" [ngClass]="'piece-tag--' + p.type.toLowerCase()">
             <span class="piece-tag__tooth">#{{ p.tooth }}</span>
             <span class="piece-tag__label">{{ getPieceLabel(p.type) }}</span>
+            <ng-container *ngIf="originalOdontogram">
+              <span *ngIf="hasCobro(buildPieceRef(p.tooth, p.type))" class="cobro-badge">Cobrado</span>
+              <button
+                *ngIf="!hasCobro(buildPieceRef(p.tooth, p.type))"
+                type="button"
+                class="piece-tag__cobrar"
+                (click)="openCobroForm(buildPieceRef(p.tooth, p.type), getPieceLabel(p.type) + ' - Diente ' + p.tooth, p.date)"
+                title="Generar cobro">$</button>
+            </ng-container>
             <button type="button" class="piece-tag__remove" (click)="removePiece(p.tooth, p.type)" title="Quitar pieza">✕</button>
           </div>
         </div>
@@ -116,6 +125,21 @@
                   {{ record.date | date: 'dd/MM/yy' }}
                 </td>
                 <td class="record-cell-action">
+                  <ng-container *ngFor="let diagnosis of surface.diagnoses">
+                    <span
+                      *ngIf="originalOdontogram && hasCobro(buildDiagnosticoRef(record.tooth, surface.surface, diagnosis))"
+                      class="cobro-badge">Cobrado</span>
+                    <button
+                      *ngIf="originalOdontogram && !hasCobro(buildDiagnosticoRef(record.tooth, surface.surface, diagnosis))"
+                      type="button"
+                      class="cobrar-btn"
+                      title="Generar cobro"
+                      (click)="openCobroForm(
+                        buildDiagnosticoRef(record.tooth, surface.surface, diagnosis),
+                        getDiagnosisLabel(diagnosis) + ' - Diente ' + record.tooth + ' (' + surface.surface + ')',
+                        record.date
+                      )">$</button>
+                  </ng-container>
                   <button
                     class="delete-btn surface-delete-btn"
                     (click)="removeSurfaceRecord(record.tooth, surface.surface)"
@@ -359,4 +383,78 @@
     </div>
   </div>
 </div>
+<!-- Modal: Generar cobro por diagnóstico -->
+<div class="cobro-modal-backdrop" *ngIf="cobroFormVisible" (click)="closeCobroForm()">
+  <div class="cobro-modal" (click)="$event.stopPropagation()">
+
+    <div class="cobro-modal-header">
+      <div>
+        <h3>Generar cobro</h3>
+        <p>{{ cobroTarget?.label }}</p>
+      </div>
+      <button type="button" class="cobro-modal-close" (click)="closeCobroForm()">✕</button>
+    </div>
+
+    <!-- Advertencia de duplicado -->
+    <div *ngIf="cobroDuplicadoAdvertencia" class="cobro-duplicado-warning">
+      <strong>Advertencia:</strong> ya existe un cobro registrado para este diagnóstico. ¿Deseas crear uno adicional de todas formas?
+    </div>
+
+    <form [formGroup]="cobroForm" (ngSubmit)="submitCobro()" class="cobro-form">
+      <div class="cobro-form-group">
+        <label>Concepto</label>
+        <input type="text" formControlName="concepto" />
+        <small *ngIf="cobroForm.get('concepto')?.invalid && cobroForm.get('concepto')?.touched" class="field-error">
+          El concepto es obligatorio (mín. 3 caracteres).
+        </small>
+      </div>
+
+      <div class="cobro-form-group">
+        <label>Monto (COP)</label>
+        <input type="number" formControlName="monto" placeholder="Ej. 150000" min="1" />
+        <small *ngIf="cobroForm.get('monto')?.invalid && cobroForm.get('monto')?.touched" class="field-error">
+          El monto es obligatorio y debe ser mayor a 0.
+        </small>
+      </div>
+
+      <div class="cobro-form-group">
+        <label>Fecha</label>
+        <input type="date" formControlName="fecha" />
+        <small *ngIf="cobroForm.get('fecha')?.invalid && cobroForm.get('fecha')?.touched" class="field-error">
+          La fecha es obligatoria.
+        </small>
+      </div>
+
+      <div class="cobro-form-group">
+        <label>Estado</label>
+        <select formControlName="estado">
+          <option value="PENDIENTE">Pendiente</option>
+          <option value="PAGADO">Pagado</option>
+          <option value="CANCELADO">Cancelado</option>
+        </select>
+      </div>
+
+      <div class="cobro-form-group">
+        <label>Medio de pago</label>
+        <select formControlName="metodoPago">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Tarjeta">Tarjeta</option>
+        </select>
+      </div>
+
+      <div *ngIf="cobroMensaje" class="cobro-mensaje" [class.cobro-mensaje--success]="cobroMensajeTipo === 'success'" [class.cobro-mensaje--error]="cobroMensajeTipo === 'error'">
+        {{ cobroMensaje }}
+      </div>
+
+      <div class="cobro-form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeCobroForm()">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="cobroGuardando">
+          {{ cobroGuardando ? 'Guardando...' : (cobroDuplicadoAdvertencia ? 'Crear cobro adicional' : 'Guardar cobro') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <app-footer></app-footer>

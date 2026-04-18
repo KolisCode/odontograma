@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal, computed, OnInit, effect } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 
 import { Tooth as ToothComponent } from '../components/tooth/tooth';
@@ -22,11 +23,12 @@ import { Footer } from '../../complements/footer/footer';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { PatientsService } from '../../user/service/pacientes.service';
+import { FinanzasService, MovimientoRow } from '../../wallet/finance/service/finanzas.service';
 
 @Component({
   selector: 'app-odontogram',
   standalone: true,
-  imports: [CommonModule, ToothComponent, Navbar, Footer],
+  imports: [CommonModule, ReactiveFormsModule, ToothComponent, Navbar, Footer],
   templateUrl: './odontogram.html',
   styleUrl: './odontogram.css',
 })
@@ -67,6 +69,105 @@ export class OdontogramComponent implements OnInit {
     { type: 'ProtesisTotal',  label: 'Prót. Total',       icon: '⊙' },
     { type: 'DienteAusente',  label: 'Diente Ausente',    icon: '✕' },
   ];
+
+  // ── Cobros por diagnóstico ────────────────────────────────────────────────
+  cobros = signal<MovimientoRow[]>([]);
+
+  cobrosMap = computed(() => {
+    const map = new Map<string, MovimientoRow>();
+    for (const c of this.cobros()) {
+      if (c.diagnosticoRef) map.set(c.diagnosticoRef, c);
+    }
+    return map;
+  });
+
+  cobroFormVisible = false;
+  cobroDuplicadoAdvertencia = false;
+  cobroTarget: { ref: string; label: string; fecha: string } | null = null;
+  cobroForm!: FormGroup;
+  cobroGuardando = false;
+  cobroMensaje = '';
+  cobroMensajeTipo: 'success' | 'error' | '' = '';
+
+  hasCobro(ref: string): boolean {
+    return this.cobrosMap().has(ref);
+  }
+
+  buildDiagnosticoRef(tooth: number, surface: ToothSurface, type: DiagnosisType): string {
+    return `${tooth}-${surface}-${type}`;
+  }
+
+  buildPieceRef(tooth: number, type: PieceType): string {
+    return `${tooth}-P-${type}`;
+  }
+
+  openCobroForm(ref: string, label: string, fecha: string): void {
+    this.cobroTarget = { ref, label, fecha };
+    this.cobroDuplicadoAdvertencia = this.cobrosMap().has(ref);
+    this.cobroMensaje = '';
+    this.cobroMensajeTipo = '';
+    this.cobroForm.reset({
+      concepto: label,
+      monto: null,
+      fecha: fecha.substring(0, 10),
+      estado: 'PENDIENTE',
+      metodoPago: 'Efectivo',
+    });
+    this.cobroFormVisible = true;
+  }
+
+  closeCobroForm(): void {
+    this.cobroFormVisible = false;
+    this.cobroTarget = null;
+    this.cobroDuplicadoAdvertencia = false;
+  }
+
+  submitCobro(): void {
+    if (this.cobroForm.invalid) {
+      this.cobroForm.markAllAsTouched();
+      return;
+    }
+
+    if (!this.cobroTarget || !this.originalOdontogram) return;
+
+    this.cobroGuardando = true;
+    const raw = this.cobroForm.getRawValue();
+
+    const payload = {
+      tipo: 'INGRESO' as const,
+      concepto: raw.concepto.trim(),
+      monto: Number(raw.monto),
+      fecha: raw.fecha,
+      estado: raw.estado,
+      metodoPago: raw.metodoPago || null,
+      diagnosticoRef: this.cobroTarget.ref,
+      pacienteId: this.patientId,
+      odontogramaId: this.originalOdontogram.id!,
+    };
+
+    this.finanzasService.create(payload).subscribe({
+      next: () => {
+        this.cobroGuardando = false;
+        this.cobroMensaje = 'Cobro registrado correctamente';
+        this.cobroMensajeTipo = 'success';
+        this.loadCobros();
+        setTimeout(() => this.closeCobroForm(), 1500);
+      },
+      error: (err: any) => {
+        this.cobroGuardando = false;
+        this.cobroMensaje = err?.error?.message || 'No se pudo registrar el cobro';
+        this.cobroMensajeTipo = 'error';
+      },
+    });
+  }
+
+  private loadCobros(): void {
+    if (!this.originalOdontogram?.id) return;
+    this.finanzasService.getByOdontograma(this.originalOdontogram.id).subscribe({
+      next: (res) => this.cobros.set(res.data),
+      error: () => this.cobros.set([]),
+    });
+  }
 
   // ── Info del paciente ─────────────────────────────────────────────────────
   patientId!: number;
@@ -277,7 +378,17 @@ export class OdontogramComponent implements OnInit {
     private route: ActivatedRoute,
     private patientsService: PatientsService,
     private router: Router,
+    private finanzasService: FinanzasService,
+    private fb: FormBuilder,
   ) {
+    this.cobroForm = this.fb.group({
+      concepto: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
+      monto: [null, [Validators.required, Validators.min(1)]],
+      fecha: ['', Validators.required],
+      estado: ['PENDIENTE', Validators.required],
+      metodoPago: ['Efectivo'],
+    });
+
     effect(() => {
       localStorage.setItem('odontogram-diagnoses', JSON.stringify(this.diagnoses()));
       localStorage.setItem('odontogram-pieces', JSON.stringify(this.pieces()));
@@ -342,6 +453,7 @@ export class OdontogramComponent implements OnInit {
         const { diagnoses, pieces } = this.buildDiagnosesFromBackend(data);
         this.diagnoses.set(diagnoses);
         this.pieces.set(pieces);
+        this.loadCobros();
       },
       error: () => {
         this.originalOdontogram = null;
@@ -564,6 +676,7 @@ export class OdontogramComponent implements OnInit {
           const { diagnoses, pieces } = this.buildDiagnosesFromBackend(response);
           this.diagnoses.set(diagnoses);
           this.pieces.set(pieces);
+          this.loadCobros();
 
           this.showSaveMessage(
             'success',
