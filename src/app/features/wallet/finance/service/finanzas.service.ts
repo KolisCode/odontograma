@@ -33,6 +33,7 @@ export interface MovimientoFilters {
   fechaDesde?: string;
   fechaHasta?: string;
   pacienteId?: number;
+  sinPaciente?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -48,6 +49,7 @@ export class FinanzasService {
     if (filters?.fechaDesde) params = params.set('fechaDesde', filters.fechaDesde);
     if (filters?.fechaHasta) params = params.set('fechaHasta', filters.fechaHasta);
     if (filters?.pacienteId) params = params.set('pacienteId', filters.pacienteId.toString());
+    if (filters?.sinPaciente) params = params.set('sinPaciente', 'true');
     return this.http.get<{ ok: boolean; data: MovimientoRow[] }>(this.api, { params });
   }
 

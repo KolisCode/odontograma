@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { Footer } from '../../complements/footer/footer';
 import { Navbar } from '../../complements/navbar/navbar';
-import { FinanzasService, MovimientoRow } from './service/finanzas.service';
+import { FinanzasService, MovimientoRow, MovimientoFilters } from './service/finanzas.service';
 import { PatientsService, PatientRow } from '../../user/service/pacientes.service';
 
 @Component({
@@ -17,6 +17,7 @@ import { PatientsService, PatientRow } from '../../user/service/pacientes.servic
 export class Finance implements OnInit {
   movimientos: MovimientoRow[] = [];
   formVisible = false;
+  asideVisible = false;
   editingId: number | null = null;
   confirmDeleteId: number | null = null;
   loading = false;
@@ -26,6 +27,19 @@ export class Finance implements OnInit {
   // ── Contexto de paciente ──────────────────────────────────────────────────
   patients: PatientRow[] = [];
   selectedPatient: PatientRow | null = null;
+  soloSinPaciente = false;
+
+  // ── Filtros ────────────────────────────────────────────────────────────────
+  filtrosVisible = false;
+  filtroTipo = '';
+  filtroEstado = '';
+  filtroFechaDesde = '';
+  filtroFechaHasta = '';
+
+  get filtrosActivos(): number {
+    return [this.filtroTipo, this.filtroEstado, this.filtroFechaDesde, this.filtroFechaHasta]
+      .filter(v => !!v).length;
+  }
 
   form: FormGroup;
 
@@ -65,6 +79,7 @@ export class Finance implements OnInit {
       fecha: ['', Validators.required],
       metodoPago: ['Efectivo'],
       estado: ['PENDIENTE'],
+      pacienteId: [null],
     });
   }
 
@@ -74,11 +89,13 @@ export class Finance implements OnInit {
       const id = params.get('pacienteId');
       if (id && !isNaN(Number(id))) {
         const numId = Number(id);
-        // Espera a que pacientes estén cargados para mostrar nombre
+        // Lista ya cargada: resolución síncrona
         if (this.patients.length) {
           this.selectedPatient = this.patients.find((p) => p.id === numId) ?? null;
+          this.loadMovimientos();
         } else {
-          // Carga puntual del paciente si los pacientes aún no llegaron
+          // Lista aún vacía: cargar el paciente puntualmente y luego los movimientos
+          this.movimientos = [];
           this.patientsService.getPatientById(numId).subscribe({
             next: (res) => {
               this.selectedPatient = {
@@ -88,16 +105,22 @@ export class Finance implements OnInit {
                 telefono: res.data.telefono,
                 eps: res.data.eps,
                 activo: res.data.activo,
+                fechaNacimiento: res.data.fechaNacimiento ?? null,
                 ultimaCita: '',
               };
               this.cdr.detectChanges();
+              this.loadMovimientos();
+            },
+            error: () => {
+              this.selectedPatient = null;
+              this.loadMovimientos();
             },
           });
         }
       } else {
         this.selectedPatient = null;
+        this.loadMovimientos();
       }
-      this.loadMovimientos();
     });
   }
 
@@ -120,12 +143,40 @@ export class Finance implements OnInit {
   }
 
   clearPatient(): void {
+    this.soloSinPaciente = false;
     this.router.navigate([], { queryParams: {} });
+  }
+
+  filtrarSinPaciente(): void {
+    this.soloSinPaciente = true;
+    this.loadMovimientos();
+  }
+
+  limpiarFiltroSinPaciente(): void {
+    this.soloSinPaciente = false;
+    this.loadMovimientos();
+  }
+
+  limpiarFiltros(): void {
+    this.filtroTipo = '';
+    this.filtroEstado = '';
+    this.filtroFechaDesde = '';
+    this.filtroFechaHasta = '';
+    this.loadMovimientos();
   }
 
   loadMovimientos(): void {
     this.loading = true;
-    const filters = this.selectedPatient ? { pacienteId: this.selectedPatient.id } : {};
+    const filters: MovimientoFilters = this.selectedPatient
+      ? { pacienteId: this.selectedPatient.id }
+      : this.soloSinPaciente
+        ? { sinPaciente: true }
+        : {};
+
+    if (this.filtroTipo) filters.tipo = this.filtroTipo;
+    if (this.filtroEstado) filters.estado = this.filtroEstado;
+    if (this.filtroFechaDesde) filters.fechaDesde = this.filtroFechaDesde;
+    if (this.filtroFechaHasta) filters.fechaHasta = this.filtroFechaHasta;
     this.finanzasService.getAll(filters).subscribe({
       next: (res) => {
         this.movimientos = res.data;
@@ -172,6 +223,7 @@ export class Finance implements OnInit {
       fecha: new Date(m.fecha).toISOString().substring(0, 10),
       metodoPago: m.metodoPago ?? 'Efectivo',
       estado: m.estado,
+      pacienteId: m.paciente?.id ?? null,
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -183,6 +235,10 @@ export class Finance implements OnInit {
     }
 
     const raw = this.form.getRawValue();
+    const resolvedPacienteId: number | null =
+      this.selectedPatient?.id ??
+      (raw.pacienteId ? Number(raw.pacienteId) : null);
+
     const payload = {
       tipo: raw.tipo,
       monto: Number(raw.monto),
@@ -190,7 +246,7 @@ export class Finance implements OnInit {
       fecha: raw.fecha,
       metodoPago: raw.metodoPago || null,
       estado: raw.estado,
-      pacienteId: this.selectedPatient?.id ?? null,
+      pacienteId: resolvedPacienteId,
     };
 
     if (this.editingId !== null) {
@@ -200,7 +256,8 @@ export class Finance implements OnInit {
           this.errorMessage = '';
           this.formVisible = false;
           this.editingId = null;
-          this.form.reset({ tipo: 'INGRESO', metodoPago: 'Efectivo', estado: 'PENDIENTE' });
+          this.form.reset({ tipo: 'INGRESO', metodoPago: 'Efectivo', estado: 'PENDIENTE', pacienteId: null });
+          this.cdr.detectChanges();
           this.loadMovimientos();
         },
         error: (err: any) => {
@@ -216,7 +273,8 @@ export class Finance implements OnInit {
         this.successMessage = 'Movimiento registrado correctamente';
         this.errorMessage = '';
         this.formVisible = false;
-        this.form.reset({ tipo: 'INGRESO', metodoPago: 'Efectivo', estado: 'PENDIENTE' });
+        this.form.reset({ tipo: 'INGRESO', metodoPago: 'Efectivo', estado: 'PENDIENTE', pacienteId: null });
+        this.cdr.detectChanges();
         this.loadMovimientos();
       },
       error: (err: any) => {
@@ -229,7 +287,7 @@ export class Finance implements OnInit {
   limpiar(): void {
     this.formVisible = false;
     this.editingId = null;
-    this.form.reset({ tipo: 'INGRESO', metodoPago: 'Efectivo', estado: 'PENDIENTE' });
+    this.form.reset({ tipo: 'INGRESO', metodoPago: 'Efectivo', estado: 'PENDIENTE', pacienteId: null });
     this.errorMessage = '';
     this.successMessage = '';
   }

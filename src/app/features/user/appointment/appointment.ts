@@ -20,6 +20,7 @@ import {
   AppointmentStats,
   UpcomingAppointment,
   AgendaSummary,
+  CitaFilters,
 } from './appointment.service/appointment.service';
 
 @Component({
@@ -31,6 +32,7 @@ import {
 })
 export class Appointment implements OnInit {
   appointmentForm: FormGroup;
+  asideVisible = false;
 
   formVisible = false;
   loading = false;
@@ -54,6 +56,18 @@ export class Appointment implements OnInit {
   upcomingAppointments: UpcomingAppointment[] = [];
   patients: any[] = [];
   clinicalStaff: any[] = [];
+
+  // ── Filtros ────────────────────────────────────────────────────────────────
+  filtrosVisible = false;
+  filtroEstado = '';
+  filtroTipoAtencion = '';
+  filtroFechaDesde = '';
+  filtroFechaHasta = '';
+
+  get filtrosActivos(): number {
+    return [this.filtroEstado, this.filtroTipoAtencion, this.filtroFechaDesde, this.filtroFechaHasta]
+      .filter(v => !!v).length;
+  }
 
   minDate = this.formatDateForInput(new Date());
 
@@ -124,7 +138,13 @@ export class Appointment implements OnInit {
   loadAppointments(): void {
     this.tableLoading = true;
 
-    this.appointmentService.getAppointments().subscribe({
+    const filters: CitaFilters = {};
+    if (this.filtroEstado) filters.estado = this.filtroEstado;
+    if (this.filtroTipoAtencion) filters.tipoAtencion = this.filtroTipoAtencion;
+    if (this.filtroFechaDesde) filters.fechaDesde = this.filtroFechaDesde;
+    if (this.filtroFechaHasta) filters.fechaHasta = this.filtroFechaHasta;
+
+    this.appointmentService.getAppointments(filters).subscribe({
       next: (response) => {
         this.appointments = response.data;
         this.tableLoading = false;
@@ -136,6 +156,18 @@ export class Appointment implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  aplicarFiltros(): void {
+    this.loadAppointments();
+  }
+
+  limpiarFiltros(): void {
+    this.filtroEstado = '';
+    this.filtroTipoAtencion = '';
+    this.filtroFechaDesde = '';
+    this.filtroFechaHasta = '';
+    this.loadAppointments();
   }
 
   loadPatients(): void {

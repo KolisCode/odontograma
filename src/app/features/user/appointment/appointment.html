@@ -147,6 +147,12 @@
     </section>
 
     <aside class="appointments-side">
+      <div class="aside-toggle" (click)="asideVisible = !asideVisible">
+        <span class="aside-toggle__label">{{ asideVisible ? 'Ocultar resumen' : 'Ver próximas y resumen' }}</span>
+        <span class="aside-toggle__arrow">{{ asideVisible ? '▲' : '▼' }}</span>
+      </div>
+
+      <ng-container *ngIf="asideVisible">
       <section class="appointments-card">
         <div class="appointments-card__header appointments-card__header--compact">
           <div>
@@ -195,6 +201,7 @@
           </div>
         </div>
       </section>
+      </ng-container>
     </aside>
   </div>
 
@@ -204,6 +211,52 @@
         <h3>Listado de citas</h3>
         <span>Vista organizada de la programación clínica</span>
       </div>
+      <button class="filter-toggle-btn" type="button" (click)="filtrosVisible = !filtrosVisible">
+        Filtros<span *ngIf="filtrosActivos > 0" class="filter-count"> ({{ filtrosActivos }})</span>
+        <span class="filter-toggle-arrow">{{ filtrosVisible ? '▲' : '▼' }}</span>
+      </button>
+    </div>
+
+    <div class="filter-panel" *ngIf="filtrosVisible">
+      <!-- Estado -->
+      <div class="filter-row">
+        <span class="filter-label">Estado</span>
+        <div class="filter-chips">
+          <button class="filter-chip" [class.filter-chip--active]="filtroEstado === ''" type="button" (click)="filtroEstado = ''; aplicarFiltros()">Todos</button>
+          <button class="filter-chip filter-chip--pending" [class.filter-chip--active]="filtroEstado === 'PROGRAMADA'" type="button" (click)="filtroEstado = 'PROGRAMADA'; aplicarFiltros()">Programada</button>
+          <button class="filter-chip filter-chip--active-color" [class.filter-chip--active]="filtroEstado === 'CONFIRMADA'" type="button" (click)="filtroEstado = 'CONFIRMADA'; aplicarFiltros()">Confirmada</button>
+          <button class="filter-chip filter-chip--done" [class.filter-chip--active]="filtroEstado === 'ATENDIDA'" type="button" (click)="filtroEstado = 'ATENDIDA'; aplicarFiltros()">Atendida</button>
+          <button class="filter-chip filter-chip--cancelled" [class.filter-chip--active]="filtroEstado === 'CANCELADA'" type="button" (click)="filtroEstado = 'CANCELADA'; aplicarFiltros()">Cancelada</button>
+        </div>
+      </div>
+
+      <!-- Tipo de atención -->
+      <div class="filter-row">
+        <span class="filter-label">Tipo</span>
+        <div class="filter-chips">
+          <button class="filter-chip" [class.filter-chip--active]="filtroTipoAtencion === ''" type="button" (click)="filtroTipoAtencion = ''; aplicarFiltros()">Todos</button>
+          <button class="filter-chip" [class.filter-chip--active]="filtroTipoAtencion === 'Valoración'" type="button" (click)="filtroTipoAtencion = 'Valoración'; aplicarFiltros()">Valoración</button>
+          <button class="filter-chip" [class.filter-chip--active]="filtroTipoAtencion === 'Limpieza'" type="button" (click)="filtroTipoAtencion = 'Limpieza'; aplicarFiltros()">Limpieza</button>
+          <button class="filter-chip" [class.filter-chip--active]="filtroTipoAtencion === 'Control'" type="button" (click)="filtroTipoAtencion = 'Control'; aplicarFiltros()">Control</button>
+          <button class="filter-chip" [class.filter-chip--active]="filtroTipoAtencion === 'Urgencia'" type="button" (click)="filtroTipoAtencion = 'Urgencia'; aplicarFiltros()">Urgencia</button>
+        </div>
+      </div>
+
+      <!-- Rango de fechas -->
+      <div class="filter-row">
+        <span class="filter-label">Fecha</span>
+        <div class="filter-dates">
+          <input class="filter-date-input" type="date" [value]="filtroFechaDesde"
+            (change)="filtroFechaDesde = $any($event.target).value; aplicarFiltros()" />
+          <span class="filter-dates__sep">—</span>
+          <input class="filter-date-input" type="date" [value]="filtroFechaHasta"
+            (change)="filtroFechaHasta = $any($event.target).value; aplicarFiltros()" />
+        </div>
+      </div>
+
+      <button class="filter-clear-btn" *ngIf="filtrosActivos > 0" type="button" (click)="limpiarFiltros()">
+        Limpiar filtros
+      </button>
     </div>
 
     <div *ngIf="tableLoading" class="empty-box">

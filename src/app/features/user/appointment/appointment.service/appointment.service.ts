@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface AppointmentPayload {
@@ -44,6 +44,14 @@ export interface AgendaSummary {
   espaciosDisponibles: number;
 }
 
+export interface CitaFilters {
+  estado?: string;
+  tipoAtencion?: string;
+  pacienteId?: number;
+  fechaDesde?: string;
+  fechaHasta?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -62,8 +70,14 @@ export class AppointmentService {
     return this.http.post(this.api, payload);
   }
 
-  getAppointments(): Observable<{ ok: boolean; data: AppointmentRow[] }> {
-    return this.http.get<{ ok: boolean; data: AppointmentRow[] }>(this.api);
+  getAppointments(filters?: CitaFilters): Observable<{ ok: boolean; data: AppointmentRow[] }> {
+    let params = new HttpParams();
+    if (filters?.estado) params = params.set('estado', filters.estado);
+    if (filters?.tipoAtencion) params = params.set('tipoAtencion', filters.tipoAtencion);
+    if (filters?.pacienteId) params = params.set('pacienteId', filters.pacienteId.toString());
+    if (filters?.fechaDesde) params = params.set('fechaDesde', filters.fechaDesde);
+    if (filters?.fechaHasta) params = params.set('fechaHasta', filters.fechaHasta);
+    return this.http.get<{ ok: boolean; data: AppointmentRow[] }>(this.api, { params });
   }
 
   getStats(): Observable<{ ok: boolean; data: AppointmentStats }> {

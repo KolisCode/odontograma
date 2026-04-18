@@ -2,14 +2,19 @@
 
 <!-- Selector / contexto de paciente -->
 <div class="finance-patient-bar">
-  <ng-container *ngIf="!selectedPatient">
+  <!-- Sin filtro activo: selector + botón "sin paciente" -->
+  <ng-container *ngIf="!selectedPatient && !soloSinPaciente">
     <span class="finance-patient-bar__label">Filtrando por:</span>
     <select class="finance-patient-select" (change)="selectPatient($event)">
       <option value="">Todos los pacientes</option>
       <option *ngFor="let p of patients" [value]="p.id">{{ p.nombreCompleto }}</option>
     </select>
+    <button class="finance-filter-chip" type="button" (click)="filtrarSinPaciente()">
+      Sin paciente
+    </button>
   </ng-container>
 
+  <!-- Filtro: paciente específico -->
   <ng-container *ngIf="selectedPatient">
     <div class="finance-patient-context">
       <div class="finance-patient-context__info">
@@ -18,7 +23,21 @@
         <span class="finance-patient-context__doc">CC {{ selectedPatient.documento }}</span>
       </div>
       <button class="finance-patient-context__clear" type="button" (click)="clearPatient()">
-        Ver todos los pacientes
+        Ver todos
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- Filtro: sin paciente -->
+  <ng-container *ngIf="!selectedPatient && soloSinPaciente">
+    <div class="finance-patient-context">
+      <div class="finance-patient-context__info">
+        <span class="finance-patient-context__eyebrow">Mostrando</span>
+        <strong class="finance-patient-context__name">Movimientos sin paciente</strong>
+        <span class="finance-patient-context__doc">Gastos generales y registros no asociados</span>
+      </div>
+      <button class="finance-patient-context__clear" type="button" (click)="limpiarFiltroSinPaciente()">
+        Ver todos
       </button>
     </div>
   </ng-container>
@@ -120,6 +139,15 @@
           </select>
         </div>
 
+        <!-- Selector de paciente: solo visible cuando no hay filtro activo -->
+        <div class="form-group form-group--full" *ngIf="!selectedPatient">
+          <label>Paciente <span class="form-label-hint">(opcional)</span></label>
+          <select formControlName="pacienteId">
+            <option [ngValue]="null">Sin paciente asociado</option>
+            <option *ngFor="let p of patients" [value]="p.id">{{ p.nombreCompleto }}</option>
+          </select>
+        </div>
+
         <div class="form-actions form-group--full">
           <button class="btn btn-secondary" type="button" (click)="limpiar()">
             {{ editingId ? 'Cancelar edición' : 'Cancelar' }}
@@ -133,6 +161,12 @@
     </section>
 
     <aside class="finance-side">
+      <div class="aside-toggle" (click)="asideVisible = !asideVisible">
+        <span class="aside-toggle__label">{{ asideVisible ? 'Ocultar resumen' : 'Ver resumen y recientes' }}</span>
+        <span class="aside-toggle__arrow">{{ asideVisible ? '▲' : '▼' }}</span>
+      </div>
+
+      <ng-container *ngIf="asideVisible">
       <section class="finance-card">
         <div class="finance-card__header finance-card__header--compact">
           <div>
@@ -185,6 +219,7 @@
           </div>
         </div>
       </section>
+      </ng-container>
     </aside>
   </div>
 
@@ -194,6 +229,49 @@
         <h3>Historial de movimientos</h3>
         <span>Todos los registros financieros</span>
       </div>
+      <button class="filter-toggle-btn" type="button" (click)="filtrosVisible = !filtrosVisible">
+        Filtros<span *ngIf="filtrosActivos > 0" class="filter-count"> ({{ filtrosActivos }})</span>
+        <span class="filter-toggle-arrow">{{ filtrosVisible ? '▲' : '▼' }}</span>
+      </button>
+    </div>
+
+    <div class="filter-panel" *ngIf="filtrosVisible">
+      <!-- Tipo -->
+      <div class="filter-row">
+        <span class="filter-label">Tipo</span>
+        <div class="filter-chips">
+          <button class="filter-chip" [class.filter-chip--active]="filtroTipo === ''" type="button" (click)="filtroTipo = ''; loadMovimientos()">Todos</button>
+          <button class="filter-chip filter-chip--ingreso" [class.filter-chip--active]="filtroTipo === 'INGRESO'" type="button" (click)="filtroTipo = 'INGRESO'; loadMovimientos()">Ingreso</button>
+          <button class="filter-chip filter-chip--egreso" [class.filter-chip--active]="filtroTipo === 'EGRESO'" type="button" (click)="filtroTipo = 'EGRESO'; loadMovimientos()">Egreso</button>
+        </div>
+      </div>
+
+      <!-- Estado -->
+      <div class="filter-row">
+        <span class="filter-label">Estado</span>
+        <div class="filter-chips">
+          <button class="filter-chip" [class.filter-chip--active]="filtroEstado === ''" type="button" (click)="filtroEstado = ''; loadMovimientos()">Todos</button>
+          <button class="filter-chip filter-chip--pending" [class.filter-chip--active]="filtroEstado === 'PENDIENTE'" type="button" (click)="filtroEstado = 'PENDIENTE'; loadMovimientos()">Pendiente</button>
+          <button class="filter-chip filter-chip--active-color" [class.filter-chip--active]="filtroEstado === 'PAGADO'" type="button" (click)="filtroEstado = 'PAGADO'; loadMovimientos()">Pagado</button>
+          <button class="filter-chip filter-chip--cancelled" [class.filter-chip--active]="filtroEstado === 'CANCELADO'" type="button" (click)="filtroEstado = 'CANCELADO'; loadMovimientos()">Cancelado</button>
+        </div>
+      </div>
+
+      <!-- Rango de fechas -->
+      <div class="filter-row">
+        <span class="filter-label">Fecha</span>
+        <div class="filter-dates">
+          <input class="filter-date-input" type="date" [value]="filtroFechaDesde"
+            (change)="filtroFechaDesde = $any($event.target).value; loadMovimientos()" />
+          <span class="filter-dates__sep">—</span>
+          <input class="filter-date-input" type="date" [value]="filtroFechaHasta"
+            (change)="filtroFechaHasta = $any($event.target).value; loadMovimientos()" />
+        </div>
+      </div>
+
+      <button class="filter-clear-btn" *ngIf="filtrosActivos > 0" type="button" (click)="limpiarFiltros()">
+        Limpiar filtros
+      </button>
     </div>
 
     <div *ngIf="loading" class="empty-state">Cargando historial...</div>
@@ -240,7 +318,6 @@
 <!-- Modal: Confirmar eliminación -->
 <div class="confirm-modal-backdrop" *ngIf="confirmDeleteId !== null" (click)="cancelarEliminar()">
   <div class="confirm-modal" (click)="$event.stopPropagation()">
-    <div class="confirm-modal-icon">⚠</div>
     <h3>Eliminar movimiento</h3>
     <p>Esta acción no se puede deshacer. ¿Confirmas que deseas eliminar este movimiento?</p>
     <div class="confirm-modal-actions">
