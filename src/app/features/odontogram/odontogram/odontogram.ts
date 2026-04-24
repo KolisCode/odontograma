@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef } from '@angular/core';
 import { Component, signal, computed, OnInit, effect } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
@@ -533,6 +534,7 @@ export class OdontogramComponent implements OnInit {
     private finanzasService: FinanzasService,
     private historiaService: HistoriaClinicaService,
     private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
   ) {
     this.cobroForm = this.fb.group({
       concepto: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
@@ -984,11 +986,14 @@ export class OdontogramComponent implements OnInit {
     this.historialLoading = true;
     this.odontogramService.getHistorial(this.patientId).subscribe({
       next: (data) => {
-        // Excluir la versión activa actual
         this.historial = data.filter(v => !v.activo).sort((a, b) => b.version - a.version);
         this.historialLoading = false;
+        this.cdr.detectChanges();
       },
-      error: () => { this.historialLoading = false; },
+      error: () => {
+        this.historialLoading = false;
+        this.cdr.detectChanges();
+      },
     });
   }
 
