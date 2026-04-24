@@ -183,6 +183,11 @@
     </aside>
   </div>
 
+  <!-- Documentos del paciente -->
+  <div class="resumen-documentos" *ngIf="!loading && !sinHistoria">
+    <app-documentos [pacienteId]="pacienteId"></app-documentos>
+  </div>
+
 </section>
 
 <app-footer></app-footer>

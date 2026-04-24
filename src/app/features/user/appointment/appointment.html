@@ -313,6 +313,26 @@
         </div>
       </div>
 
+      <!-- Paciente por documento -->
+      <div class="filter-row">
+        <span class="filter-label">Paciente</span>
+        <div class="filter-search">
+          <input
+            class="filter-search-input"
+            type="text"
+            placeholder="Buscar por documento..."
+            list="pacientes-doc-list"
+            [value]="filtroDocumento"
+            (input)="onDocumentoFiltroChange($any($event.target).value)"
+          />
+          <datalist id="pacientes-doc-list">
+            <option *ngFor="let p of patients" [value]="p.documento">{{ p.nombreCompleto }}</option>
+          </datalist>
+          <span class="filter-search-hint" *ngIf="filtroDocumento && filtroPacienteId === null">Sin coincidencia</span>
+          <span class="filter-search-hint filter-search-hint--match" *ngIf="filtroPacienteId !== null">{{ getPacienteNombreById(filtroPacienteId) }}</span>
+        </div>
+      </div>
+
       <button class="filter-clear-btn" *ngIf="filtrosActivos > 0" type="button" (click)="limpiarFiltros()">
         Limpiar filtros
       </button>
@@ -335,7 +355,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let item of appointments">
+          <tr *ngFor="let item of displayedAppointments">
             <td>{{ item.fecha }}</td>
             <td>{{ item.hora }}</td>
             <td>{{ item.pacienteNombre }}</td>
@@ -356,8 +376,8 @@
             </td>
           </tr>
 
-          <tr *ngIf="appointments.length === 0">
-            <td colspan="5" class="empty-table">
+          <tr *ngIf="displayedAppointments.length === 0">
+            <td colspan="6" class="empty-table">
               No hay citas registradas todavía.
             </td>
           </tr>

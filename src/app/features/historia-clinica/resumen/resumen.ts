@@ -6,6 +6,7 @@ import { Navbar } from '../../complements/navbar/navbar';
 import { Footer } from '../../complements/footer/footer';
 import { HistoriaClinicaService } from '../historia-clinica.service/historia-clinica.service';
 import { PatientsService } from '../../user/service/pacientes.service';
+import { DocumentosComponent } from '../../documentos/documentos/documentos';
 
 export interface AlertaClinica {
   tipo: 'critica' | 'advertencia' | 'info';
@@ -15,7 +16,7 @@ export interface AlertaClinica {
 @Component({
   selector: 'app-resumen-historia',
   standalone: true,
-  imports: [CommonModule, RouterModule, Navbar, Footer],
+  imports: [CommonModule, RouterModule, Navbar, Footer, DocumentosComponent],
   templateUrl: './resumen.html',
   styleUrl: './resumen.css',
 })

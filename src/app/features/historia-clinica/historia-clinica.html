@@ -683,4 +683,9 @@
   </div>
 </section>
 
+<!-- Documentos del paciente -->
+<section class="clinical-page" *ngIf="pacienteId">
+  <app-documentos [pacienteId]="pacienteId"></app-documentos>
+</section>
+
 <app-footer></app-footer>

@@ -13,11 +13,12 @@ import { Subject, takeUntil } from 'rxjs';
 import { Navbar } from '../complements/navbar/navbar';
 import { Footer } from '../complements/footer/footer';
 import { HistoriaClinicaService } from './historia-clinica.service/historia-clinica.service';
+import { DocumentosComponent } from '../documentos/documentos/documentos';
 
 @Component({
   selector: 'app-historia-clinica',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, Navbar, Footer],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, Navbar, Footer, DocumentosComponent],
   templateUrl: './historia-clinica.html',
   styleUrls: ['./historia-clinica.css'],
 })

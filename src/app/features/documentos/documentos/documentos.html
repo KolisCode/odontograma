@@ -1,0 +1,115 @@
+<section class="documentos-section">
+
+  <div class="documentos-header">
+    <div class="documentos-header__title">
+      <h2>Documentos e imágenes</h2>
+      <span class="documentos-count" *ngIf="documentos.length > 0">{{ documentos.length }}</span>
+    </div>
+    <button class="btn btn-secondary" type="button" (click)="toggleForm()">
+      {{ formVisible ? 'Cancelar' : 'Subir documento' }}
+    </button>
+  </div>
+
+  <!-- Formulario de subida -->
+  <ng-container *ngIf="formVisible">
+    <div class="documentos-form">
+      <div class="documentos-form__row">
+        <div class="documentos-form__field">
+          <label class="documentos-form__label">Archivo</label>
+          <input
+            class="documentos-form__input-file"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+            (change)="onFileChange($event)"
+          />
+          <span class="documentos-form__hint">JPG, PNG, WEBP o PDF. Se recomienda no superar 10 MB.</span>
+        </div>
+      </div>
+
+      <div class="documentos-form__row documentos-form__row--inline">
+        <div class="documentos-form__field">
+          <label class="documentos-form__label">Tipo</label>
+          <select class="documentos-form__select" [(ngModel)]="selectedTipo">
+            <option *ngFor="let t of tiposDocumento" [value]="t.value">{{ t.label }}</option>
+          </select>
+        </div>
+
+        <div class="documentos-form__field">
+          <label class="documentos-form__label">Fecha del documento <span class="documentos-form__optional">(opcional)</span></label>
+          <input class="documentos-form__input" type="date" [(ngModel)]="selectedFecha" />
+        </div>
+      </div>
+
+      <div class="documentos-form__error" *ngIf="uploadError">{{ uploadError }}</div>
+
+      <div class="documentos-form__actions">
+        <button class="btn btn-primary" type="button" (click)="onUpload()" [disabled]="uploading">
+          {{ uploading ? 'Subiendo...' : 'Subir' }}
+        </button>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Estado de carga -->
+  <div class="documentos-loading" *ngIf="loading">Cargando documentos...</div>
+  <div class="documentos-error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <!-- Sin documentos -->
+  <div class="documentos-empty" *ngIf="!loading && documentos.length === 0 && !formVisible">
+    Sin documentos registrados para este paciente.
+  </div>
+
+  <!-- Lista de documentos -->
+  <div class="documentos-list" *ngIf="!loading && documentos.length > 0">
+    <div class="documento-item" *ngFor="let doc of documentos">
+
+      <div class="documento-item__icon" [class.documento-item__icon--pdf]="!esImagen(doc.mimetype)">
+        {{ esImagen(doc.mimetype) ? 'IMG' : 'PDF' }}
+      </div>
+
+      <div class="documento-item__info">
+        <span class="documento-item__nombre">{{ doc.nombre }}</span>
+        <div class="documento-item__meta">
+          <span class="documento-tipo documento-tipo--{{ doc.tipo | lowercase }}">{{ tipoLabel(doc.tipo) }}</span>
+          <span *ngIf="doc.fecha">· {{ doc.fecha | date:'dd/MM/yyyy' }}</span>
+          <span>· {{ formatTamanio(doc.tamanio) }}</span>
+          <span *ngIf="doc.usuario">· Subido por {{ doc.usuario.nombre }} {{ doc.usuario.apellido }}</span>
+          <span>· {{ doc.createdAt | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+
+      <div class="documento-item__actions">
+        <button class="btn-text" type="button" (click)="previsualizarDocumento(doc)">
+          {{ esImagen(doc.mimetype) ? 'Ver' : 'Abrir' }}
+        </button>
+        <button class="btn-text" type="button" (click)="descargarDocumento(doc)">Descargar</button>
+        <button class="btn-text btn-text--danger" type="button" (click)="solicitarEliminar(doc.id)">Eliminar</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal confirmación eliminar -->
+  <div class="modal-overlay" *ngIf="confirmDeleteId !== null" (click)="cancelarEliminar()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3>¿Eliminar documento?</h3>
+      <p>Esta acción no se puede deshacer. El archivo se eliminará permanentemente.</p>
+      <div class="modal__actions">
+        <button class="btn btn-secondary" type="button" (click)="cancelarEliminar()">Cancelar</button>
+        <button class="btn btn-danger" type="button" (click)="confirmarEliminar()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal previsualización de imagen -->
+  <div class="modal-overlay" *ngIf="previewUrl" (click)="cerrarPreview()">
+    <div class="preview-modal" (click)="$event.stopPropagation()">
+      <div class="preview-modal__header">
+        <span class="preview-modal__nombre">{{ previewNombre }}</span>
+        <button class="preview-modal__close" type="button" (click)="cerrarPreview()">✕</button>
+      </div>
+      <img class="preview-modal__img" [src]="previewUrl" [alt]="previewNombre" />
+    </div>
+  </div>
+
+</section>

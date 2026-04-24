@@ -111,4 +111,16 @@
 
 </section>
 
+<!-- Modal: Confirmar eliminación -->
+<div class="confirm-modal-backdrop" *ngIf="confirmDeleteId !== null" (click)="cancelarEliminar()">
+  <div class="confirm-modal" (click)="$event.stopPropagation()">
+    <h3>Eliminar tratamiento</h3>
+    <p>Esta acción no se puede deshacer. ¿Confirmas que deseas eliminar este tratamiento?</p>
+    <div class="confirm-modal-actions">
+      <button class="btn btn-secondary" type="button" (click)="cancelarEliminar()">Cancelar</button>
+      <button class="btn btn-danger" type="button" (click)="confirmarEliminar()">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
 <app-footer></app-footer>

@@ -148,6 +148,18 @@ El sistema aplica un estilo clínico-institucional consistente en todos los mód
 - `resumen/:id` (ResumenHistoria): apartado para **subir documentos del paciente** (radiografías, exámenes, imágenes de interés) — pendiente de diseño e implementación. El backend no tiene endpoint aún.
 - **Módulo de tratamientos** — frontend en pausa, esperando reunión con cliente que defina la UX
 - **Módulos clínicos "Próximamente"** en historia clínica: Fórmulas médicas, Evolución de tratamiento, Enfermedades odontológicas, Presupuesto
+- **Odontograma modo MIXTO** — tercer modo para dentición mixta (~6-12 años), mezcla de dientes temporales (51-85) y permanentes en erupción (11-48). Pendiente de diseño y discusión.
+
+## UX para uso local en consultorio
+
+El sistema corre en local en 1–2 computadores. Hay decisiones de UX y operación pendientes de diseño:
+
+- **Backups de la base de datos**: SQLite es un solo archivo (`prisma/dev.db`). El consultorio necesita una forma de hacer copias de seguridad sin intervención técnica — opciones: botón "Exportar backup" en el sistema que copie el archivo a una carpeta/USB, o un script programado en el sistema operativo.
+- **Restauración**: procedimiento claro para restaurar desde backup en caso de fallo o cambio de equipo.
+- **Acceso multi-equipo**: si se usan 2 computadores simultáneamente, ambos deben apuntar al mismo servidor backend (uno actúa como servidor, el otro como cliente). Requiere configurar la `BASE_URL` del frontend según la IP local de la red, no `localhost`.
+- **Arranque del sistema**: el personal del consultorio necesita iniciar backend y frontend sin usar la terminal — pendiente crear scripts o accesos directos `.bat`/`.sh` de un clic.
+- **Sesión persistente**: evaluar si el tiempo de expiración del JWT es adecuado para una jornada laboral sin forzar re-login innecesario.
+- **Pantalla de bienvenida / estado del servidor**: indicador visible de que el sistema está conectado al backend, para que el personal detecte si el servidor está caído antes de empezar a trabajar.
 
 ## Historia clínica — notas de implementación
 

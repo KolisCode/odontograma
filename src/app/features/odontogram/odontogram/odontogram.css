@@ -1280,6 +1280,12 @@
   border-color: #a7f3d0;
 }
 
+.odontogram-mode-badge--mixto {
+  background: #faf5ff;
+  color: #6b21a8;
+  border-color: #d8b4fe;
+}
+
 /* ── Modal de sugerencia pediátrica ──────────────────────────────────────── */
 .pediatric-modal-backdrop {
   position: fixed;
@@ -1366,6 +1372,16 @@
   background: #eff6ff;
 }
 
+.pediatric-option--mixto {
+  border-color: #d8b4fe;
+  background: #faf5ff;
+}
+
+.pediatric-option--mixto:hover {
+  border-color: #9333ea;
+  background: #f3e8ff;
+}
+
 .pediatric-option--pediatrico {
   border-color: #a7f3d0;
   background: #f0fdf4;
@@ -1417,6 +1433,12 @@
   background: #eff6ff;
   color: #1d4ed8;
   border-color: #bfdbfe;
+}
+
+.mode-btn--mixto.active {
+  background: #faf5ff;
+  color: #6b21a8;
+  border-color: #d8b4fe;
 }
 
 .mode-btn--pediatrico.active {

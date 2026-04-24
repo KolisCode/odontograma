@@ -47,12 +47,22 @@ export class OdontogramComponent implements OnInit {
   pediatricLowerRight = [85, 84, 83, 82, 81];
   pediatricLowerLeft  = [71, 72, 73, 74, 75];
 
+  // ── Arcadas mixtas (molares permanentes + todos los temporales) ───────────
+  mixedUpperRight = [18, 17, 16, 55, 54, 53, 52, 51];
+  mixedUpperLeft  = [61, 62, 63, 64, 65, 26, 27, 28];
+  mixedLowerRight = [48, 47, 46, 85, 84, 83, 82, 81];
+  mixedLowerLeft  = [71, 72, 73, 74, 75, 36, 37, 38];
+
   // ── Modo del odontograma ──────────────────────────────────────────────────
-  odontogramTipo: 'ADULTO' | 'PEDIATRICO' = 'ADULTO';
+  odontogramTipo: 'ADULTO' | 'PEDIATRICO' | 'MIXTO' = 'ADULTO';
   showPediatricModal = false;
 
   get isPediatric(): boolean {
     return this.odontogramTipo === 'PEDIATRICO';
+  }
+
+  get isMixed(): boolean {
+    return this.odontogramTipo === 'MIXTO';
   }
 
   isPrimaryTooth(number: number): boolean {
@@ -62,7 +72,7 @@ export class OdontogramComponent implements OnInit {
            (number >= 81 && number <= 85);
   }
 
-  setOdontogramMode(tipo: 'ADULTO' | 'PEDIATRICO'): void {
+  setOdontogramMode(tipo: 'ADULTO' | 'PEDIATRICO' | 'MIXTO'): void {
     this.odontogramTipo = tipo;
     this.showPediatricModal = false;
   }
@@ -90,6 +100,20 @@ export class OdontogramComponent implements OnInit {
         { type: 'Sano',        label: 'Sano' },
       ];
     }
+    if (this.isMixed) {
+      return [
+        { type: 'Caries',              label: 'Caries' },
+        { type: 'Obturacion',          label: 'Obturación' },
+        { type: 'Fractura',            label: 'Fractura' },
+        { type: 'Sellante',            label: 'Sellante' },
+        { type: 'Extraccion',          label: 'Extracción' },
+        { type: 'Pulpotomia',          label: 'Pulpotomía' },
+        { type: 'Pulpectomia',         label: 'Pulpectomía' },
+        { type: 'Endodoncia',          label: 'Endodoncia' },
+        { type: 'TratamientoConducto', label: 'Trat. Conducto' },
+        { type: 'Sano',                label: 'Sano' },
+      ];
+    }
     return [
       { type: 'Caries',              label: 'Caries' },
       { type: 'Obturacion',          label: 'Obturación' },
@@ -107,6 +131,16 @@ export class OdontogramComponent implements OnInit {
       return [
         { type: 'Corona',            label: 'Corona',           icon: '♛' },
         { type: 'Puente',            label: 'Puente',           icon: '⊓⊔' },
+        { type: 'ProtesisParcial',   label: 'Prót. Parcial',    icon: '⌒' },
+        { type: 'MantenedorEspacio', label: 'Mant. Espacio',    icon: '⊞' },
+        { type: 'DienteAusente',     label: 'Diente Ausente',   icon: '✕' },
+      ];
+    }
+    if (this.isMixed) {
+      return [
+        { type: 'Corona',            label: 'Corona',           icon: '♛' },
+        { type: 'Puente',            label: 'Puente',           icon: '⊓⊔' },
+        { type: 'Implante',          label: 'Implante',         icon: '⚙' },
         { type: 'ProtesisParcial',   label: 'Prót. Parcial',    icon: '⌒' },
         { type: 'MantenedorEspacio', label: 'Mant. Espacio',    icon: '⊞' },
         { type: 'DienteAusente',     label: 'Diente Ausente',   icon: '✕' },
@@ -267,7 +301,7 @@ export class OdontogramComponent implements OnInit {
 
   private maybeSuggestPediatric(): void {
     if (this.originalOdontogram) return;
-    if (this.patientAge !== null && this.patientAge < 12) {
+    if (this.patientAge !== null && this.patientAge >= 5 && this.patientAge <= 15) {
       this.showPediatricModal = true;
     }
   }
@@ -605,6 +639,8 @@ export class OdontogramComponent implements OnInit {
         // Leer tipo del odontograma existente
         if (data.tipo === 'PEDIATRICO') {
           this.odontogramTipo = 'PEDIATRICO';
+        } else if (data.tipo === 'MIXTO') {
+          this.odontogramTipo = 'MIXTO';
         }
 
         this.originalOdontogram = {
@@ -829,6 +865,8 @@ export class OdontogramComponent implements OnInit {
         next: (response) => {
           if (response.tipo === 'PEDIATRICO') {
             this.odontogramTipo = 'PEDIATRICO';
+          } else if (response.tipo === 'MIXTO') {
+            this.odontogramTipo = 'MIXTO';
           }
           this.originalOdontogram = {
             id: response.id,

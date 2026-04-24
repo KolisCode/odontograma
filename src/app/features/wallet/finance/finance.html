@@ -46,7 +46,9 @@
 <section class="finance-page">
   <div class="finance-header">
     <div class="finance-header__text">
-      <p>Registro de ingresos y egresos del consultorio</p>
+      <p *ngIf="!selectedPatient && !soloSinPaciente">Registro de ingresos y egresos del consultorio</p>
+      <p *ngIf="selectedPatient">Estadísticas de {{ selectedPatient.nombreCompleto }}</p>
+      <p *ngIf="!selectedPatient && soloSinPaciente">Estadísticas de movimientos sin paciente</p>
     </div>
   </div>
 

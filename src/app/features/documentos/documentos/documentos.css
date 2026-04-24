@@ -1,0 +1,337 @@
+.documentos-section {
+  margin-top: 2rem;
+}
+
+.documentos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.documentos-header__title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.documentos-header__title h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #12263f;
+}
+
+.documentos-count {
+  background: #e8f0fb;
+  color: #2f73d9;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* ── Formulario ───────────────────────────────── */
+
+.documentos-form {
+  background: #f5f8fb;
+  border: 1px solid #dde3ed;
+  border-left: 3px solid #2f73d9;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.documentos-form__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.documentos-form__row--inline {
+  flex-direction: row;
+  gap: 1.5rem;
+}
+
+.documentos-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+.documentos-form__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #5a7184;
+}
+
+.documentos-form__optional {
+  font-weight: 400;
+  color: #8fa3b4;
+}
+
+.documentos-form__input-file {
+  font-size: 0.85rem;
+  color: #2d3a45;
+}
+
+.documentos-form__hint {
+  font-size: 0.75rem;
+  color: #8fa3b4;
+  margin-top: 2px;
+}
+
+.documentos-form__input,
+.documentos-form__select {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #c8d5e0;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  color: #2d3a45;
+  background: #fff;
+  outline: none;
+}
+
+.documentos-form__input:focus,
+.documentos-form__select:focus {
+  border-color: #2f73d9;
+}
+
+.documentos-form__error {
+  font-size: 0.82rem;
+  color: #c0392b;
+}
+
+.documentos-form__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── Lista ─────────────────────────────────────── */
+
+.documentos-loading,
+.documentos-empty {
+  font-size: 0.88rem;
+  color: #8fa3b4;
+  padding: 1rem 0;
+}
+
+.documentos-error {
+  font-size: 0.85rem;
+  color: #c0392b;
+  padding: 0.5rem 0;
+}
+
+.documentos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.documento-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: #fff;
+  border: 1px solid #dde3ed;
+  border-radius: 10px;
+}
+
+.documento-item__icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: #e8f0fb;
+  color: #2f73d9;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.03em;
+}
+
+.documento-item__icon--pdf {
+  background: #fde8e8;
+  color: #c0392b;
+}
+
+.documento-item__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.documento-item__nombre {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #12263f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.documento-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.5rem;
+  font-size: 0.78rem;
+  color: #8fa3b4;
+  align-items: center;
+}
+
+.documento-tipo {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.documento-tipo--radiografia { color: #6246d9; }
+.documento-tipo--consentimiento { color: #1a8a5e; }
+.documento-tipo--examen { color: #2f73d9; }
+.documento-tipo--receta { color: #c07a00; }
+.documento-tipo--otro { color: #5a7184; }
+
+.documento-item__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.82rem;
+  color: #2f73d9;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-text:hover {
+  color: #255fc0;
+}
+
+.btn-text--danger {
+  color: #c0392b;
+}
+
+.btn-text--danger:hover {
+  color: #96281b;
+}
+
+/* ── Modales ───────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 38, 63, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 14px;
+  padding: 2rem;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(18, 38, 63, 0.15);
+}
+
+.modal h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #12263f;
+}
+
+.modal p {
+  margin: 0 0 1.5rem;
+  font-size: 0.88rem;
+  color: #5a7184;
+}
+
+.modal__actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.btn-danger {
+  background: #c0392b;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background: #96281b;
+}
+
+/* ── Preview de imagen ─────────────────────────── */
+
+.preview-modal {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(18, 38, 63, 0.2);
+}
+
+.preview-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #dde3ed;
+}
+
+.preview-modal__nombre {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #12263f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
+}
+
+.preview-modal__close {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #5a7184;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  flex-shrink: 0;
+}
+
+.preview-modal__close:hover {
+  color: #12263f;
+}
+
+.preview-modal__img {
+  max-width: 100%;
+  max-height: calc(90vh - 60px);
+  object-fit: contain;
+  display: block;
+}

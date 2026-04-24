@@ -13,8 +13,10 @@
       <div class="patient-context-badge">
         Odontograma
       </div>
-      <div class="odontogram-mode-badge" [class.odontogram-mode-badge--pediatrico]="isPediatric">
-        {{ isPediatric ? 'Dentición pediátrica' : 'Dentición adulta' }}
+      <div class="odontogram-mode-badge"
+           [class.odontogram-mode-badge--pediatrico]="isPediatric"
+           [class.odontogram-mode-badge--mixto]="isMixed">
+        {{ isPediatric ? 'Dentición pediátrica' : isMixed ? 'Dentición mixta' : 'Dentición adulta' }}
       </div>
     </div>
   </div>
@@ -38,10 +40,15 @@
         <strong>Dentición adulta</strong>
         <span>Dientes permanentes (FDI 11–48)</span>
       </button>
+      <button type="button" class="pediatric-option pediatric-option--mixto" (click)="setOdontogramMode('MIXTO')">
+        <span class="pediatric-option-icon">🔀</span>
+        <strong>Dentición mixta</strong>
+        <span>Molares permanentes + todos los temporales</span>
+      </button>
       <button type="button" class="pediatric-option pediatric-option--pediatrico" (click)="setOdontogramMode('PEDIATRICO')">
         <span class="pediatric-option-icon">🌱</span>
         <strong>Dentición pediátrica</strong>
-        <span>Dientes primarios / mixtos (FDI 51–85)</span>
+        <span>Solo dientes primarios (FDI 51–85)</span>
       </button>
     </div>
   </div>
@@ -92,6 +99,55 @@
               *ngFor="let tooth of lowerLeft"
               [number]="tooth"
               [isPrimary]="false"
+              [filledFaces]="toothFaceMap().get(tooth) || []"
+              [pieces]="piecesMap().get(tooth) ?? []"
+              (surfaceClick)="applyDiagnosis($event)">
+            </app-tooth>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Arcada mixta (molares permanentes + temporales) -->
+      <ng-container *ngIf="isMixed">
+        <div class="arch upper">
+          <div class="quadrant">
+            <app-tooth
+              *ngFor="let tooth of mixedUpperRight"
+              [number]="tooth"
+              [isPrimary]="isPrimaryTooth(tooth)"
+              [filledFaces]="toothFaceMap().get(tooth) || []"
+              [pieces]="piecesMap().get(tooth) ?? []"
+              (surfaceClick)="applyDiagnosis($event)">
+            </app-tooth>
+          </div>
+          <div class="quadrant">
+            <app-tooth
+              *ngFor="let tooth of mixedUpperLeft"
+              [number]="tooth"
+              [isPrimary]="isPrimaryTooth(tooth)"
+              [filledFaces]="toothFaceMap().get(tooth) || []"
+              [pieces]="piecesMap().get(tooth) ?? []"
+              (surfaceClick)="applyDiagnosis($event)">
+            </app-tooth>
+          </div>
+        </div>
+        <hr />
+        <div class="arch lower">
+          <div class="quadrant">
+            <app-tooth
+              *ngFor="let tooth of mixedLowerRight"
+              [number]="tooth"
+              [isPrimary]="isPrimaryTooth(tooth)"
+              [filledFaces]="toothFaceMap().get(tooth) || []"
+              [pieces]="piecesMap().get(tooth) ?? []"
+              (surfaceClick)="applyDiagnosis($event)">
+            </app-tooth>
+          </div>
+          <div class="quadrant">
+            <app-tooth
+              *ngFor="let tooth of mixedLowerLeft"
+              [number]="tooth"
+              [isPrimary]="isPrimaryTooth(tooth)"
               [filledFaces]="toothFaceMap().get(tooth) || []"
               [pieces]="piecesMap().get(tooth) ?? []"
               (surfaceClick)="applyDiagnosis($event)">
@@ -304,8 +360,11 @@
       <div class="mode-selector" *ngIf="!originalOdontogram">
         <div class="mode-selector-label">Tipo de dentición</div>
         <div class="mode-selector-buttons">
-          <button type="button" class="mode-btn" [class.active]="!isPediatric" (click)="setOdontogramMode('ADULTO')">
+          <button type="button" class="mode-btn" [class.active]="!isPediatric && !isMixed" (click)="setOdontogramMode('ADULTO')">
             Adulta
+          </button>
+          <button type="button" class="mode-btn mode-btn--mixto" [class.active]="isMixed" (click)="setOdontogramMode('MIXTO')">
+            Mixta
           </button>
           <button type="button" class="mode-btn mode-btn--pediatrico" [class.active]="isPediatric" (click)="setOdontogramMode('PEDIATRICO')">
             Pediátrica

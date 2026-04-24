@@ -27,6 +27,7 @@ export class Tratamientos implements OnInit {
   form: FormGroup;
   formVisible = false;
   editingId: number | null = null;
+  confirmDeleteId: number | null = null;
 
   estados = ['ACTIVO', 'FINALIZADO', 'PAUSADO'];
 
@@ -166,7 +167,13 @@ export class Tratamientos implements OnInit {
   }
 
   eliminar(id: number): void {
-    if (!confirm('¿Eliminar este tratamiento? Esta acción no se puede deshacer.')) return;
+    this.confirmDeleteId = id;
+  }
+
+  confirmarEliminar(): void {
+    if (this.confirmDeleteId === null) return;
+    const id = this.confirmDeleteId;
+    this.confirmDeleteId = null;
 
     this.tratamientosService.delete(id).subscribe({
       next: () => {
@@ -178,6 +185,10 @@ export class Tratamientos implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  cancelarEliminar(): void {
+    this.confirmDeleteId = null;
   }
 
   getEstadoClass(estado: string): string {
