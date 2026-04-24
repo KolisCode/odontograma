@@ -20,6 +20,8 @@ export class Tooth {
 
   @Input() isPrimary = false;
 
+  @Input() readonly = false;
+
   hasPiece(type: PieceType): boolean {
     return this.pieces.includes(type);
   }
@@ -43,6 +45,7 @@ export class Tooth {
   };
 
   faceClicked(surface: ToothSurface) {
+    if (this.readonly) return;
     this.surfaceClick.emit({
       tooth: this.number,
       surface,

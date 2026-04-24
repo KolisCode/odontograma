@@ -1,0 +1,118 @@
+<div class="hm-backdrop" *ngIf="visible" (click)="cerrar.emit()">
+  <div class="hm-panel" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="hm-header">
+      <div class="hm-header__info">
+        <span class="hm-badge"
+          [class.hm-badge--mixto]="isMixed"
+          [class.hm-badge--pediatrico]="isPediatric">
+          {{ isPediatric ? 'Dentición pediátrica' : isMixed ? 'Dentición mixta' : 'Dentición adulta' }}
+        </span>
+        <h2 class="hm-title">
+          Versión {{ version?.version }}
+          <span class="hm-fecha">— {{ formatFecha(version?.fecha ?? '') }}</span>
+        </h2>
+        <p class="hm-readonly-label">Vista de solo lectura · Versión archivada</p>
+      </div>
+      <button class="hm-close-btn" type="button" (click)="cerrar.emit()">✕</button>
+    </div>
+
+    <!-- Grilla SVG -->
+    <div class="hm-grid-section">
+      <!-- ADULTO -->
+      <ng-container *ngIf="!isPediatric && !isMixed">
+        <div class="hm-arch hm-arch--upper">
+          <app-tooth *ngFor="let t of upperRight" [number]="t"
+            [filledFaces]="getFilledFaces(t)" [pieces]="getPieces(t)"
+            [readonly]="true" [isPrimary]="false" />
+          <div class="hm-arch-divider"></div>
+          <app-tooth *ngFor="let t of upperLeft" [number]="t"
+            [filledFaces]="getFilledFaces(t)" [pieces]="getPieces(t)"
+            [readonly]="true" [isPrimary]="false" />
+        </div>
+        <div class="hm-arch hm-arch--lower">
+          <app-tooth *ngFor="let t of lowerRight" [number]="t"
+            [filledFaces]="getFilledFaces(t)" [pieces]="getPieces(t)"
+            [readonly]="true" [isPrimary]="false" />
+          <div class="hm-arch-divider"></div>
+          <app-tooth *ngFor="let t of lowerLeft" [number]="t"
+            [filledFaces]="getFilledFaces(t)" [pieces]="getPieces(t)"
+            [readonly]="true" [isPrimary]="false" />
+        </div>
+      </ng-container>
+
+      <!-- PEDIATRICO -->
+      <ng-container *ngIf="isPediatric">
+        <div class="hm-arch hm-arch--upper">
+          <app-tooth *ngFor="let t of pediatricUpperRight" [number]="t"
+            [filledFaces]="getFilledFaces(t)" [pieces]="getPieces(t)"
+            [readonly]="true" [isPrimary]="true" />
+          <div class="hm-arch-divider"></div>
+          <app-tooth *ngFor="let t of pediatricUpperLeft" [number]="t"
+            [filledFaces]="getFilledFaces(t)" [pieces]="getPieces(t)"
+            [readonly]="true" [isPrimary]="true" />
+        </div>
+        <div class="hm-arch hm-arch--lower">
+          <app-tooth *ngFor="let t of pediatricLowerRight" [number]="t"
+            [filledFaces]="getFilledFaces(t)" [pieces]="getPieces(t)"
+            [readonly]="true" [isPrimary]="true" />
+          <div class="hm-arch-divider"></div>
+          <app-tooth *ngFor="let t of pediatricLowerLeft" [number]="t"
+            [filledFaces]="getFilledFaces(t)" [pieces]="getPieces(t)"
+            [readonly]="true" [isPrimary]="true" />
+        </div>
+      </ng-container>
+
+      <!-- MIXTO -->
+      <ng-container *ngIf="isMixed">
+        <div class="hm-arch hm-arch--upper">
+          <app-tooth *ngFor="let t of mixedUpperRight" [number]="t"
+            [filledFaces]="getFilledFaces(t)" [pieces]="getPieces(t)"
+            [readonly]="true" [isPrimary]="isPrimaryTooth(t)" />
+          <div class="hm-arch-divider"></div>
+          <app-tooth *ngFor="let t of mixedUpperLeft" [number]="t"
+            [filledFaces]="getFilledFaces(t)" [pieces]="getPieces(t)"
+            [readonly]="true" [isPrimary]="isPrimaryTooth(t)" />
+        </div>
+        <div class="hm-arch hm-arch--lower">
+          <app-tooth *ngFor="let t of mixedLowerRight" [number]="t"
+            [filledFaces]="getFilledFaces(t)" [pieces]="getPieces(t)"
+            [readonly]="true" [isPrimary]="isPrimaryTooth(t)" />
+          <div class="hm-arch-divider"></div>
+          <app-tooth *ngFor="let t of mixedLowerLeft" [number]="t"
+            [filledFaces]="getFilledFaces(t)" [pieces]="getPieces(t)"
+            [readonly]="true" [isPrimary]="isPrimaryTooth(t)" />
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Tabla de diagnósticos -->
+    <div class="hm-table-section">
+      <h3 class="hm-table-title">Diagnósticos y piezas registradas</h3>
+      <div *ngIf="diagnosisRows.length === 0" class="hm-empty">
+        Sin diagnósticos registrados en esta versión.
+      </div>
+      <table *ngIf="diagnosisRows.length > 0" class="hm-table">
+        <thead>
+          <tr>
+            <th>Diente</th>
+            <th>Cara</th>
+            <th>Diagnóstico / Pieza</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of diagnosisRows">
+            <td>
+              {{ row.diente }}
+              <span *ngIf="row.esTemporal" class="hm-tag-temporal">T</span>
+            </td>
+            <td>{{ row.cara }}</td>
+            <td>{{ row.diagnostico }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

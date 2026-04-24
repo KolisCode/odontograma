@@ -7,6 +7,9 @@ import { Footer } from '../../complements/footer/footer';
 import { HistoriaClinicaService } from '../historia-clinica.service/historia-clinica.service';
 import { PatientsService } from '../../user/service/pacientes.service';
 import { DocumentosComponent } from '../../documentos/documentos/documentos';
+import { OdontogramService } from '../../../services/odontogram';
+import { BackendOdontogramResponse } from '../../odontogram/interfaces/backend-odontogram-response';
+import { OdontogramHistorialModal } from '../../odontogram/components/historial-modal/historial-modal';
 
 export interface AlertaClinica {
   tipo: 'critica' | 'advertencia' | 'info';
@@ -16,7 +19,7 @@ export interface AlertaClinica {
 @Component({
   selector: 'app-resumen-historia',
   standalone: true,
-  imports: [CommonModule, RouterModule, Navbar, Footer, DocumentosComponent],
+  imports: [CommonModule, RouterModule, Navbar, Footer, DocumentosComponent, OdontogramHistorialModal],
   templateUrl: './resumen.html',
   styleUrl: './resumen.css',
 })
@@ -32,6 +35,11 @@ export class ResumenHistoria implements OnInit {
   sinHistoria = false;
 
   alertas: AlertaClinica[] = [];
+
+  historialOdonto: BackendOdontogramResponse[] = [];
+  historialLoading = false;
+  versionModal: BackendOdontogramResponse | null = null;
+  versionModalVisible = false;
 
   medicamentos: { medicamento: string; dosis: string; frecuencia: string }[] = [];
 
@@ -68,6 +76,7 @@ export class ResumenHistoria implements OnInit {
     private router: Router,
     private historiaService: HistoriaClinicaService,
     private patientsService: PatientsService,
+    private odontogramService: OdontogramService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -81,6 +90,7 @@ export class ResumenHistoria implements OnInit {
       }
       this.pacienteId = Number(id);
       this.loadData();
+      this.loadHistorialOdonto();
     });
   }
 
@@ -261,6 +271,33 @@ export class ResumenHistoria implements OnInit {
 
   goToOdontogram(): void {
     this.router.navigate(['/odontogram', this.pacienteId]);
+  }
+
+  private loadHistorialOdonto(): void {
+    this.historialLoading = true;
+    this.odontogramService.getHistorial(this.pacienteId).subscribe({
+      next: (data) => {
+        this.historialOdonto = data.filter(v => !v.activo).sort((a, b) => b.version - a.version);
+        this.historialLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.historialLoading = false; this.cdr.detectChanges(); },
+    });
+  }
+
+  abrirVersionModal(v: BackendOdontogramResponse): void {
+    this.versionModal = v;
+    this.versionModalVisible = true;
+  }
+
+  cerrarVersionModal(): void {
+    this.versionModal = null;
+    this.versionModalVisible = false;
+  }
+
+  formatFecha(fecha: string): string {
+    if (!fecha) return '';
+    return new Date(fecha).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' });
   }
 
   goToPatients(): void {

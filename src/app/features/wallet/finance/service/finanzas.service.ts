@@ -23,6 +23,7 @@ export interface MovimientoRow {
   estado: 'PENDIENTE' | 'PAGADO' | 'CANCELADO';
   metodoPago: string | null;
   diagnosticoRef: string | null;
+  nota: string | null;
   paciente: { id: number; nombre: string; apellido: string } | null;
   createdAt: string;
 }

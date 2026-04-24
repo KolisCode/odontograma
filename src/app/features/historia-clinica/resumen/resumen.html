@@ -188,6 +188,41 @@
     <app-documentos [pacienteId]="pacienteId"></app-documentos>
   </div>
 
+  <!-- Historial de odontogramas -->
+  <div class="resumen-historial-odonto" *ngIf="!loading">
+    <div class="resumen-historial-header">
+      <h2 class="resumen-historial-title">Historial de odontogramas</h2>
+      <button type="button" class="btn btn-secondary" (click)="goToOdontogram()">
+        Odontograma activo →
+      </button>
+    </div>
+
+    <div *ngIf="historialLoading" class="resumen-historial-loading">Cargando historial...</div>
+
+    <div *ngIf="!historialLoading && historialOdonto.length === 0" class="resumen-historial-empty">
+      No hay versiones archivadas. El odontograma activo es la única versión registrada.
+    </div>
+
+    <div *ngIf="!historialLoading && historialOdonto.length > 0" class="resumen-historial-list">
+      <div *ngFor="let v of historialOdonto" class="resumen-historial-item" (click)="abrirVersionModal(v)">
+        <div class="resumen-historial-item__left">
+          <span class="resumen-historial-item__version">v{{ v.version }}</span>
+          <span class="resumen-historial-item__fecha">{{ formatFecha(v.fecha) }}</span>
+        </div>
+        <span class="resumen-historial-item__tipo">{{ v.tipo ?? 'ADULTO' }}</span>
+        <span class="resumen-historial-item__dientes">{{ v.dientes.length }} diente(s)</span>
+        <span class="resumen-historial-item__ver">Ver →</span>
+      </div>
+    </div>
+  </div>
+
 </section>
+
+<!-- Modal versión archivada -->
+<app-odontogram-historial-modal
+  [version]="versionModal"
+  [visible]="versionModalVisible"
+  (cerrar)="cerrarVersionModal()">
+</app-odontogram-historial-modal>
 
 <app-footer></app-footer>

@@ -299,7 +299,10 @@
           <tr *ngFor="let m of movimientos" [class.row--editing]="m.id === editingId">
             <td>{{ formatFecha(m.fecha) }}</td>
             <td><span class="status-badge" [ngClass]="getTipoClass(m.tipo)">{{ getTipoLabel(m.tipo) }}</span></td>
-            <td>{{ m.concepto }}</td>
+            <td>
+              {{ m.concepto }}
+              <span *ngIf="m.nota" class="finance-nota" [title]="m.nota">{{ m.nota }}</span>
+            </td>
             <td>{{ m.metodoPago ?? '—' }}</td>
             <td><span class="status-badge" [ngClass]="getEstadoClass(m.estado)">{{ m.estado }}</span></td>
             <td>

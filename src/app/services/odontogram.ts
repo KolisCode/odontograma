@@ -11,17 +11,26 @@ export class OdontogramService {
   // private apiUrl = '/api/odontograma';
   private apiUrl = 'http://localhost:3000/odontograma';
 
-
   constructor(private http: HttpClient) {}
 
   getActive(patientId: number): Observable<BackendOdontogramResponse | null> {
     return this.http.get<BackendOdontogramResponse | null>(`${this.apiUrl}/${patientId}`);
   }
 
+  getHistorial(patientId: number): Observable<BackendOdontogramResponse[]> {
+    return this.http.get<BackendOdontogramResponse[]>(`${this.apiUrl}/historial/${patientId}`);
+  }
+
   create(data: OdontogramPayload): Observable<BackendOdontogramResponse> {
     return this.http.post<BackendOdontogramResponse>(this.apiUrl, data);
   }
 
+  /** Actualiza dientes en la versión activa sin crear versión nueva */
+  patch(id: number, data: OdontogramPayload): Observable<BackendOdontogramResponse> {
+    return this.http.patch<BackendOdontogramResponse>(`${this.apiUrl}/${id}`, data);
+  }
+
+  /** Archiva la versión actual y crea una nueva (versionar) */
   update(id: number, data: OdontogramPayload): Observable<BackendOdontogramResponse> {
     return this.http.put<BackendOdontogramResponse>(`${this.apiUrl}/${id}`, data);
   }

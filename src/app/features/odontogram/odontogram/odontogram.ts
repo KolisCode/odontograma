@@ -14,6 +14,7 @@ import { DiagnosisType } from '../types/diagnosis-type';
 import { PieceType } from '../types/piece-type';
 
 import { OdontogramService } from '../../../services/odontogram';
+import { OdontogramHistorialModal } from '../components/historial-modal/historial-modal';
 import { Navbar } from '../../complements/navbar/navbar';
 
 import { Odontogram } from '../interfaces/odontogram';
@@ -30,7 +31,7 @@ import { AlertaClinica } from '../../historia-clinica/resumen/resumen';
 @Component({
   selector: 'app-odontogram',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ToothComponent, Navbar, Footer],
+  imports: [CommonModule, ReactiveFormsModule, ToothComponent, Navbar, Footer, OdontogramHistorialModal],
   templateUrl: './odontogram.html',
   styleUrl: './odontogram.css',
 })
@@ -506,6 +507,18 @@ export class OdontogramComponent implements OnInit {
   saveMessage = '';
   saveMessageType: 'success' | 'error' | 'info' | '' = '';
 
+  // ── Historial de versiones ────────────────────────────────────────────────
+  historial: BackendOdontogramResponse[] = [];
+  historialVisible = false;
+  historialLoading = false;
+  versionModal: BackendOdontogramResponse | null = null;
+  versionModalVisible = false;
+
+  // ── Confirmación de nueva versión ─────────────────────────────────────────
+  showVersionModal = false;
+  movimientosPendientes: MovimientoRow[] = [];
+  checkingPendientes = false;
+
   // ── Constructor y ciclo de vida ───────────────────────────────────────────
   constructor(
     private odontogramService: OdontogramService,
@@ -846,6 +859,7 @@ export class OdontogramComponent implements OnInit {
   }
 
   // ── Guardar ───────────────────────────────────────────────────────────────
+  /** Actualiza dientes en la versión activa sin crear versión nueva */
   save() {
     if (!this.odontogram || this.isSaving) return;
 
@@ -857,7 +871,7 @@ export class OdontogramComponent implements OnInit {
 
     const request$ = isCreate
       ? this.odontogramService.create(payload)
-      : this.odontogramService.update(this.originalOdontogram!.id!, payload);
+      : this.odontogramService.patch(this.originalOdontogram!.id!, payload);
 
     request$
       .pipe(finalize(() => { this.isSaving = false; }))
@@ -884,16 +898,120 @@ export class OdontogramComponent implements OnInit {
 
           this.showSaveMessage(
             'success',
-            isCreate ? 'Odontograma guardado correctamente.' : 'Odontograma actualizado correctamente.',
+            isCreate ? 'Odontograma creado correctamente.' : 'Cambios guardados en la versión actual.',
             true,
             3000,
           );
         },
-        error: (error) => {
-          console.error('Error al guardar odontograma:', error);
+        error: () => {
           this.showSaveMessage('error', 'No se pudo guardar el odontograma.', true, 4000);
         },
       });
+  }
+
+  /** Abre la confirmación de nueva versión, consultando movimientos pendientes */
+  prepararNuevaVersion(): void {
+    if (!this.originalOdontogram?.id || this.isSaving) return;
+
+    this.checkingPendientes = true;
+    this.movimientosPendientes = [];
+
+    this.finanzasService.getByOdontograma(this.originalOdontogram.id).subscribe({
+      next: (res) => {
+        this.movimientosPendientes = res.data.filter(m => m.estado === 'PENDIENTE');
+        this.checkingPendientes = false;
+        this.showVersionModal = true;
+      },
+      error: () => {
+        this.checkingPendientes = false;
+        this.showVersionModal = true;
+      },
+    });
+  }
+
+  cancelarNuevaVersion(): void {
+    this.showVersionModal = false;
+    this.movimientosPendientes = [];
+  }
+
+  /** Crea una nueva versión, archivando la actual */
+  confirmarNuevaVersion(): void {
+    if (!this.originalOdontogram?.id || this.isSaving) return;
+
+    const payload = this.buildVersioningPayload();
+    this.isSaving = true;
+    this.showVersionModal = false;
+    this.showSaveMessage('info', 'Creando nueva versión...', false);
+
+    this.odontogramService.update(this.originalOdontogram.id, payload)
+      .pipe(finalize(() => { this.isSaving = false; }))
+      .subscribe({
+        next: (response) => {
+          if (response.tipo === 'PEDIATRICO') this.odontogramTipo = 'PEDIATRICO';
+          else if (response.tipo === 'MIXTO') this.odontogramTipo = 'MIXTO';
+
+          this.originalOdontogram = {
+            id: response.id,
+            patientId: response.pacienteId,
+            date: response.fecha,
+            teeth: [],
+            version: response.version,
+          };
+          this.odontogram = structuredClone(this.originalOdontogram);
+
+          const { diagnoses, pieces } = this.buildDiagnosesFromBackend(response);
+          this.diagnoses.set(diagnoses);
+          this.pieces.set(pieces);
+          this.loadCobros();
+          this.historial = [];
+          this.historialVisible = false;
+
+          this.showSaveMessage(
+            'success',
+            `Versión ${response.version} creada correctamente.`,
+            true,
+            4000,
+          );
+        },
+        error: () => {
+          this.showSaveMessage('error', 'No se pudo crear la nueva versión.', true, 4000);
+        },
+      });
+  }
+
+  // ── Historial ─────────────────────────────────────────────────────────────
+  toggleHistorial(): void {
+    this.historialVisible = !this.historialVisible;
+    if (this.historialVisible && this.historial.length === 0) {
+      this.loadHistorial();
+    }
+  }
+
+  private loadHistorial(): void {
+    this.historialLoading = true;
+    this.odontogramService.getHistorial(this.patientId).subscribe({
+      next: (data) => {
+        // Excluir la versión activa actual
+        this.historial = data.filter(v => !v.activo).sort((a, b) => b.version - a.version);
+        this.historialLoading = false;
+      },
+      error: () => { this.historialLoading = false; },
+    });
+  }
+
+  abrirVersionModal(version: BackendOdontogramResponse): void {
+    this.versionModal = version;
+    this.versionModalVisible = true;
+  }
+
+  cerrarVersionModal(): void {
+    this.versionModal = null;
+    this.versionModalVisible = false;
+  }
+
+  formatFecha(fecha: string): string {
+    if (!fecha) return '';
+    return new Date(fecha).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' });
   }
 
   // ── Navegación ────────────────────────────────────────────────────────────

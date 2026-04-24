@@ -466,22 +466,52 @@
         </ng-template>
       </div>
 
-      <!-- Guardar -->
+      <!-- Guardar / Nueva versión -->
       <div class="save-section">
-        <button type="button" class="save-btn" (click)="save()" [disabled]="isSaving">
-          {{ isSaving ? 'Guardando...' : 'Guardar odontograma' }}
-        </button>
-        <button class="btn btn-secondary" type="button" (click)="goToHistoria()">
-          Ir a Historia clínica
-        </button>
-        <button class="btn btn-secondary" type="button" (click)="goToFinance()">
-          Ver movimientos
-        </button>
+        <div class="save-actions">
+          <button type="button" class="save-btn" (click)="save()" [disabled]="isSaving || checkingPendientes">
+            {{ isSaving ? 'Guardando...' : 'Actualizar' }}
+          </button>
+          <button
+            *ngIf="originalOdontogram"
+            type="button"
+            class="btn btn-version"
+            (click)="prepararNuevaVersion()"
+            [disabled]="isSaving || checkingPendientes">
+            {{ checkingPendientes ? 'Verificando...' : 'Nueva versión' }}
+          </button>
+        </div>
+        <div class="save-nav-btns">
+          <button class="btn btn-secondary" type="button" (click)="goToHistoria()">Historia clínica</button>
+          <button class="btn btn-secondary" type="button" (click)="goToFinance()">Ver movimientos</button>
+        </div>
         <div *ngIf="saveMessage" class="save-message" [ngClass]="{
           'save-success': saveMessageType === 'success',
           'save-error': saveMessageType === 'error',
           'save-info': saveMessageType === 'info'
         }">{{ saveMessage }}</div>
+      </div>
+
+      <!-- Historial de versiones -->
+      <div class="historial-section" *ngIf="originalOdontogram">
+        <button type="button" class="historial-toggle" (click)="toggleHistorial()">
+          Versiones anteriores
+          <span class="historial-chevron" [class.historial-chevron--open]="historialVisible">▾</span>
+        </button>
+        <div *ngIf="historialVisible" class="historial-list">
+          <div *ngIf="historialLoading" class="historial-loading">Cargando...</div>
+          <div *ngIf="!historialLoading && historial.length === 0" class="historial-empty">
+            Solo existe la versión actual.
+          </div>
+          <div *ngFor="let v of historial" class="historial-item" (click)="abrirVersionModal(v)">
+            <div class="historial-item__meta">
+              <span class="historial-item__version">v{{ v.version }}</span>
+              <span class="historial-item__fecha">{{ formatFecha(v.fecha) }}</span>
+            </div>
+            <span class="historial-item__tipo">{{ v.tipo ?? 'ADULTO' }}</span>
+            <span class="historial-item__ver">Ver →</span>
+          </div>
+        </div>
       </div>
 
     </aside>
@@ -624,5 +654,43 @@
     </form>
   </div>
 </div>
+
+<!-- Modal: Confirmación de nueva versión -->
+<div class="version-modal-backdrop" *ngIf="showVersionModal" (click)="cancelarNuevaVersion()">
+  <div class="version-modal" (click)="$event.stopPropagation()">
+    <h3 class="version-modal__title">¿Crear nueva versión?</h3>
+    <p class="version-modal__desc">
+      La versión actual quedará archivada y se creará una nueva con el estado actual del odontograma.
+    </p>
+
+    <div *ngIf="movimientosPendientes.length > 0" class="version-modal__warning">
+      <strong>{{ movimientosPendientes.length }} movimiento(s) PENDIENTE serán transferidos a la nueva versión:</strong>
+      <ul class="version-modal__pending-list">
+        <li *ngFor="let m of movimientosPendientes">
+          {{ m.concepto }} — ${{ m.monto | number:'1.0-0' }}
+        </li>
+      </ul>
+      <p class="version-modal__warning-note">
+        En finanzas quedarán marcados como "Transferido desde odontograma v{{ originalOdontogram?.version }}".
+      </p>
+    </div>
+
+    <div *ngIf="movimientosPendientes.length === 0" class="version-modal__no-pending">
+      No hay movimientos pendientes asociados a este odontograma.
+    </div>
+
+    <div class="version-modal__actions">
+      <button type="button" class="btn btn-secondary" (click)="cancelarNuevaVersion()">Cancelar</button>
+      <button type="button" class="btn btn-primary" (click)="confirmarNuevaVersion()">Crear versión</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Vista de versión archivada -->
+<app-odontogram-historial-modal
+  [version]="versionModal"
+  [visible]="versionModalVisible"
+  (cerrar)="cerrarVersionModal()">
+</app-odontogram-historial-modal>
 
 <app-footer></app-footer>
