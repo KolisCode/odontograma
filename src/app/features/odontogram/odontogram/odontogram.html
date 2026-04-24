@@ -646,9 +646,11 @@
         {{ cobroMensaje }}
       </div>
       <div class="cobro-form-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeCobroForm()">Cancelar</button>
-        <button type="submit" class="btn btn-primary" [disabled]="cobroGuardando">
-          {{ cobroGuardando ? 'Guardando...' : (cobroDuplicadoAdvertencia ? 'Crear cobro adicional' : 'Guardar cobro') }}
+        <button type="button" class="btn btn-secondary" (click)="closeCobroForm()">
+          {{ cobroGuardado ? 'Cerrar' : 'Cancelar' }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="cobroGuardando || cobroGuardado">
+          {{ cobroGuardando ? 'Guardando...' : cobroGuardado ? 'Guardado' : (cobroDuplicadoAdvertencia ? 'Crear cobro adicional' : 'Guardar cobro') }}
         </button>
       </div>
     </form>

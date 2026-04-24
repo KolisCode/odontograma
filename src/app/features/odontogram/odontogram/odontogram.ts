@@ -173,6 +173,7 @@ export class OdontogramComponent implements OnInit {
   cobroTarget: { ref: string; label: string; fecha: string } | null = null;
   cobroForm!: FormGroup;
   cobroGuardando = false;
+  cobroGuardado = false;
   cobroMensaje = '';
   cobroMensajeTipo: 'success' | 'error' | '' = '';
 
@@ -201,6 +202,8 @@ export class OdontogramComponent implements OnInit {
     this.cobroDuplicadoAdvertencia = this.cobrosMap().has(ref);
     this.cobroMensaje = '';
     this.cobroMensajeTipo = '';
+    this.cobroGuardando = false;
+    this.cobroGuardado = false;
     this.cobroForm.reset({
       concepto: label,
       monto: null,
@@ -215,6 +218,8 @@ export class OdontogramComponent implements OnInit {
     this.cobroFormVisible = false;
     this.cobroTarget = null;
     this.cobroDuplicadoAdvertencia = false;
+    this.cobroGuardando = false;
+    this.cobroGuardado = false;
   }
 
   submitCobro(): void {
@@ -243,10 +248,11 @@ export class OdontogramComponent implements OnInit {
     this.finanzasService.create(payload).subscribe({
       next: () => {
         this.cobroGuardando = false;
+        this.cobroGuardado = true;
         this.cobroMensaje = 'Cobro registrado correctamente';
         this.cobroMensajeTipo = 'success';
         this.loadCobros();
-        setTimeout(() => this.closeCobroForm(), 1500);
+        setTimeout(() => this.closeCobroForm(), 3000);
       },
       error: (err: any) => {
         this.cobroGuardando = false;
