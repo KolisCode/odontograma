@@ -52,6 +52,7 @@ export class Dashboard implements OnInit {
         this.errorMessage =
           err?.error?.message || 'No se pudo cargar el dashboard';
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }

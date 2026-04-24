@@ -133,6 +133,7 @@ export class Tratamientos implements OnInit {
       this.tratamientosService.update(this.editingId, data).subscribe({
         next: () => {
           this.successMessage = 'Tratamiento actualizado correctamente';
+          this.cdr.detectChanges();
           this.cancelForm();
           this.loadTratamientos();
         },
@@ -145,6 +146,7 @@ export class Tratamientos implements OnInit {
       this.tratamientosService.create({ ...data, pacienteId: this.pacienteId }).subscribe({
         next: () => {
           this.successMessage = 'Tratamiento registrado correctamente';
+          this.cdr.detectChanges();
           this.cancelForm();
           this.loadTratamientos();
         },
@@ -178,6 +180,7 @@ export class Tratamientos implements OnInit {
     this.tratamientosService.delete(id).subscribe({
       next: () => {
         this.successMessage = 'Tratamiento eliminado';
+        this.cdr.detectChanges();
         this.loadTratamientos();
       },
       error: () => {

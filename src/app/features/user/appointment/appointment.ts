@@ -265,6 +265,7 @@ export class Appointment implements OnInit {
     this.appointmentService.getStats().subscribe({
       next: (response) => {
         this.stats = response.data;
+        this.cdr.detectChanges();
       },
     });
   }
@@ -286,6 +287,7 @@ export class Appointment implements OnInit {
     this.appointmentService.getSummary().subscribe({
       next: (response) => {
         this.summary = response.data;
+        this.cdr.detectChanges();
       },
     });
   }

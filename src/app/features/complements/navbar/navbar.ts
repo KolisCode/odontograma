@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, Input, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../authentication/service/auth-service/auth.service';
 import { PatientsService, PatientRow } from '../../user/service/pacientes.service';
@@ -25,6 +25,7 @@ export class Navbar implements OnInit {
     private authService: AuthService,
     private router: Router,
     private patientsService: PatientsService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -38,7 +39,10 @@ export class Navbar implements OnInit {
     }
 
     this.patientsService.getPatients().subscribe({
-      next: (res) => { this.patients = res.data; },
+      next: (res) => {
+        this.patients = res.data;
+        this.cdr.detectChanges();
+      },
       error: () => {},
     });
   }
