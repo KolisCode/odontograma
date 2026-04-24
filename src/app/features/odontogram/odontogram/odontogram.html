@@ -469,7 +469,7 @@
       <!-- Guardar / Nueva versión -->
       <div class="save-section">
         <div class="save-actions">
-          <button type="button" class="save-btn" (click)="save()" [disabled]="isSaving || checkingPendientes">
+          <button type="button" class="save-btn" (click)="save()" [disabled]="isSaving">
             {{ isSaving ? 'Guardando...' : 'Actualizar' }}
           </button>
           <button
@@ -477,8 +477,8 @@
             type="button"
             class="btn btn-version"
             (click)="prepararNuevaVersion()"
-            [disabled]="isSaving || checkingPendientes">
-            {{ checkingPendientes ? 'Verificando...' : 'Nueva versión' }}
+            [disabled]="isSaving">
+            Nueva versión
           </button>
         </div>
         <div class="save-nav-btns">

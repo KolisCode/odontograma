@@ -523,7 +523,6 @@ export class OdontogramComponent implements OnInit {
   // ── Confirmación de nueva versión ─────────────────────────────────────────
   showVersionModal = false;
   movimientosPendientes: MovimientoRow[] = [];
-  checkingPendientes = false;
 
   // ── Constructor y ciclo de vida ───────────────────────────────────────────
   constructor(
@@ -919,20 +918,8 @@ export class OdontogramComponent implements OnInit {
   prepararNuevaVersion(): void {
     if (!this.originalOdontogram?.id || this.isSaving) return;
 
-    this.checkingPendientes = true;
-    this.movimientosPendientes = [];
-
-    this.finanzasService.getByOdontograma(this.originalOdontogram.id).subscribe({
-      next: (res) => {
-        this.movimientosPendientes = res.data.filter(m => m.estado === 'PENDIENTE');
-        this.checkingPendientes = false;
-        this.showVersionModal = true;
-      },
-      error: () => {
-        this.checkingPendientes = false;
-        this.showVersionModal = true;
-      },
-    });
+    this.movimientosPendientes = this.cobros().filter(m => m.estado === 'PENDIENTE');
+    this.showVersionModal = true;
   }
 
   cancelarNuevaVersion(): void {
