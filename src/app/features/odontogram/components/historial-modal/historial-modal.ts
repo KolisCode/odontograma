@@ -114,7 +114,10 @@ export class OdontogramHistorialModal implements OnChanges {
     this.filledFacesMap = new Map(
       Array.from(facesMap.entries()).map(([tooth, surfaces]) => [
         tooth,
-        Array.from(surfaces.entries()).map(([surface, diagnoses]) => ({ surface, diagnoses })),
+        Array.from(surfaces.entries()).map(([surface, diagnoses]) => ({
+          surface,
+          diagnoses: diagnoses as DiagnosisType[],
+        })),
       ]),
     );
     this.piecesMap = piecesMap;
