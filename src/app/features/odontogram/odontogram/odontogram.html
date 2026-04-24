@@ -654,6 +654,21 @@
       La versión actual quedará archivada y se creará una nueva con el estado actual del odontograma.
     </p>
 
+    <div class="version-modal__tipo">
+      <span class="version-modal__tipo-label">Tipo de dentición para la nueva versión</span>
+      <div class="version-modal__tipo-btns">
+        <button type="button"
+          [class.active]="versionTipo === 'ADULTO'"
+          (click)="versionTipo = 'ADULTO'">Adulto</button>
+        <button type="button"
+          [class.active]="versionTipo === 'PEDIATRICO'"
+          (click)="versionTipo = 'PEDIATRICO'">Pediátrica</button>
+        <button type="button"
+          [class.active]="versionTipo === 'MIXTO'"
+          (click)="versionTipo = 'MIXTO'">Mixta</button>
+      </div>
+    </div>
+
     <div *ngIf="movimientosPendientes.length > 0" class="version-modal__warning">
       <strong>{{ movimientosPendientes.length }} movimiento(s) PENDIENTE serán transferidos a la nueva versión:</strong>
       <ul class="version-modal__pending-list">
