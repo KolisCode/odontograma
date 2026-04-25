@@ -25,13 +25,6 @@ export class Admin implements OnInit {
   citas        = { incluir: true,  fechaDesde: '', fechaHasta: '', estado: '' };
   tratamientos = { incluir: true,  soloActivos: false };
 
-  readonly ENTITIES: EntityConfig[] = [
-    { incluir: true,  label: 'Pacientes',    icon: '👤', reimportable: true  },
-    { incluir: true,  label: 'Movimientos',  icon: '💰', reimportable: false },
-    { incluir: true,  label: 'Citas',        icon: '📅', reimportable: false },
-    { incluir: true,  label: 'Tratamientos', icon: '🦷', reimportable: false },
-  ];
-
   readonly ESTADOS_MOVIMIENTO = ['PENDIENTE', 'PAGADO', 'CANCELADO'];
   readonly ESTADOS_CITA       = ['PROGRAMADA', 'CONFIRMADA', 'ATENDIDA', 'CANCELADA'];
 
