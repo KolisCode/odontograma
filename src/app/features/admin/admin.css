@@ -325,13 +325,118 @@
   border: 1px solid #b2dfc0;
 }
 
-/* ── Badge próximamente ───────────────────────────────────────────────── */
-.badge-soon {
-  font-size: 0.75rem;
+/* ── Tabla de usuarios ────────────────────────────────────────────────── */
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin-top: 4px;
+}
+
+.users-table th {
+  text-align: left;
+  padding: 8px 12px;
+  color: #5a7080;
   font-weight: 600;
-  padding: 3px 9px;
-  border-radius: 6px;
-  background: #eef1f5;
+  border-bottom: 2px solid #e4eaf0;
+  white-space: nowrap;
+}
+
+.users-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef3f7;
+  vertical-align: middle;
+}
+
+.users-table__row--self td {
+  background: #f8fbfe;
+}
+
+.user-fullname {
+  font-weight: 600;
+  color: #27445c;
+}
+
+.user-self-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #eef4fd;
+  color: #2f73d9;
+  border: 1px solid #c8ddf7;
+}
+
+.user-email {
+  color: #6b7b8c;
+}
+
+.role-select {
+  border: 1px solid #ccd6e0;
+  border-radius: 7px;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  color: #27445c;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.role-select:disabled {
+  opacity: 0.6;
+  cursor: default;
+  background: #f5f8fb;
+}
+
+.saving-indicator {
+  margin-left: 8px;
+  font-size: 0.8rem;
   color: #7a8895;
-  border: 1px solid #dde5ec;
+}
+
+/* ── Botón de estado activo/inactivo ──────────────────────────────────── */
+.btn-status {
+  border: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-status--active {
+  background: #e0f2e9;
+  color: #256b3a;
+}
+
+.btn-status--active:hover:not(:disabled) {
+  background: #c8e8d6;
+}
+
+.btn-status--inactive {
+  background: #fde8e8;
+  color: #b64040;
+}
+
+.btn-status--inactive:hover:not(:disabled) {
+  background: #f9d0d0;
+}
+
+.btn-status:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ── Backup ───────────────────────────────────────────────────────────── */
+.backup-actions {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.backup-actions .admin-card__note {
+  margin: 0;
 }

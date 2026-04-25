@@ -161,21 +161,88 @@
       </div>
     </div>
 
-    <!-- ── Próximamente ───────────────────────────────────────────────── -->
-    <div class="admin-card admin-card--muted">
+    <!-- ── Gestión de usuarios ──────────────────────────────────────────── -->
+    <div class="admin-card admin-card--wide">
       <div class="admin-card__header">
-        <h3>Gestión de usuarios</h3>
-        <span class="badge-soon">Próximamente</span>
+        <div>
+          <h3>Gestión de usuarios</h3>
+          <p>Asigna roles y activa o desactiva cuentas del consultorio.</p>
+        </div>
+        <button type="button" class="btn-refresh" (click)="loadUsers()" [disabled]="usersLoading">
+          {{ usersLoading ? 'Cargando...' : 'Actualizar' }}
+        </button>
       </div>
-      <p class="admin-card__desc">Crear, desactivar y asignar roles a los usuarios del consultorio.</p>
+
+      <div *ngIf="usersError" class="admin-alert admin-alert--error">{{ usersError }}</div>
+
+      <div *ngIf="usersLoading && !users.length" class="admin-card__desc">Cargando usuarios…</div>
+
+      <table *ngIf="!usersLoading || users.length" class="users-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Rol</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users" [class.users-table__row--self]="user.id === currentUserId">
+            <td>
+              <span class="user-fullname">{{ user.nombre }} {{ user.apellido }}</span>
+              <span *ngIf="user.id === currentUserId" class="user-self-badge">Tú</span>
+            </td>
+            <td class="user-email">{{ user.correo }}</td>
+            <td>
+              <select
+                class="role-select"
+                [value]="user.rol"
+                [disabled]="user.id === currentUserId || savingRoleId === user.id"
+                (change)="changeRole(user, $any($event.target).value)">
+                <option *ngFor="let r of ROLES" [value]="r">{{ ROLE_LABELS[r] }}</option>
+              </select>
+              <span *ngIf="savingRoleId === user.id" class="saving-indicator">Guardando…</span>
+            </td>
+            <td>
+              <button
+                type="button"
+                class="btn-status"
+                [class.btn-status--active]="user.activo"
+                [class.btn-status--inactive]="!user.activo"
+                [disabled]="user.id === currentUserId || savingStatusId === user.id"
+                (click)="toggleStatus(user)">
+                {{ savingStatusId === user.id ? '…' : (user.activo ? 'Activo' : 'Inactivo') }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="admin-card admin-card--muted">
+    <!-- ── Backup de base de datos ───────────────────────────────────────── -->
+    <div class="admin-card">
       <div class="admin-card__header">
         <h3>Backup de base de datos</h3>
-        <span class="badge-soon">Próximamente</span>
       </div>
-      <p class="admin-card__desc">Copia de seguridad del archivo SQLite con un solo clic.</p>
+      <p class="admin-card__desc">
+        Descarga una copia del archivo SQLite. Guárdala en un lugar seguro
+        (USB, carpeta externa) para poder restaurar el sistema si es necesario.
+      </p>
+
+      <div *ngIf="backupError" class="admin-alert admin-alert--error">{{ backupError }}</div>
+
+      <div class="backup-actions">
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="backupLoading"
+          (click)="descargarBackup()">
+          {{ backupLoading ? 'Descargando…' : 'Descargar backup (.db)' }}
+        </button>
+        <p *ngIf="lastBackupDate" class="admin-card__note">
+          Último backup: {{ lastBackupDate }}
+        </p>
+      </div>
     </div>
 
   </div>

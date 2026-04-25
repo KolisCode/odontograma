@@ -28,6 +28,10 @@ export class Navbar implements OnInit {
     private cdr: ChangeDetectorRef,
   ) {}
 
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
   ngOnInit(): void {
     const user = this.authService.getUser();
 

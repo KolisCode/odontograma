@@ -3,15 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Navbar } from '../complements/navbar/navbar';
 import { Footer } from '../complements/footer/footer';
-import { AdminService, ExportConfig, HealthStatus } from './admin.service';
+import { AdminService, ExportConfig, HealthStatus, UserRow } from './admin.service';
 import { ExportService } from '../../services/export.service';
-
-interface EntityConfig {
-  incluir: boolean;
-  label: string;
-  icon: string;
-  reimportable: boolean;
-}
+import { AuthService } from '../authentication/service/auth-service/auth.service';
 
 @Component({
   selector: 'app-admin',
@@ -46,14 +40,39 @@ export class Admin implements OnInit {
   exportSuccess  = '';
   lastExportDate = localStorage.getItem('biodont_last_export') ?? null;
 
+  // ── Gestión de usuarios ───────────────────────────────────────────────────
+  users: UserRow[] = [];
+  usersLoading  = false;
+  usersError    = '';
+  savingRoleId:   number | null = null;
+  savingStatusId: number | null = null;
+  /** id del usuario actualmente autenticado — no puede modificarse a sí mismo */
+  currentUserId: number | null = null;
+
+  readonly ROLES = ['ADMIN', 'ODONTOLOGO', 'AUXILIAR', 'RECEPCION'] as const;
+  readonly ROLE_LABELS: Record<string, string> = {
+    ADMIN:      'Administrador',
+    ODONTOLOGO: 'Odontólogo',
+    AUXILIAR:   'Auxiliar',
+    RECEPCION:  'Recepción',
+  };
+
+  // ── Backup ───────────────────────────────────────────────────────────────
+  backupLoading = false;
+  backupError   = '';
+  lastBackupDate = localStorage.getItem('biodont_last_backup') ?? null;
+
   constructor(
     private adminService: AdminService,
     private exportService: ExportService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
+    this.currentUserId = this.authService.getUser()?.id ?? null;
     this.checkHealth();
+    this.loadUsers();
   }
 
   // ── Sistema ────────────────────────────────────────────────────────────────
@@ -130,6 +149,89 @@ export class Admin implements OnInit {
       error: (err: any) => {
         this.exportError   = err?.error?.message ?? 'No se pudo generar el archivo';
         this.exportLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  // ── Gestión de usuarios ───────────────────────────────────────────────────
+
+  loadUsers(): void {
+    this.usersLoading = true;
+    this.usersError   = '';
+    this.adminService.listUsers().subscribe({
+      next: (res) => {
+        this.users = res.data;
+        this.usersLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.usersError   = err?.error?.message ?? 'No se pudo cargar la lista de usuarios';
+        this.usersLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  changeRole(user: UserRow, nuevoRol: string): void {
+    if (user.rol === nuevoRol || this.savingRoleId === user.id) return;
+    this.savingRoleId = user.id;
+    this.adminService.updateUserRole(user.id, nuevoRol).subscribe({
+      next: (res) => {
+        const idx = this.users.findIndex(u => u.id === user.id);
+        if (idx !== -1) this.users[idx].rol = res.data.rol;
+        this.savingRoleId = null;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.savingRoleId = null;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  toggleStatus(user: UserRow): void {
+    if (this.savingStatusId === user.id) return;
+    this.savingStatusId = user.id;
+    this.adminService.updateUserStatus(user.id, !user.activo).subscribe({
+      next: (res) => {
+        const idx = this.users.findIndex(u => u.id === user.id);
+        if (idx !== -1) this.users[idx].activo = res.data.activo;
+        this.savingStatusId = null;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.savingStatusId = null;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  // ── Backup ───────────────────────────────────────────────────────────────
+
+  descargarBackup(): void {
+    if (this.backupLoading) return;
+    this.backupLoading = true;
+    this.backupError   = '';
+    this.cdr.detectChanges();
+
+    this.adminService.downloadBackup().subscribe({
+      next: (blob) => {
+        const fecha = new Date().toISOString().substring(0, 10);
+        const url = URL.createObjectURL(blob);
+        const a   = document.createElement('a');
+        a.href     = url;
+        a.download = `biodont_backup_${fecha}.db`;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.lastBackupDate = new Date().toLocaleString('es-CO');
+        localStorage.setItem('biodont_last_backup', this.lastBackupDate);
+        this.backupLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.backupError   = err?.error?.message ?? 'No se pudo descargar el backup';
+        this.backupLoading = false;
         this.cdr.detectChanges();
       },
     });
