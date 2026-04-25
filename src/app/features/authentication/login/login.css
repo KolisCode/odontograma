@@ -57,11 +57,23 @@
   justify-content: center;
 }
 
+.btn-show-password {
+  border-left: none;
+  border-radius: 0 12px 12px 0;
+  cursor: pointer;
+  min-width: 42px;
+}
+
+.btn-show-password:hover {
+  background: #f0f4f8;
+  color: #27445c;
+}
+
 .form-control {
   height: 46px;
   border: 1px solid #d0dbe4;
   background: #fbfdff;
-  border-radius: 0 12px 12px 0;
+  border-radius: 0;
   padding: 0 14px;
   font-size: 0.95rem;
   color: #183247;

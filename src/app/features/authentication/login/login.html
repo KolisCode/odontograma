@@ -46,13 +46,20 @@
                 <i class="bi bi-lock"></i>
               </span>
               <input
-                type="password"
+                [type]="showPassword ? 'text' : 'password'"
                 class="form-control"
                 id="inputPassword"
                 placeholder="Ingresa tu contraseña"
                 autocomplete="current-password"
                 formControlName="password"
               >
+              <button
+                type="button"
+                class="input-group-text btn-show-password"
+                (click)="showPassword = !showPassword"
+                [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+              </button>
             </div>
 
             <small
