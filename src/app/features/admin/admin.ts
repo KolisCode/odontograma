@@ -119,7 +119,9 @@ export class Admin implements OnInit {
       next: (res) => {
         this.exportService.descargar(res.data);
         const total = res.data.hojas.reduce((s, h) => s + h.total, 0);
-        this.exportSuccess = `Archivo generado con ${total} registro(s) en ${res.data.hojas.length} hoja(s).`;
+        this.exportSuccess = total > 0
+          ? `Archivo generado con ${total} registro(s) en ${res.data.hojas.length} hoja(s).`
+          : `Archivo generado — ningún registro coincide con los filtros aplicados.`;
         this.lastExportDate = new Date().toLocaleString('es-CO');
         localStorage.setItem('biodont_last_export', this.lastExportDate);
         this.exportLoading = false;

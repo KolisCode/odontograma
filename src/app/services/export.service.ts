@@ -52,8 +52,9 @@ export class ExportService {
     // ── Una hoja por entidad ─────────────────────────────────────────────────
     for (const hoja of data.hojas) {
       if (!hoja.datos.length) {
-        // Hoja vacía con encabezados de todas formas
-        const ws = XLSX.utils.json_to_sheet([]);
+        const meta = this.SHEET_META[hoja.nombre];
+        const headers = meta ? meta.columnas.split(', ') : [];
+        const ws = XLSX.utils.aoa_to_sheet(headers.length ? [headers] : []);
         XLSX.utils.book_append_sheet(wb, ws, hoja.nombre);
         continue;
       }
