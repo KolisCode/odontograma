@@ -96,7 +96,7 @@ export class ExportService {
     rows.push(['paciente_documento', 'Número de documento del paciente. Usado para re-importar y relacionar registros.']);
     rows.push(['', '']);
     rows.push(['INSTRUCCIONES', '']);
-    rows.push(['Re-importar pacientes', 'Ir a Pacientes → Importar → seleccionar la hoja "Pacientes" exportada como CSV o XLSX']);
+    rows.push(['Re-importar pacientes', 'Ir a Pacientes → Importar → seleccionar este mismo archivo XLSX (se leerá la hoja "Pacientes" automáticamente)']);
     rows.push(['Otras entidades', 'Importadores no disponibles aún. Los datos son referencia histórica.']);
     rows.push(['', '']);
     rows.push(['NOTA', 'El campo "activo" acepta SI/NO al re-importar pacientes.']);

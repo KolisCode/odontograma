@@ -451,6 +451,7 @@ export class List implements OnInit {
       nombre: 'Nombre *', apellido: 'Apellido *', documento: 'Documento *',
       telefono: 'Teléfono', correo: 'Correo', fechaNacimiento: 'Fecha nac.',
       direccion: 'Dirección', eps: 'EPS', alergias: 'Alergias', observaciones: 'Observaciones',
+      activo: 'Activo (SI/NO)',
     };
     return labels[field] ?? field;
   }
