@@ -184,6 +184,7 @@
             <th>Correo</th>
             <th>Rol</th>
             <th>Estado</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -212,6 +213,11 @@
                 [disabled]="user.id === currentUserId || savingStatusId === user.id"
                 (click)="toggleStatus(user)">
                 {{ savingStatusId === user.id ? '…' : (user.activo ? 'Activo' : 'Inactivo') }}
+              </button>
+            </td>
+            <td>
+              <button type="button" class="btn-pwd" (click)="abrirCambioPassword(user)">
+                Contraseña
               </button>
             </td>
           </tr>
@@ -247,5 +253,57 @@
 
   </div>
 </section>
+
+<!-- ── Modal cambio de contraseña ───────────────────────────────────────── -->
+<div class="pwd-modal-backdrop" *ngIf="pwdModalUser" (click)="cerrarCambioPassword()"></div>
+<div class="pwd-modal" *ngIf="pwdModalUser" role="dialog">
+  <div class="pwd-modal__header">
+    <h3>Cambiar contraseña</h3>
+    <button type="button" class="pwd-modal__close" (click)="cerrarCambioPassword()">✕</button>
+  </div>
+  <p class="pwd-modal__user">{{ pwdModalUser!.nombre }} {{ pwdModalUser!.apellido }} — {{ pwdModalUser!.correo }}</p>
+
+  <div class="pwd-modal__field">
+    <label>Nueva contraseña</label>
+    <div class="pwd-input-wrap">
+      <input
+        [type]="pwdShow ? 'text' : 'password'"
+        [(ngModel)]="pwdNueva"
+        placeholder="Mínimo 8 caracteres"
+        class="pwd-input"
+        autocomplete="new-password" />
+      <button type="button" class="pwd-eye" (click)="pwdShow = !pwdShow">
+        {{ pwdShow ? '🙈' : '👁' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="pwd-modal__field">
+    <label>Confirmar contraseña</label>
+    <input
+      [type]="pwdShow ? 'text' : 'password'"
+      [(ngModel)]="pwdConfirm"
+      placeholder="Repite la contraseña"
+      class="pwd-input"
+      autocomplete="new-password" />
+    <small *ngIf="pwdConfirm && pwdNueva !== pwdConfirm" class="pwd-mismatch">
+      Las contraseñas no coinciden.
+    </small>
+  </div>
+
+  <div *ngIf="pwdError"   class="admin-alert admin-alert--error">{{ pwdError }}</div>
+  <div *ngIf="pwdSuccess" class="admin-alert admin-alert--success">{{ pwdSuccess }}</div>
+
+  <div class="pwd-modal__actions">
+    <button type="button" class="btn btn-secondary btn-sm" (click)="cerrarCambioPassword()">Cancelar</button>
+    <button
+      type="button"
+      class="btn btn-primary btn-sm"
+      [disabled]="!pwdValida || pwdLoading"
+      (click)="guardarPassword()">
+      {{ pwdLoading ? 'Guardando…' : 'Guardar contraseña' }}
+    </button>
+  </div>
+</div>
 
 <app-footer></app-footer>

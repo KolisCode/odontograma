@@ -428,6 +428,143 @@
   cursor: default;
 }
 
+/* ── Botón contraseña ────────────────────────────────────────────────── */
+.btn-pwd {
+  border: 1px solid #d0dbe5;
+  background: #f5f8fb;
+  color: #27445c;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-pwd:hover {
+  background: #e8eef4;
+}
+
+/* ── Modal cambio de contraseña ──────────────────────────────────────── */
+.pwd-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 38, 63, 0.35);
+  z-index: 200;
+}
+
+.pwd-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 201;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #dde5ec;
+  box-shadow: 0 8px 32px rgba(18, 38, 63, 0.14);
+  padding: 24px 28px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.pwd-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.pwd-modal__header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #183247;
+}
+
+.pwd-modal__close {
+  border: none;
+  background: none;
+  font-size: 1rem;
+  color: #7a8895;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.pwd-modal__close:hover {
+  background: #f0f4f8;
+  color: #27445c;
+}
+
+.pwd-modal__user {
+  font-size: 0.84rem;
+  color: #6b7b8c;
+  margin: 0 0 18px;
+}
+
+.pwd-modal__field {
+  margin-bottom: 14px;
+}
+
+.pwd-modal__field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #27445c;
+  margin-bottom: 6px;
+}
+
+.pwd-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.pwd-input {
+  flex: 1;
+  border: 1px solid #ccd6e0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.88rem;
+  color: #183247;
+  background: #ffffff;
+  width: 100%;
+}
+
+.pwd-input-wrap .pwd-input {
+  border-radius: 8px 0 0 8px;
+}
+
+.pwd-eye {
+  border: 1px solid #ccd6e0;
+  border-left: none;
+  background: #f5f8fb;
+  padding: 8px 10px;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.pwd-eye:hover {
+  background: #e8eef4;
+}
+
+.pwd-mismatch {
+  display: block;
+  color: #c94a4a;
+  font-size: 0.78rem;
+  margin-top: 4px;
+}
+
+.pwd-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
 /* ── Backup ───────────────────────────────────────────────────────────── */
 .backup-actions {
   margin-top: 14px;

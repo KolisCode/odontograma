@@ -50,6 +50,15 @@ export class Admin implements OnInit {
     RECEPCION:  'Recepción',
   };
 
+  // ── Cambio de contraseña ──────────────────────────────────────────────────
+  pwdModalUser: UserRow | null = null;
+  pwdNueva     = '';
+  pwdConfirm   = '';
+  pwdLoading   = false;
+  pwdError     = '';
+  pwdSuccess   = '';
+  pwdShow      = false;
+
   // ── Backup ───────────────────────────────────────────────────────────────
   backupLoading = false;
   backupError   = '';
@@ -195,6 +204,49 @@ export class Admin implements OnInit {
       },
       error: () => {
         this.savingStatusId = null;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  // ── Cambio de contraseña ──────────────────────────────────────────────────
+
+  abrirCambioPassword(user: UserRow): void {
+    this.pwdModalUser = user;
+    this.pwdNueva     = '';
+    this.pwdConfirm   = '';
+    this.pwdError     = '';
+    this.pwdSuccess   = '';
+    this.pwdShow      = false;
+    this.pwdLoading   = false;
+  }
+
+  cerrarCambioPassword(): void {
+    this.pwdModalUser = null;
+  }
+
+  get pwdValida(): boolean {
+    return this.pwdNueva.length >= 8 && this.pwdNueva === this.pwdConfirm;
+  }
+
+  guardarPassword(): void {
+    if (!this.pwdValida || !this.pwdModalUser || this.pwdLoading) return;
+    this.pwdLoading = true;
+    this.pwdError   = '';
+    this.pwdSuccess = '';
+    this.cdr.detectChanges();
+
+    this.adminService.changeUserPassword(this.pwdModalUser.id, this.pwdNueva).subscribe({
+      next: (res) => {
+        this.pwdSuccess = res.message;
+        this.pwdNueva   = '';
+        this.pwdConfirm = '';
+        this.pwdLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.pwdError   = err?.error?.message ?? 'No se pudo actualizar la contraseña';
+        this.pwdLoading = false;
         this.cdr.detectChanges();
       },
     });

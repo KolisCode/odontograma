@@ -57,6 +57,10 @@ export class AdminService {
     return this.http.patch<{ ok: boolean; data: UserRow }>(`${this.authApi}/users/${id}/status`, { activo });
   }
 
+  changeUserPassword(id: number, password: string): Observable<{ ok: boolean; message: string }> {
+    return this.http.patch<{ ok: boolean; message: string }>(`${this.authApi}/users/${id}/password`, { password });
+  }
+
   // ── Backup ───────────────────────────────────────────────────────────────
   downloadBackup(): Observable<Blob> {
     return this.http.get(`${this.adminApi}/backup`, { responseType: 'blob' });
