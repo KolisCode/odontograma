@@ -102,6 +102,7 @@ export class List implements OnInit {
     eps:             ['eps', 'aseguradora', 'seguro'],
     alergias:        ['alergias', 'allergies', 'alergia'],
     observaciones:   ['observaciones', 'observations', 'notas', 'notes', 'obs'],
+    activo:          ['activo', 'active', 'estado_paciente'],
   };
 
   constructor(
@@ -429,7 +430,7 @@ export class List implements OnInit {
     this.cdr.detectChanges();
 
     try {
-      const parsed = await this.importParser.parse(file);
+      const parsed = await this.importParser.parse(file, 'Pacientes');
       this.importColumnMapping = this.importParser.mapHeaders(parsed.headers, this.PATIENT_ALIASES);
       this.importPreviewHeaders = parsed.headers;
       this._importAllRows = parsed.rows;

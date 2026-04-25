@@ -24,8 +24,12 @@ export class ImportParserService {
   /**
    * Parsea un File y devuelve headers + filas como objetos planos.
    * Los encabezados se normalizan: lowercase, sin espacios extremos.
+   * @param preferredSheet Nombre de la hoja que se intentará leer primero (útil
+   *   cuando el XLSX tiene varias hojas, p. ej. el exportado por Biodont que
+   *   incluye "Leyenda" como primera hoja). Búsqueda case-insensitive.
+   *   Si no se encuentra la hoja preferida, se usa la primera del libro.
    */
-  parse(file: File): Promise<ParseResult> {
+  parse(file: File, preferredSheet?: string): Promise<ParseResult> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
@@ -33,7 +37,15 @@ export class ImportParserService {
         try {
           const data = e.target?.result;
           const wb = XLSX.read(data, { type: 'binary', cellDates: true });
-          const ws = wb.Sheets[wb.SheetNames[0]];
+
+          let sheetName = wb.SheetNames[0];
+          if (preferredSheet) {
+            const match = wb.SheetNames.find(
+              (n) => n.trim().toLowerCase() === preferredSheet.trim().toLowerCase(),
+            );
+            if (match) sheetName = match;
+          }
+          const ws = wb.Sheets[sheetName];
           const raw: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
 
           if (!raw || raw.length < 2) {
