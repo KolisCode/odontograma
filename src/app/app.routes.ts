@@ -8,6 +8,7 @@ import { List } from './features/user/list/list';
 import { Appointment } from './features/user/appointment/appointment';
 import { HistoriaClinica } from './features/historia-clinica/historia-clinica';
 import { ResumenHistoria } from './features/historia-clinica/resumen/resumen';
+import { Admin } from './features/admin/admin';
 import { authGuard } from './features/authentication/service/auth-guard/auth-guard';
 import { guestGuard } from './features/authentication/service/auth-guard/guest-guard';
 
@@ -19,6 +20,7 @@ export const routes: Routes = [
   { path: 'finance', component: Finance, canActivate: [authGuard] },
   { path: 'patients', component: List, canActivate: [authGuard] },
   { path: 'appointments', component: Appointment, canActivate: [authGuard] },
+  { path: 'admin', component: Admin, canActivate: [authGuard] },
   { path: 'odontogram/:id', component: OdontogramComponent, canActivate: [authGuard] },
   { path: 'history/:id', component: HistoriaClinica, canActivate: [authGuard] },
   { path: 'resumen/:id', component: ResumenHistoria, canActivate: [authGuard] },

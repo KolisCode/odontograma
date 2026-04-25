@@ -1,0 +1,337 @@
+.admin-page {
+  padding: 24px;
+  background: #eef3f7;
+  min-height: calc(100vh - 134px);
+}
+
+/* ── Header ────────────────────────────────────────────────────────────── */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.admin-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #183247;
+  font-weight: 600;
+}
+
+.admin-header p {
+  margin: 6px 0 0;
+  color: #6b7b8c;
+}
+
+/* ── Grid de tarjetas ──────────────────────────────────────────────────── */
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+/* ── Tarjeta base ──────────────────────────────────────────────────────── */
+.admin-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 22px;
+  border: 1px solid #dde5ec;
+  box-shadow: 0 2px 8px rgba(18, 38, 63, 0.06);
+}
+
+.admin-card--wide {
+  grid-column: 1 / -1;
+}
+
+.admin-card--muted {
+  background: #f5f8fb;
+  border-color: #e4eaf0;
+}
+
+.admin-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.admin-card__header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #183247;
+}
+
+.admin-card__header p {
+  margin: 4px 0 0;
+  font-size: 0.88rem;
+  color: #6b7b8c;
+}
+
+.admin-card__note {
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+  color: #7a8895;
+}
+
+.admin-card__desc {
+  margin: 0;
+  color: #7a8895;
+  font-size: 0.9rem;
+}
+
+/* ── Estado del sistema ────────────────────────────────────────────────── */
+.health-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.health-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #dde5ec;
+  font-size: 0.9rem;
+}
+
+.health-item strong {
+  display: block;
+  color: #27445c;
+  font-weight: 600;
+}
+
+.health-item span:last-child {
+  font-size: 0.82rem;
+  color: #6b7b8c;
+}
+
+.health-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.health--ok .health-dot      { background: #2ebd6b; }
+.health--error .health-dot   { background: #d94f4f; }
+.health--checking .health-dot { background: #a0aab4; }
+
+.health--ok     { background: #f0fbf4; border-color: #b8e8ca; }
+.health--error  { background: #fef3f3; border-color: #f5c6c6; }
+.health--checking { background: #f5f8fb; border-color: #dde5ec; }
+
+/* ── Botón refresh ────────────────────────────────────────────────────── */
+.btn-refresh {
+  border: 1px solid #d0dbe5;
+  background: #f5f8fb;
+  color: #27445c;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  background: #e8eef4;
+}
+
+.btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ── Botones generales ────────────────────────────────────────────────── */
+.btn {
+  border: none;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #2f73d9;
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #255fc0;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn-secondary {
+  background: #f0f4f8;
+  color: #27445c;
+  border: 1px solid #d0dbe5;
+}
+
+.btn-secondary:hover {
+  background: #e4eaf0;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.82rem;
+}
+
+/* ── Entidades de exportación ─────────────────────────────────────────── */
+.export-entity {
+  border: 1px solid #dde5ec;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.export-entity--active {
+  border-color: #2f73d9;
+}
+
+.export-entity__header {
+  padding: 12px 14px;
+  background: #f8fbfe;
+}
+
+.export-entity--active .export-entity__header {
+  background: #eef4fd;
+}
+
+.export-entity__toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #27445c;
+  font-size: 0.92rem;
+}
+
+.export-entity__toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #2f73d9;
+}
+
+.export-entity__badge {
+  margin-left: auto;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #e8eef4;
+  color: #5a7080;
+}
+
+.export-entity__badge--importable {
+  background: #e0f2e9;
+  color: #256b3a;
+}
+
+.export-entity__filters {
+  padding: 12px 14px;
+  border-top: 1px solid #dde5ec;
+  background: #ffffff;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+/* ── Fila de filtro ───────────────────────────────────────────────────── */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #27445c;
+}
+
+.filter-row label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.filter-row input[type="date"],
+.filter-row select {
+  border: 1px solid #ccd6e0;
+  border-radius: 7px;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  color: #27445c;
+  background: #ffffff;
+}
+
+.filter-chip-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #27445c;
+  cursor: pointer;
+}
+
+.filter-chip-label input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: #2f73d9;
+}
+
+/* ── Acciones de exportación ──────────────────────────────────────────── */
+.export-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.export-actions__hint {
+  font-size: 0.85rem;
+  color: #7a8895;
+}
+
+/* ── Alertas ─────────────────────────────────────────────────────────── */
+.admin-alert {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.admin-alert--error {
+  background: #fde8e8;
+  color: #b64040;
+  border: 1px solid #f3caca;
+}
+
+.admin-alert--success {
+  background: #e6f7ed;
+  color: #256b3a;
+  border: 1px solid #b2dfc0;
+}
+
+/* ── Badge próximamente ───────────────────────────────────────────────── */
+.badge-soon {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: #eef1f5;
+  color: #7a8895;
+  border: 1px solid #dde5ec;
+}

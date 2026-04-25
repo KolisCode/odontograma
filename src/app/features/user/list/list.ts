@@ -107,7 +107,7 @@ export class List implements OnInit {
   constructor(
     private fb: FormBuilder,
     private patientsService: PatientsService,
-    private importParser: ImportParserService,
+    readonly importParser: ImportParserService,
     private cdr: ChangeDetectorRef,
     private router: Router,
   ) {

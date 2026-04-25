@@ -1,0 +1,184 @@
+<app-navbar></app-navbar>
+
+<section class="admin-page">
+  <div class="admin-header">
+    <div>
+      <h2>Administración</h2>
+      <p>Herramientas de gestión de datos del sistema</p>
+    </div>
+  </div>
+
+  <div class="admin-grid">
+
+    <!-- ── Estado del sistema ─────────────────────────────────────────── -->
+    <div class="admin-card">
+      <div class="admin-card__header">
+        <h3>Estado del sistema</h3>
+        <button type="button" class="btn-refresh" (click)="checkHealth()" [disabled]="healthLoading">
+          {{ healthLoading ? 'Verificando...' : 'Actualizar' }}
+        </button>
+      </div>
+
+      <div class="health-grid">
+        <div class="health-item" [ngClass]="healthClass">
+          <span class="health-dot"></span>
+          <div>
+            <strong>Backend</strong>
+            <span>{{ healthLabel }}</span>
+          </div>
+        </div>
+        <div class="health-item" [ngClass]="healthClass">
+          <span class="health-dot"></span>
+          <div>
+            <strong>Base de datos</strong>
+            <span>{{ healthLoading ? 'Verificando...' : (health?.db === 'connected' ? 'Conectada' : 'Sin conexión') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <p *ngIf="lastExportDate" class="admin-card__note">
+        Última exportación: {{ lastExportDate }}
+      </p>
+    </div>
+
+    <!-- ── Exportar datos ─────────────────────────────────────────────── -->
+    <div class="admin-card admin-card--wide">
+      <div class="admin-card__header">
+        <div>
+          <h3>Exportar datos</h3>
+          <p>Genera un archivo XLSX con la información seleccionada. La hoja "Pacientes" puede re-importarse desde Pacientes → Importar.</p>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" (click)="seleccionarTodo()">
+          Seleccionar todo
+        </button>
+      </div>
+
+      <!-- Entidad: Pacientes -->
+      <div class="export-entity" [class.export-entity--active]="pacientes.incluir">
+        <div class="export-entity__header">
+          <label class="export-entity__toggle">
+            <input type="checkbox" [(ngModel)]="pacientes.incluir" />
+            <span>Pacientes</span>
+            <span class="export-entity__badge export-entity__badge--importable">Re-importable</span>
+          </label>
+        </div>
+        <div class="export-entity__filters" *ngIf="pacientes.incluir">
+          <label class="filter-chip-label">
+            <input type="checkbox" [(ngModel)]="pacientes.soloActivos" />
+            Solo pacientes activos
+          </label>
+        </div>
+      </div>
+
+      <!-- Entidad: Movimientos -->
+      <div class="export-entity" [class.export-entity--active]="movimientos.incluir">
+        <div class="export-entity__header">
+          <label class="export-entity__toggle">
+            <input type="checkbox" [(ngModel)]="movimientos.incluir" />
+            <span>Movimientos financieros</span>
+            <span class="export-entity__badge">Referencia</span>
+          </label>
+        </div>
+        <div class="export-entity__filters" *ngIf="movimientos.incluir">
+          <div class="filter-row">
+            <label>Desde</label>
+            <input type="date" [(ngModel)]="movimientos.fechaDesde" />
+          </div>
+          <div class="filter-row">
+            <label>Hasta</label>
+            <input type="date" [(ngModel)]="movimientos.fechaHasta" />
+          </div>
+          <div class="filter-row">
+            <label>Estado</label>
+            <select [(ngModel)]="movimientos.estado">
+              <option value="">Todos</option>
+              <option *ngFor="let e of ESTADOS_MOVIMIENTO" [value]="e">{{ e }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entidad: Citas -->
+      <div class="export-entity" [class.export-entity--active]="citas.incluir">
+        <div class="export-entity__header">
+          <label class="export-entity__toggle">
+            <input type="checkbox" [(ngModel)]="citas.incluir" />
+            <span>Citas</span>
+            <span class="export-entity__badge">Referencia</span>
+          </label>
+        </div>
+        <div class="export-entity__filters" *ngIf="citas.incluir">
+          <div class="filter-row">
+            <label>Desde</label>
+            <input type="date" [(ngModel)]="citas.fechaDesde" />
+          </div>
+          <div class="filter-row">
+            <label>Hasta</label>
+            <input type="date" [(ngModel)]="citas.fechaHasta" />
+          </div>
+          <div class="filter-row">
+            <label>Estado</label>
+            <select [(ngModel)]="citas.estado">
+              <option value="">Todos</option>
+              <option *ngFor="let e of ESTADOS_CITA" [value]="e">{{ e }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entidad: Tratamientos -->
+      <div class="export-entity" [class.export-entity--active]="tratamientos.incluir">
+        <div class="export-entity__header">
+          <label class="export-entity__toggle">
+            <input type="checkbox" [(ngModel)]="tratamientos.incluir" />
+            <span>Tratamientos</span>
+            <span class="export-entity__badge">Referencia</span>
+          </label>
+        </div>
+        <div class="export-entity__filters" *ngIf="tratamientos.incluir">
+          <label class="filter-chip-label">
+            <input type="checkbox" [(ngModel)]="tratamientos.soloActivos" />
+            Solo tratamientos activos
+          </label>
+        </div>
+      </div>
+
+      <!-- Mensajes y acción -->
+      <div *ngIf="exportError" class="admin-alert admin-alert--error">{{ exportError }}</div>
+      <div *ngIf="exportSuccess" class="admin-alert admin-alert--success">{{ exportSuccess }}</div>
+
+      <div class="export-actions">
+        <span *ngIf="ningunaSeleccionada" class="export-actions__hint">
+          Selecciona al menos una entidad para exportar.
+        </span>
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="ningunaSeleccionada || exportLoading"
+          (click)="exportar()">
+          {{ exportLoading ? 'Generando archivo...' : 'Exportar a XLSX' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Próximamente ───────────────────────────────────────────────── -->
+    <div class="admin-card admin-card--muted">
+      <div class="admin-card__header">
+        <h3>Gestión de usuarios</h3>
+        <span class="badge-soon">Próximamente</span>
+      </div>
+      <p class="admin-card__desc">Crear, desactivar y asignar roles a los usuarios del consultorio.</p>
+    </div>
+
+    <div class="admin-card admin-card--muted">
+      <div class="admin-card__header">
+        <h3>Backup de base de datos</h3>
+        <span class="badge-soon">Próximamente</span>
+      </div>
+      <p class="admin-card__desc">Copia de seguridad del archivo SQLite con un solo clic.</p>
+    </div>
+
+  </div>
+</section>
+
+<app-footer></app-footer>
