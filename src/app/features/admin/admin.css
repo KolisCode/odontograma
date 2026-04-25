@@ -577,3 +577,50 @@
 .backup-actions .admin-card__note {
   margin: 0;
 }
+
+/* ── Alerta de advertencia ────────────────────────────────────────────── */
+.admin-alert--warning {
+  background: #fff8e6;
+  color: #8a5e00;
+  border: 1px solid #f0d580;
+  margin-top: 10px;
+}
+
+/* ── Restaurar backup ─────────────────────────────────────────────────── */
+.restore-file-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.restore-file-input {
+  display: none;
+}
+
+.restore-file-label {
+  cursor: pointer;
+}
+
+.restore-filename {
+  font-size: 0.85rem;
+  color: #27445c;
+  font-weight: 600;
+}
+
+/* ── Botón de peligro ─────────────────────────────────────────────────── */
+.btn-danger {
+  background: #d94f4f;
+  color: #ffffff;
+  border: none;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #c03e3e;
+}
+
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

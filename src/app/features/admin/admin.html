@@ -251,6 +251,49 @@
       </div>
     </div>
 
+    <!-- ── Restaurar backup ──────────────────────────────────────────────── -->
+    <div class="admin-card">
+      <div class="admin-card__header">
+        <h3>Restaurar backup</h3>
+      </div>
+      <p class="admin-card__desc">
+        Reemplaza la base de datos con un archivo de backup anterior.
+      </p>
+
+      <div class="admin-alert admin-alert--warning">
+        <strong>Advertencia:</strong> Esta operación es irreversible. Todos los datos actuales
+        serán reemplazados por los del archivo seleccionado. Si tu usuario no existe en el
+        backup, la sesión se cerrará automáticamente.
+      </div>
+
+      <div class="restore-file-row">
+        <label class="restore-file-label">
+          <input
+            type="file"
+            accept=".db"
+            class="restore-file-input"
+            (change)="onRestoreFileSelected($event)" />
+          <span class="btn btn-secondary btn-sm">Seleccionar archivo .db</span>
+        </label>
+        <span *ngIf="restoreFile" class="restore-filename">{{ restoreFile.name }}</span>
+      </div>
+
+      <div *ngIf="restoreError"   class="admin-alert admin-alert--error">{{ restoreError }}</div>
+      <div *ngIf="restoreSuccess" class="admin-alert admin-alert--success">
+        {{ restoreSuccess }} — <strong>Recarga la página para ver los datos actualizados.</strong>
+      </div>
+
+      <div class="backup-actions" *ngIf="restoreFile && !restoreSuccess">
+        <button
+          type="button"
+          class="btn btn-danger btn-sm"
+          [disabled]="restoreLoading"
+          (click)="confirmarRestore()">
+          {{ restoreLoading ? 'Restaurando…' : 'Restaurar base de datos' }}
+        </button>
+      </div>
+    </div>
+
   </div>
 </section>
 

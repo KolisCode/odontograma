@@ -59,10 +59,15 @@ export class Admin implements OnInit {
   pwdSuccess   = '';
   pwdShow      = false;
 
-  // ── Backup ───────────────────────────────────────────────────────────────
-  backupLoading = false;
-  backupError   = '';
+  // ── Backup / Restore ─────────────────────────────────────────────────────
+  backupLoading  = false;
+  backupError    = '';
   lastBackupDate = localStorage.getItem('biodont_last_backup') ?? null;
+
+  restoreFile:    File | null = null;
+  restoreLoading  = false;
+  restoreError    = '';
+  restoreSuccess  = '';
 
   constructor(
     private adminService: AdminService,
@@ -252,7 +257,7 @@ export class Admin implements OnInit {
     });
   }
 
-  // ── Backup ───────────────────────────────────────────────────────────────
+  // ── Backup / Restore ─────────────────────────────────────────────────────
 
   descargarBackup(): void {
     if (this.backupLoading) return;
@@ -277,6 +282,36 @@ export class Admin implements OnInit {
       error: (err: any) => {
         this.backupError   = err?.error?.message ?? 'No se pudo descargar el backup';
         this.backupLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  onRestoreFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0] ?? null;
+    this.restoreFile   = file;
+    this.restoreError  = '';
+    this.restoreSuccess = '';
+    this.cdr.detectChanges();
+  }
+
+  confirmarRestore(): void {
+    if (!this.restoreFile || this.restoreLoading) return;
+    this.restoreLoading = true;
+    this.restoreError   = '';
+    this.restoreSuccess = '';
+    this.cdr.detectChanges();
+
+    this.adminService.restoreBackup(this.restoreFile).subscribe({
+      next: (res) => {
+        this.restoreSuccess = res.message;
+        this.restoreFile    = null;
+        this.restoreLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.restoreError   = err?.error?.message ?? 'No se pudo restaurar la base de datos';
+        this.restoreLoading = false;
         this.cdr.detectChanges();
       },
     });

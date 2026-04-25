@@ -61,8 +61,14 @@ export class AdminService {
     return this.http.patch<{ ok: boolean; message: string }>(`${this.authApi}/users/${id}/password`, { password });
   }
 
-  // ── Backup ───────────────────────────────────────────────────────────────
+  // ── Backup / Restore ─────────────────────────────────────────────────────
   downloadBackup(): Observable<Blob> {
     return this.http.get(`${this.adminApi}/backup`, { responseType: 'blob' });
+  }
+
+  restoreBackup(file: File): Observable<{ ok: boolean; message: string }> {
+    const form = new FormData();
+    form.append('backup', file);
+    return this.http.post<{ ok: boolean; message: string }>(`${this.adminApi}/restore`, form);
   }
 }
