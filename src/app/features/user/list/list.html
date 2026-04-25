@@ -7,7 +7,7 @@
     </div>
 
     <div class="patients-header__actions">
-      <button class="btn btn-secondary" type="button">Importar</button>
+      <button class="btn btn-secondary" type="button" (click)="openImportModal()">Importar</button>
       <button class="btn btn-primary" type="button" (click)="openForm()">Nuevo paciente</button>
     </div>
   </div>
@@ -312,5 +312,127 @@
     </div>
   </section>
 </section>
+
+<!-- Modal: Importar pacientes -->
+<div class="import-modal-backdrop" *ngIf="importModalVisible" (click)="closeImportModal()">
+  <div class="import-modal" (click)="$event.stopPropagation()">
+
+    <!-- Cabecera -->
+    <div class="import-modal__header">
+      <div>
+        <h3>Importar pacientes</h3>
+        <p *ngIf="importStep === 'select'">CSV, XLSX, XLS u ODS — máx. 1000 filas</p>
+        <p *ngIf="importStep === 'preview'">Vista previa · {{ importTotalRows }} fila(s) detectadas</p>
+        <p *ngIf="importStep === 'result'">Resultado de la importación</p>
+      </div>
+      <button type="button" class="import-modal__close" (click)="closeImportModal()">✕</button>
+    </div>
+
+    <!-- Paso 1: seleccionar archivo -->
+    <ng-container *ngIf="importStep === 'select'">
+      <div class="import-dropzone" [class.import-dropzone--loading]="importLoading">
+        <input type="file" id="importFile" class="import-file-input"
+          [accept]="importParser.acceptedExtensions"
+          (change)="onImportFileSelected($event)" />
+        <label for="importFile" class="import-dropzone__label">
+          <span class="import-dropzone__icon">📂</span>
+          <span *ngIf="!importLoading">Haz clic para seleccionar el archivo</span>
+          <span *ngIf="importLoading">Leyendo archivo...</span>
+        </label>
+      </div>
+
+      <div class="import-hint">
+        <strong>Columnas reconocidas:</strong>
+        nombre, apellido, documento, telefono, correo, fechaNacimiento, direccion, eps, alergias, observaciones.
+        Los encabezados se detectan automáticamente. Los tres primeros son obligatorios.
+      </div>
+
+      <div *ngIf="importError" class="import-error">{{ importError }}</div>
+    </ng-container>
+
+    <!-- Paso 2: vista previa + mapeo -->
+    <ng-container *ngIf="importStep === 'preview'">
+      <!-- Mapeo de columnas -->
+      <div class="import-mapping">
+        <div class="import-mapping__title">Mapeo de columnas detectado</div>
+        <div class="import-mapping__grid">
+          <div *ngFor="let entry of importMappingEntries" class="import-mapping__row"
+            [class.import-mapping__row--ok]="entry.header"
+            [class.import-mapping__row--missing]="!entry.header">
+            <span class="import-mapping__field">{{ importFieldLabel(entry.field) }}</span>
+            <span class="import-mapping__arrow">→</span>
+            <span class="import-mapping__col">{{ entry.header ?? 'No encontrada' }}</span>
+          </div>
+        </div>
+        <div *ngIf="!importRequiredMapped" class="import-error">
+          Faltan columnas obligatorias: nombre, apellido o documento. Revisa los encabezados del archivo.
+        </div>
+      </div>
+
+      <!-- Preview tabla (primeras 5 filas) -->
+      <div class="import-preview-title">
+        Primeras {{ importPreviewRows.length }} fila(s) de {{ importTotalRows }}
+      </div>
+      <div class="import-table-wrapper">
+        <table class="import-table">
+          <thead>
+            <tr>
+              <th *ngFor="let h of importPreviewHeaders">{{ h }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of importPreviewRows">
+              <td *ngFor="let h of importPreviewHeaders">{{ row[h] }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="importError" class="import-error">{{ importError }}</div>
+
+      <div class="import-modal__actions">
+        <button type="button" class="btn btn-secondary" (click)="importStep = 'select'">Volver</button>
+        <button type="button" class="btn btn-primary"
+          [disabled]="!importRequiredMapped || importLoading"
+          (click)="confirmarImport()">
+          {{ importLoading ? 'Importando...' : 'Importar ' + importTotalRows + ' paciente(s)' }}
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Paso 3: resultado -->
+    <ng-container *ngIf="importStep === 'result' && importResult">
+      <div class="import-result">
+        <div class="import-result__stat import-result__stat--ok">
+          <span class="import-result__num">{{ importResult.importados }}</span>
+          <span class="import-result__label">Nuevos</span>
+        </div>
+        <div class="import-result__stat import-result__stat--updated">
+          <span class="import-result__num">{{ importResult.actualizados }}</span>
+          <span class="import-result__label">Actualizados</span>
+        </div>
+        <div class="import-result__stat import-result__stat--err">
+          <span class="import-result__num">{{ importResult.errores.length }}</span>
+          <span class="import-result__label">Con error</span>
+        </div>
+      </div>
+
+      <div *ngIf="importResult.errores.length > 0" class="import-errors-list">
+        <div class="import-errors-list__title">Filas con error</div>
+        <div *ngFor="let e of importResult.errores" class="import-errors-list__row">
+          <span>Fila {{ e.fila }}</span>
+          <span *ngIf="e.documento !== '—'">· Doc. {{ e.documento }}</span>
+          <span>— {{ e.motivo }}</span>
+        </div>
+      </div>
+
+      <div class="import-modal__actions">
+        <button type="button" class="btn btn-secondary" (click)="openImportModal()">Nueva importación</button>
+        <button type="button" class="btn btn-primary" (click)="closeImportModal()">Cerrar</button>
+      </div>
+    </ng-container>
+
+  </div>
+</div>
 
 <app-footer></app-footer>

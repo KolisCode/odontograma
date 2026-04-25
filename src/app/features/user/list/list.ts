@@ -1,6 +1,8 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ImportParserService, ParsedRow } from '../../../services/import-parser.service';
+import { ImportResult } from '../service/pacientes.service';
 import {
   AbstractControl,
   FormBuilder,
@@ -77,9 +79,35 @@ export class List implements OnInit {
     return this.formatDateForInput(d);
   })();
 
+  // ── Importación masiva ────────────────────────────────────────────────────
+  importModalVisible = false;
+  importStep: 'select' | 'preview' | 'result' = 'select';
+  importLoading = false;
+  importError = '';
+  importPreviewRows: ParsedRow[] = [];
+  importPreviewHeaders: string[] = [];
+  importTotalRows = 0;
+  importResult: ImportResult | null = null;
+  importColumnMapping: Record<string, string | null> = {};
+
+  /** Alias de columnas aceptadas por campo interno */
+  private readonly PATIENT_ALIASES: Record<string, string[]> = {
+    nombre:          ['nombre', 'name', 'first_name', 'primer_nombre', 'nombres'],
+    apellido:        ['apellido', 'apellidos', 'last_name', 'surname', 'primer_apellido'],
+    documento:       ['documento', 'doc', 'cedula', 'nit', 'id', 'identificacion', 'identification'],
+    telefono:        ['telefono', 'tel', 'phone', 'celular', 'movil', 'mobile'],
+    correo:          ['correo', 'email', 'mail', 'correo_electronico'],
+    fechaNacimiento: ['fechanacimiento', 'fecha_nacimiento', 'birth_date', 'birthdate', 'nacimiento', 'dob'],
+    direccion:       ['direccion', 'address', 'domicilio', 'dirección'],
+    eps:             ['eps', 'aseguradora', 'seguro'],
+    alergias:        ['alergias', 'allergies', 'alergia'],
+    observaciones:   ['observaciones', 'observations', 'notas', 'notes', 'obs'],
+  };
+
   constructor(
     private fb: FormBuilder,
     private patientsService: PatientsService,
+    private importParser: ImportParserService,
     private cdr: ChangeDetectorRef,
     private router: Router,
   ) {
@@ -375,6 +403,95 @@ export class List implements OnInit {
 
     return age;
   }
+
+  // ── Métodos de importación ────────────────────────────────────────────────
+
+  openImportModal(): void {
+    this.importModalVisible = true;
+    this.importStep = 'select';
+    this.importError = '';
+    this.importPreviewRows = [];
+    this.importPreviewHeaders = [];
+    this.importResult = null;
+    this.importLoading = false;
+  }
+
+  closeImportModal(): void {
+    this.importModalVisible = false;
+  }
+
+  async onImportFileSelected(event: Event): Promise<void> {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    this.importLoading = true;
+    this.importError = '';
+    this.cdr.detectChanges();
+
+    try {
+      const parsed = await this.importParser.parse(file);
+      this.importColumnMapping = this.importParser.mapHeaders(parsed.headers, this.PATIENT_ALIASES);
+      this.importPreviewHeaders = parsed.headers;
+      this._importAllRows = parsed.rows;
+      this.importPreviewRows = parsed.rows.slice(0, 5);
+      this.importTotalRows = parsed.totalRows;
+      this.importStep = 'preview';
+    } catch (err: any) {
+      this.importError = err?.message ?? 'No se pudo leer el archivo';
+    }
+
+    this.importLoading = false;
+    this.cdr.detectChanges();
+  }
+
+  /** Etiqueta legible para cada campo interno */
+  importFieldLabel(field: string): string {
+    const labels: Record<string, string> = {
+      nombre: 'Nombre *', apellido: 'Apellido *', documento: 'Documento *',
+      telefono: 'Teléfono', correo: 'Correo', fechaNacimiento: 'Fecha nac.',
+      direccion: 'Dirección', eps: 'EPS', alergias: 'Alergias', observaciones: 'Observaciones',
+    };
+    return labels[field] ?? field;
+  }
+
+  get importMappingEntries(): { field: string; header: string | null }[] {
+    return Object.entries(this.importColumnMapping).map(([field, header]) => ({ field, header }));
+  }
+
+  get importRequiredMapped(): boolean {
+    return !!this.importColumnMapping['nombre'] &&
+           !!this.importColumnMapping['apellido'] &&
+           !!this.importColumnMapping['documento'];
+  }
+
+  confirmarImport(): void {
+    if (!this.importRequiredMapped) return;
+
+    this.importLoading = true;
+    this.cdr.detectChanges();
+
+    const mapped = this.importParser.applyMapping(this._importAllRows, this.importColumnMapping);
+
+    this.patientsService.importarPacientes(mapped as any).subscribe({
+      next: (res) => {
+        this.importResult = res.data;
+        this.importStep = 'result';
+        this.importLoading = false;
+        if (res.data.importados > 0 || res.data.actualizados > 0) {
+          this.loadPatients();
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.importError = err?.error?.message ?? 'Error al importar';
+        this.importLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  /** Filas completas del archivo (no solo preview) — se llenan en onImportFileSelected */
+  private _importAllRows: ParsedRow[] = [];
 
   private buildPayload(): PatientPayload {
     const raw = this.patientForm.getRawValue();

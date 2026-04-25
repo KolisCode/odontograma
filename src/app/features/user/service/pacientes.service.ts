@@ -39,6 +39,18 @@ export interface QuickInfo {
   historiasPendientes: number;
 }
 
+export interface ImportError {
+  fila: number;
+  documento: string;
+  motivo: string;
+}
+
+export interface ImportResult {
+  importados: number;
+  actualizados: number;
+  errores: ImportError[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -70,5 +82,9 @@ export class PatientsService {
 
   updatePatient(id: number, payload: PatientPayload): Observable<any> {
     return this.http.patch(`${this.api}/${id}`, payload);
+  }
+
+  importarPacientes(rows: PatientPayload[]): Observable<{ ok: boolean; data: ImportResult }> {
+    return this.http.post<{ ok: boolean; data: ImportResult }>(`${this.api}/importar`, { rows });
   }
 }
