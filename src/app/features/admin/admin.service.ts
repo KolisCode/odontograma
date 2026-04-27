@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ExportData } from '../../services/export.service';
+import { environment } from '../../../environments/environment';
 
 export interface ExportConfig {
   pacientes?:    { incluir: boolean; soloActivos: boolean };
@@ -28,7 +29,7 @@ export interface UserRow {
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
-  private readonly base    = 'http://localhost:3000';
+  private readonly base    = environment.apiUrl;
   private readonly authApi = `${this.base}/auth`;
   private readonly adminApi = `${this.base}/admin`;
 

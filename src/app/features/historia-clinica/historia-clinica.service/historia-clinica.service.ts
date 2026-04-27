@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 export interface HistoriaClinicaPayload {
   pacienteId: number;
@@ -30,7 +31,7 @@ export interface HistoriaClinicaPayload {
 })
 export class HistoriaClinicaService {
   // private api = '/api/historias-clinicas';
-  private api = 'http://localhost:3000/historias-clinicas';
+  private api = `${environment.apiUrl}/historias-clinicas`;
 
 
   constructor(private http: HttpClient) {}

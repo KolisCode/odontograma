@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface DocumentoUsuario {
   id: number;
@@ -26,7 +27,7 @@ export type DocumentoTipo = 'RADIOGRAFIA' | 'CONSENTIMIENTO' | 'EXAMEN' | 'RECET
 
 @Injectable({ providedIn: 'root' })
 export class DocumentosService {
-  private baseUrl = 'http://localhost:3000/documentos';
+  private baseUrl = `${environment.apiUrl}/documentos`;
 
   constructor(private http: HttpClient) {}
 

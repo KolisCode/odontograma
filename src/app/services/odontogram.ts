@@ -3,13 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { OdontogramPayload } from '../features/odontogram/interfaces/odontogram-payload';
 import { BackendOdontogramResponse } from '../features/odontogram/interfaces/backend-odontogram-response';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class OdontogramService {
-  // private apiUrl = '/api/odontograma';
-  private apiUrl = 'http://localhost:3000/odontograma';
+  private apiUrl = `${environment.apiUrl}/odontograma`;
 
   constructor(private http: HttpClient) {}
 

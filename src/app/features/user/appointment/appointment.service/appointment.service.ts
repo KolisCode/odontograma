@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
 
 export interface AppointmentPayload {
   pacienteId: number;
@@ -58,9 +59,9 @@ export interface CitaFilters {
   providedIn: 'root'
 })
 export class AppointmentService {
-  private api = 'http://localhost:3000/citas';
-  private authApi = 'http://localhost:3000/auth';
-  private patientsApi = 'http://localhost:3000/pacientes';
+  private api = `${environment.apiUrl}/citas`;
+  private authApi = `${environment.apiUrl}/auth`;
+  private patientsApi = `${environment.apiUrl}/pacientes`;
   // private api = '/api/citas';
   // private authApi = '/api/auth';
   // private patientsApi = '/api/pacientes';
