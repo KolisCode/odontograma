@@ -247,6 +247,10 @@
           placeholder="Buscar por nombre, documento o teléfono..."
           [(ngModel)]="searchTerm"
         />
+        <label class="toggle-inactivos">
+          <input type="checkbox" [(ngModel)]="mostrarInactivos" />
+          Mostrar inactivos
+        </label>
       </div>
     </div>
 
@@ -269,7 +273,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let patient of filteredPatients">
+          <tr *ngFor="let patient of filteredPatients" [class.patient-row--inactive]="!patient.activo">
             <td>{{ patient.nombreCompleto }}</td>
             <td>{{ patient.documento }}</td>
             <td>{{ calcularEdad(patient.fechaNacimiento) !== null ? (calcularEdad(patient.fechaNacimiento) + ' años') : '—' }}</td>
@@ -298,13 +302,22 @@
                 <button class="btn-table btn-table-secondary" type="button" (click)="goToFinance(patient.id)">
                   Finanzas
                 </button>
+                <button
+                  class="btn-table"
+                  [class.btn-table-danger]="patient.activo"
+                  [class.btn-table-success]="!patient.activo"
+                  type="button"
+                  [disabled]="toggleActivoLoading && toggleActivoTarget?.id === patient.id"
+                  (click)="iniciarToggleActivo(patient)">
+                  {{ patient.activo ? 'Desactivar' : 'Activar' }}
+                </button>
               </div>
             </td>
           </tr>
 
           <tr *ngIf="filteredPatients.length === 0">
             <td colspan="8" class="empty-table">
-              No hay pacientes registrados todavía.
+              No hay pacientes{{ mostrarInactivos ? '' : ' activos' }} registrados todavía.
             </td>
           </tr>
         </tbody>
@@ -312,6 +325,40 @@
     </div>
   </section>
 </section>
+
+<!-- Modal: Advertencia desactivar paciente -->
+<div class="import-modal-backdrop" *ngIf="toggleActivoTarget && toggleActivoPendientes">
+  <div class="import-modal" style="max-width:480px">
+    <div class="import-modal-header">
+      <h3>Desactivar paciente</h3>
+    </div>
+    <div class="import-modal-body">
+      <p>
+        <strong>{{ toggleActivoTarget.nombreCompleto }}</strong> tiene items pendientes:
+      </p>
+      <ul style="margin: 12px 0 16px 20px; line-height: 1.8">
+        <li *ngIf="toggleActivoPendientes.movimientosPendientes > 0">
+          {{ toggleActivoPendientes.movimientosPendientes }} movimiento(s) en estado PENDIENTE
+        </li>
+        <li *ngIf="toggleActivoPendientes.odontogramasActivos > 0">
+          {{ toggleActivoPendientes.odontogramasActivos }} odontograma(s) activo(s)
+        </li>
+      </ul>
+      <p>¿Deseas desactivar el paciente de todas formas?</p>
+      <p *ngIf="toggleActivoError" class="patients-alert patients-alert--error" style="margin-top:8px">
+        {{ toggleActivoError }}
+      </p>
+    </div>
+    <div class="import-modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="cancelarToggleActivo()" [disabled]="toggleActivoLoading">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-primary" (click)="confirmarToggleActivo()" [disabled]="toggleActivoLoading">
+        {{ toggleActivoLoading ? 'Procesando...' : 'Sí, desactivar' }}
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- Modal: Importar pacientes -->
 <div class="import-modal-backdrop" *ngIf="importModalVisible" (click)="closeImportModal()">

@@ -12,6 +12,10 @@
   </div>
 </div>
 
+<div class="patient-inactive-banner" *ngIf="!patientActivo">
+  Este paciente está marcado como inactivo. Puedes consultar su historial pero los cambios quedarán registrados.
+</div>
+
 <section class="patient-context-card">
   <div class="patient-context-main">
     <div class="patient-context-copy">

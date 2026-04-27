@@ -44,16 +44,26 @@ export class List implements OnInit {
 
   patients: PatientRow[] = [];
   searchTerm = '';
+  mostrarInactivos = false;
   recentPatients: RecentPatient[] = [];
+
+  // ── Toggle activo / inactivo ──────────────────────────────────────────────
+  toggleActivoTarget: PatientRow | null = null;
+  toggleActivoPendientes: { movimientosPendientes: number; odontogramasActivos: number } | null = null;
+  toggleActivoLoading = false;
+  toggleActivoError = '';
 
   get filteredPatients(): PatientRow[] {
     const term = this.searchTerm.trim().toLowerCase();
-    if (!term) return this.patients;
-    return this.patients.filter(p =>
-      p.nombreCompleto.toLowerCase().includes(term) ||
-      p.documento.toLowerCase().includes(term) ||
-      (p.telefono ?? '').toLowerCase().includes(term)
-    );
+    return this.patients.filter(p => {
+      if (!this.mostrarInactivos && !p.activo) return false;
+      if (!term) return true;
+      return (
+        p.nombreCompleto.toLowerCase().includes(term) ||
+        p.documento.toLowerCase().includes(term) ||
+        (p.telefono ?? '').toLowerCase().includes(term)
+      );
+    });
   }
 
   calcularEdad(fechaNacimiento: string | null): number | null {
@@ -316,11 +326,67 @@ export class List implements OnInit {
   }
 
   getStatusClass(active: boolean): string {
-    return active ? 'status-badge--active' : 'status-badge--pending';
+    return active ? 'status-badge--active' : 'status-badge--cancelled';
   }
 
   getStatusLabel(active: boolean): string {
-    return active ? 'Activo' : 'Pendiente';
+    return active ? 'Activo' : 'Inactivo';
+  }
+
+  iniciarToggleActivo(patient: PatientRow): void {
+    this.toggleActivoTarget = patient;
+    this.toggleActivoPendientes = null;
+    this.toggleActivoError = '';
+    this.toggleActivoLoading = true;
+    this.cdr.detectChanges();
+
+    this.patientsService.toggleActivo(patient.id, !patient.activo, false).subscribe({
+      next: () => {
+        // Sin pendientes — se ejecutó directamente
+        this.toggleActivoTarget = null;
+        this.toggleActivoLoading = false;
+        this.loadPatientsModuleData();
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.toggleActivoLoading = false;
+        if (err?.status === 409 && err?.error?.pendientes) {
+          this.toggleActivoPendientes = err.error.pendientes;
+        } else {
+          this.toggleActivoError = err?.error?.message || 'No se pudo cambiar el estado';
+          this.toggleActivoTarget = null;
+        }
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  confirmarToggleActivo(): void {
+    if (!this.toggleActivoTarget) return;
+    this.toggleActivoLoading = true;
+    this.toggleActivoError = '';
+
+    this.patientsService.toggleActivo(this.toggleActivoTarget.id, !this.toggleActivoTarget.activo, true).subscribe({
+      next: () => {
+        this.toggleActivoTarget = null;
+        this.toggleActivoPendientes = null;
+        this.toggleActivoLoading = false;
+        this.loadPatientsModuleData();
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.toggleActivoError = err?.error?.message || 'No se pudo cambiar el estado';
+        this.toggleActivoLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  cancelarToggleActivo(): void {
+    this.toggleActivoTarget = null;
+    this.toggleActivoPendientes = null;
+    this.toggleActivoError = '';
+    this.toggleActivoLoading = false;
   }
 
   goToHistory(patientId: number): void {

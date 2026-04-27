@@ -326,6 +326,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
   patientName = 'Paciente';
   patientDocument = '';
   patientAge: number | null = null;
+  patientActivo = true;
 
   private patientLoaded = false;
   private odontogramChecked = false;
@@ -613,6 +614,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
         this.patientName = `${patient.data.nombre} ${patient.data.apellido}`.trim();
         this.patientDocument = patient.data.documento || '';
         this.patientAge = this.calcularEdad(patient.data.fechaNacimiento ?? null);
+        this.patientActivo = patient.data.activo !== false;
         this.patientLoaded = true;
         if (this.odontogramChecked) this.maybeSuggestPediatric();
       },

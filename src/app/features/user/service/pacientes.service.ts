@@ -88,4 +88,8 @@ export class PatientsService {
   importarPacientes(rows: PatientPayload[]): Observable<{ ok: boolean; data: ImportResult }> {
     return this.http.post<{ ok: boolean; data: ImportResult }>(`${this.api}/importar`, { rows });
   }
+
+  toggleActivo(id: number, activo: boolean, force = false): Observable<any> {
+    return this.http.patch(`${this.api}/${id}/activo`, { activo, force });
+  }
 }

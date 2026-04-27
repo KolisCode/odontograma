@@ -186,6 +186,10 @@
   color: #a56a00;
 }
 
+.status-badge--cancelled {
+  color: #888;
+}
+
 .status-badge--warning {
   color: #a06200;
 }
@@ -371,6 +375,44 @@
 
 .btn-table-edit:hover {
   background: #e8edf3;
+}
+
+.btn-table-danger {
+  background: #fff0f0;
+  color: #c0392b;
+  border: 1px solid #f5c6c6;
+}
+
+.btn-table-danger:hover {
+  background: #fde0e0;
+}
+
+.btn-table-success {
+  background: #f0fff4;
+  color: #247447;
+  border: 1px solid #b7dfca;
+}
+
+.btn-table-success:hover {
+  background: #dcf5e7;
+}
+
+.patient-row--inactive td {
+  color: #999;
+}
+
+.toggle-inactivos {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #64748b;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.toggle-inactivos input {
+  cursor: pointer;
 }
 
 .form-group input.ng-invalid.ng-touched,

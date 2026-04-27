@@ -1841,3 +1841,11 @@
   justify-content: flex-end;
   gap: 10px;
 }
+
+.patient-inactive-banner {
+  background: #fff8e1;
+  border-left: 4px solid #f59e0b;
+  color: #92400e;
+  padding: 10px 20px;
+  font-size: 0.88rem;
+}
