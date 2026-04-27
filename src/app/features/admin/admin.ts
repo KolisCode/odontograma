@@ -304,10 +304,11 @@ export class Admin implements OnInit {
 
     this.adminService.restoreBackup(this.restoreFile).subscribe({
       next: (res) => {
-        this.restoreSuccess = res.message;
+        this.restoreSuccess = res.message + ' La página se recargará en 3 segundos.';
         this.restoreFile    = null;
         this.restoreLoading = false;
         this.cdr.detectChanges();
+        setTimeout(() => window.location.reload(), 3000);
       },
       error: (err: any) => {
         this.restoreError   = err?.error?.message ?? 'No se pudo restaurar la base de datos';

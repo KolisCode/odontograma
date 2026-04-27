@@ -3,7 +3,6 @@
 <section class="admin-page">
   <div class="admin-header">
     <div>
-      <h2>Administración</h2>
       <p>Herramientas de gestión de datos del sistema</p>
     </div>
   </div>
@@ -23,14 +22,14 @@
         <div class="health-item" [ngClass]="healthClass">
           <span class="health-dot"></span>
           <div>
-            <strong>Backend</strong>
+            <strong>Sistema</strong>
             <span>{{ healthLabel }}</span>
           </div>
         </div>
         <div class="health-item" [ngClass]="healthClass">
           <span class="health-dot"></span>
           <div>
-            <strong>Base de datos</strong>
+            <strong>Datos del sistema</strong>
             <span>{{ healthLoading ? 'Verificando...' : (health?.db === 'connected' ? 'Conectada' : 'Sin conexión') }}</span>
           </div>
         </div>

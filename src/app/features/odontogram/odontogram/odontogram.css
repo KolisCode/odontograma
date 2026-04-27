@@ -40,6 +40,8 @@
   padding: 24px 28px;
   overflow-x: auto;
   background: linear-gradient(180deg, #ffffff96 0%, #fbfcff 100%);
+  transform-origin: top center;
+  transform: scale(var(--chart-scale, 1));
 }
 
 .dental-chart h2 {
@@ -49,9 +51,16 @@
   color: #1f2937;
 }
 
+.arch-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: max-content;
+}
+
 .arch {
   display: flex;
-  justify-content: center;
   gap: 28px;
   margin: 14px 0;
   align-items: flex-start;
@@ -616,9 +625,38 @@
   padding: 20px;
 }
 
+/* ── Bloque mobile ───────────────────────────────────────────────────────── */
+.mobile-block {
+  display: none;
+}
+
+/* ── Scaler ──────────────────────────────────────────────────────────────── */
+.dental-chart-scaler {
+  width: 100%;
+}
+
+.dental-chart-scaler--active {
+  overflow: hidden;
+}
+
+/* ── Breakpoints de espacio ──────────────────────────────────────────────── */
+@media (max-width: 1600px) and (min-width: 1200px) {
+  .odontogram-layout {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    padding: 14px;
+    gap: 14px;
+  }
+}
+
 @media (max-width: 1200px) {
   .odontogram-layout {
     grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .patient-context-card {
+    margin: 12px 12px 0;
   }
 
   .right-column {
@@ -1747,6 +1785,57 @@
   margin-bottom: 16px;
 }
 
+/* ── Mobile block ────────────────────────────────────────────────────────── */
+.mobile-block-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid #eef2f7;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  padding: 40px 28px;
+  text-align: center;
+  max-width: 340px;
+  width: 100%;
+}
+
+.mobile-block-icon {
+  color: #2f73d9;
+  opacity: 0.7;
+}
+
+.mobile-block-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.mobile-block-text {
+  margin: 0;
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .mobile-block {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 60px);
+    padding: 24px 16px;
+  }
+
+  .patient-context-card,
+  .odontogram-layout {
+    display: none;
+  }
+}
+
+/* ── version-modal actions ───────────────────────────────────────────────── */
 .version-modal__actions {
   display: flex;
   justify-content: flex-end;

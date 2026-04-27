@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef } from '@angular/core';
-import { Component, signal, computed, OnInit, effect } from '@angular/core';
+import { ChangeDetectorRef, Component, signal, computed, OnInit, AfterViewInit, OnDestroy, effect, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 
@@ -36,7 +35,7 @@ import { AlertaClinica } from '../../historia-clinica/resumen/resumen';
   templateUrl: './odontogram.html',
   styleUrl: './odontogram.css',
 })
-export class OdontogramComponent implements OnInit {
+export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
   // ── Arcadas adulto ────────────────────────────────────────────────────────
   upperRight = [18, 17, 16, 15, 14, 13, 12, 11];
   upperLeft  = [21, 22, 23, 24, 25, 26, 27, 28];
@@ -54,6 +53,41 @@ export class OdontogramComponent implements OnInit {
   mixedUpperLeft  = [61, 62, 63, 64, 65, 26, 27, 28];
   mixedLowerRight = [48, 47, 46, 85, 84, 83, 82, 81];
   mixedLowerLeft  = [71, 72, 73, 74, 75, 36, 37, 38];
+
+  // ── Escala para móvil ─────────────────────────────────────────────────────
+  @ViewChild('dentalChart') private dentalChartRef!: ElementRef<HTMLElement>;
+  chartScale = signal(1);
+  scaledChartHeight = signal<number | null>(null);
+  private naturalChartWidth = 0;
+  private naturalChartHeight = 0;
+  private readonly resizeListener = () => this.applyScale();
+  private chartObserver?: ResizeObserver;
+
+  ngAfterViewInit(): void {
+    const el = this.dentalChartRef.nativeElement;
+    this.chartObserver = new ResizeObserver(() => {
+      // scrollWidth ignora transforms, siempre refleja el ancho natural del contenido
+      this.naturalChartWidth = el.scrollWidth;
+      this.naturalChartHeight = el.offsetHeight;
+      this.applyScale();
+    });
+    this.chartObserver.observe(el);
+    window.addEventListener('resize', this.resizeListener);
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('resize', this.resizeListener);
+    this.chartObserver?.disconnect();
+  }
+
+  private applyScale(): void {
+    if (!this.naturalChartWidth) return;
+    const containerWidth = (this.dentalChartRef.nativeElement.parentElement as HTMLElement).offsetWidth;
+    const scale = parseFloat(Math.min(1, containerWidth / this.naturalChartWidth).toFixed(4));
+    this.chartScale.set(scale);
+    this.scaledChartHeight.set(scale < 1 ? Math.round(this.naturalChartHeight * scale) + 30 : null);
+    this.cdr.detectChanges();
+  }
 
   // ── Modo del odontograma ──────────────────────────────────────────────────
   odontogramTipo: 'ADULTO' | 'PEDIATRICO' | 'MIXTO' = 'ADULTO';
@@ -662,6 +696,8 @@ export class OdontogramComponent implements OnInit {
           this.odontogramTipo = 'PEDIATRICO';
         } else if (data.tipo === 'MIXTO') {
           this.odontogramTipo = 'MIXTO';
+        } else {
+          this.odontogramTipo = 'ADULTO';
         }
 
         this.originalOdontogram = {
@@ -889,6 +925,8 @@ export class OdontogramComponent implements OnInit {
             this.odontogramTipo = 'PEDIATRICO';
           } else if (response.tipo === 'MIXTO') {
             this.odontogramTipo = 'MIXTO';
+          } else {
+            this.odontogramTipo = 'ADULTO';
           }
           this.originalOdontogram = {
             id: response.id,
@@ -947,6 +985,7 @@ export class OdontogramComponent implements OnInit {
         next: (response) => {
           if (response.tipo === 'PEDIATRICO') this.odontogramTipo = 'PEDIATRICO';
           else if (response.tipo === 'MIXTO') this.odontogramTipo = 'MIXTO';
+          else this.odontogramTipo = 'ADULTO';
 
           this.originalOdontogram = {
             id: response.id,
