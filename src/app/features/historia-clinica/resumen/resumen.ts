@@ -297,7 +297,9 @@ export class ResumenHistoria implements OnInit {
 
   formatFecha(fecha: string): string {
     if (!fecha) return '';
-    return new Date(fecha).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' });
+    const parts = fecha.substring(0, 10).split('-').map(Number);
+    if (parts.length < 3 || parts.some(isNaN)) return fecha;
+    return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' });
   }
 
   goToPatients(): void {

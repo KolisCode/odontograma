@@ -22,6 +22,29 @@ export class Tooth {
 
   @Input() readonly = false;
 
+  /** true para arcada inferior (Q3/Q4): invierte Vestibular↔Lingual en arriba/abajo */
+  @Input() lowerArch = false;
+
+  /** true para cuadrantes derechos (Q1/Q4): intercambia Mesial↔Distal */
+  @Input() mirrorMesialDistal = false;
+
+  // ── Superficies según arcada ───────────────────────────────────────────────
+
+  /** Superficie que queda arriba en el SVG */
+  get topSurface(): ToothSurface {
+    return this.lowerArch ? 'Lingual' : 'Vestibular';
+  }
+
+  /** Superficie que queda abajo en el SVG */
+  get bottomSurface(): ToothSurface {
+    return this.lowerArch ? 'Vestibular' : 'Palatina';
+  }
+
+  /** Superficie central (siempre oclusal) */
+  get centerSurface(): ToothSurface {
+    return 'Oclusal';
+  }
+
   hasPiece(type: PieceType): boolean {
     return this.pieces.includes(type);
   }
@@ -44,16 +67,24 @@ export class Tooth {
     Pulpectomia: 'diagnosis-pulpectomia',
   };
 
+  /** Intercambia Mesial↔Distal para los cuadrantes que lo requieren. */
+  private effectiveSurface(surface: ToothSurface): ToothSurface {
+    if (!this.mirrorMesialDistal) return surface;
+    if (surface === 'Mesial') return 'Distal';
+    if (surface === 'Distal') return 'Mesial';
+    return surface;
+  }
+
   faceClicked(surface: ToothSurface) {
     if (this.readonly) return;
     this.surfaceClick.emit({
       tooth: this.number,
-      surface,
+      surface: this.effectiveSurface(surface),
     });
   }
 
   getFaceDiagnoses(surface: ToothSurface): string[] {
-    const face = this.filledFaces.find((f) => f.surface === surface);
+    const face = this.filledFaces.find((f) => f.surface === this.effectiveSurface(surface));
     if (!face) return [];
     return face.diagnoses.slice(0, 4);
   }
@@ -61,7 +92,6 @@ export class Tooth {
   getFaceClass(surface: ToothSurface): string {
     const diagnoses = this.getFaceDiagnoses(surface);
     if (diagnoses.length === 0) return '';
-
     const diagnosis = diagnoses[diagnoses.length - 1];
     return this.diagnosisClassMap[diagnosis] || '';
   }
@@ -75,11 +105,12 @@ export class Tooth {
   }
 
   getFaceTooltip(surface: ToothSurface): string {
-    const face = this.filledFaces.find((f) => f.surface === surface);
+    const effective = this.effectiveSurface(surface);
+    const face = this.filledFaces.find((f) => f.surface === effective);
 
-    if (!face) return `Diente: ${this.number} - Cara: ${surface}`;
+    if (!face) return `Diente: ${this.number} - Cara: ${effective}`;
 
-    return `Diente: ${this.number} - Cara: ${surface} - Tiene: ${face.diagnoses.join(', ')}`;
+    return `Diente: ${this.number} - Cara: ${effective} - Tiene: ${face.diagnoses.join(', ')}`;
   }
 
   getToothType(): string {
@@ -88,7 +119,6 @@ export class Tooth {
 
     if (lastDigit === 1 || lastDigit === 2) return 'incisor';
     if (lastDigit === 3) return 'canine';
-    // Dientes primarios: posiciones 4 y 5 son molares, no premolares
     if (lastDigit === 4 || lastDigit === 5) return this.isPrimary ? 'molar' : 'premolar';
 
     return 'molar';

@@ -150,6 +150,18 @@ El sistema aplica un estilo clínico-institucional consistente en todos los mód
 - **Módulos clínicos "Próximamente"** en historia clínica: Fórmulas médicas, Evolución de tratamiento, Enfermedades odontológicas, Presupuesto
 - **Odontograma modo MIXTO** — tercer modo para dentición mixta (~6-12 años), mezcla de dientes temporales (51-85) y permanentes en erupción (11-48). Pendiente de diseño y discusión.
 
+### Pendientes sesión 2026-05-09/10
+
+- **[4] Pagos parciales en movimientos** — Un movimiento (deuda) se paga en cuotas. Requiere nueva tabla `PagoMovimiento` (id, movimientoId, monto, fecha, metodoPago) en el schema de Prisma + migración. El `estado` del movimiento pasa a PAGADO solo cuando `SUM(pagos) >= monto`. Frontend: sección de abonos dentro del detalle del movimiento en `/finance`.
+
+- **[5] Odontograma de tratamientos** — Vista del odontograma que muestra el *plan de tratamiento* (qué se hará) en lugar del estado diagnóstico (qué tiene). Diferencias clave:
+  - `Odontograma.tipo` nuevo valor `"TRATAMIENTO"` (actualmente solo "ADULTO"/"PEDIATRICO"/"MIXTO")
+  - Paleta de colores y leyenda distintas: procedimientos a realizar vs. patologías existentes
+  - El componente `OdontogramComponent` necesita un `@Input() modo: 'diagnostico' | 'tratamiento'`
+  - Acceso desde el módulo de **Tratamientos** (que también está en pausa) — ambos deben desbloquearse juntos
+  - Backend ya tiene `Tratamiento.odontogramaId` para vincular el plan al odontograma de tratamiento
+  - Pendiente de que el cliente defina la UX del módulo de tratamientos antes de implementar
+
 ## UX para uso local en consultorio
 
 El sistema corre en local en 1–2 computadores. Hay decisiones de UX y operación pendientes de diseño:

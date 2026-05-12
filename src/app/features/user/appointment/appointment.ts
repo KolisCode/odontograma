@@ -44,6 +44,7 @@ export class Appointment implements OnInit {
 
   formVisible = false;
   loading = false;
+  whatsappLink: string | null = null;
   tableLoading = false;
   errorMessage = '';
   successMessage = '';
@@ -395,13 +396,33 @@ export class Appointment implements OnInit {
 
     const payload: AppointmentPayload = this.buildPayload();
 
+    // Capturar datos antes del reset para el enlace de WhatsApp
+    const pacienteId = Number(this.appointmentForm.get('pacienteId')?.value);
+    const fecha = String(this.appointmentForm.get('fecha')?.value ?? '');
+    const hora = String(this.appointmentForm.get('hora')?.value ?? '');
+    const motivo = String(this.appointmentForm.get('motivo')?.value ?? '');
+
     this.appointmentService.createAppointment(payload).subscribe({
       next: (response) => {
         this.successMessage = response.message || 'Cita registrada correctamente';
         this.loading = false;
         this.formVisible = false;
-        this.cdr.detectChanges();
 
+        // Generar enlace de WhatsApp si el paciente tiene teléfono
+        const patient = this.patients.find((p: any) => p.id === pacienteId);
+        if (patient?.telefono) {
+          const phone = String(patient.telefono).replace(/\D/g, '');
+          const nombre = String(patient.nombreCompleto).split(' ')[0];
+          const fechaLabel = new Date(`${fecha}T00:00:00`).toLocaleDateString('es-CO', {
+            weekday: 'long', day: 'numeric', month: 'long',
+          });
+          const msg = `Hola ${nombre}, le recordamos su cita en Biodont el ${fechaLabel} a las ${hora}. Motivo: ${motivo}. Por favor confirmar su asistencia.`;
+          this.whatsappLink = `https://wa.me/57${phone}?text=${encodeURIComponent(msg)}`;
+        } else {
+          this.whatsappLink = null;
+        }
+
+        this.cdr.detectChanges();
         this.resetForm();
         this.loadAppointmentsModuleData();
         if (this.calendarView) this.loadCalendarData();
@@ -416,6 +437,7 @@ export class Appointment implements OnInit {
 
   openForm(): void {
     this.formVisible = true;
+    this.whatsappLink = null;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -424,6 +446,7 @@ export class Appointment implements OnInit {
     this.resetForm();
     this.errorMessage = '';
     this.successMessage = '';
+    this.whatsappLink = null;
   }
 
   cambiarEstado(id: number, estado: string): void {

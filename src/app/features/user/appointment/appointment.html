@@ -18,8 +18,11 @@
     {{ errorMessage }}
   </div>
 
-  <div *ngIf="successMessage" class="appointments-alert appointments-alert--success">
-    {{ successMessage }}
+  <div *ngIf="successMessage" class="appointments-alert appointments-alert--success" [class.appointments-alert--with-action]="whatsappLink">
+    <span>{{ successMessage }}</span>
+    <a *ngIf="whatsappLink" [href]="whatsappLink" target="_blank" rel="noopener" class="btn-wa">
+      Notificar por WhatsApp
+    </a>
   </div>
 
   <div class="appointments-stats">

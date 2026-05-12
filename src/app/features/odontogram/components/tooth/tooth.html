@@ -45,11 +45,11 @@
          Z"
     />
 
-    <!-- Oclusal -->
-    <g class="surface-group" (click)="faceClicked('Oclusal'); $event.stopPropagation()">
-      <title>{{ getFaceTooltip('Oclusal') }}</title>
+    <!-- Superficie superior (Vestibular en arcada superior, Lingual en inferior) -->
+    <g class="surface-group" (click)="faceClicked(topSurface); $event.stopPropagation()">
+      <title>{{ getFaceTooltip(topSurface) }}</title>
 
-      <ng-container [ngSwitch]="getFaceDiagnoses('Oclusal').length">
+      <ng-container [ngSwitch]="getFaceDiagnoses(topSurface).length">
         <rect
           *ngSwitchCase="0"
           x="39"
@@ -68,34 +68,34 @@
           height="20"
           rx="8"
           class="surface"
-          [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Oclusal')[0])"
+          [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(topSurface)[0])"
         />
 
         <ng-container *ngSwitchCase="2">
           <rect x="39" y="14" width="11" height="20" rx="3" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Oclusal')[0])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(topSurface)[0])" />
           <rect x="50" y="14" width="11" height="20" rx="3" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Oclusal')[1])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(topSurface)[1])" />
         </ng-container>
 
         <ng-container *ngSwitchCase="3">
           <rect x="39" y="14" width="22" height="6.66" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Oclusal')[0])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(topSurface)[0])" />
           <rect x="39" y="20.66" width="22" height="6.66" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Oclusal')[1])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(topSurface)[1])" />
           <rect x="39" y="27.32" width="22" height="6.68" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Oclusal')[2])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(topSurface)[2])" />
         </ng-container>
 
         <ng-container *ngSwitchDefault>
           <rect x="39" y="14" width="11" height="10" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Oclusal')[0])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(topSurface)[0])" />
           <rect x="50" y="14" width="11" height="10" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Oclusal')[1])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(topSurface)[1])" />
           <rect x="39" y="24" width="11" height="10" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Oclusal')[2])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(topSurface)[2])" />
           <rect x="50" y="24" width="11" height="10" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Oclusal')[3])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(topSurface)[3])" />
         </ng-container>
       </ng-container>
     </g>
@@ -139,11 +139,11 @@
       </ng-container>
     </g>
 
-    <!-- Centro -->
-    <g class="surface-group" (click)="faceClicked('Centro'); $event.stopPropagation()">
-      <title>{{ getFaceTooltip('Centro') }}</title>
+    <!-- Oclusal (centro) -->
+    <g class="surface-group" (click)="faceClicked(centerSurface); $event.stopPropagation()">
+      <title>{{ getFaceTooltip(centerSurface) }}</title>
 
-      <ng-container [ngSwitch]="getFaceDiagnoses('Centro').length">
+      <ng-container [ngSwitch]="getFaceDiagnoses(centerSurface).length">
         <rect
           *ngSwitchCase="0"
           x="36"
@@ -162,34 +162,34 @@
           height="28"
           rx="8"
           class="surface center-surface"
-          [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Centro')[0])"
+          [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(centerSurface)[0])"
         />
 
         <ng-container *ngSwitchCase="2">
           <rect x="36" y="42" width="14" height="28" rx="3" class="surface center-surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Centro')[0])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(centerSurface)[0])" />
           <rect x="50" y="42" width="14" height="28" rx="3" class="surface center-surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Centro')[1])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(centerSurface)[1])" />
         </ng-container>
 
         <ng-container *ngSwitchCase="3">
           <rect x="36" y="42" width="28" height="9.33" rx="2" class="surface center-surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Centro')[0])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(centerSurface)[0])" />
           <rect x="36" y="51.33" width="28" height="9.33" rx="2" class="surface center-surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Centro')[1])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(centerSurface)[1])" />
           <rect x="36" y="60.66" width="28" height="9.34" rx="2" class="surface center-surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Centro')[2])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(centerSurface)[2])" />
         </ng-container>
 
         <ng-container *ngSwitchDefault>
           <rect x="36" y="42" width="14" height="14" rx="2" class="surface center-surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Centro')[0])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(centerSurface)[0])" />
           <rect x="50" y="42" width="14" height="14" rx="2" class="surface center-surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Centro')[1])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(centerSurface)[1])" />
           <rect x="36" y="56" width="14" height="14" rx="2" class="surface center-surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Centro')[2])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(centerSurface)[2])" />
           <rect x="50" y="56" width="14" height="14" rx="2" class="surface center-surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Centro')[3])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(centerSurface)[3])" />
         </ng-container>
       </ng-container>
 
@@ -237,41 +237,41 @@
       </ng-container>
     </g>
 
-    <!-- Lingual -->
-    <g class="surface-group" (click)="faceClicked('Lingual'); $event.stopPropagation()">
-      <title>{{ getFaceTooltip('Lingual') }}</title>
+    <!-- Palatina / Vestibular inferior (según arcada) -->
+    <g class="surface-group" (click)="faceClicked(bottomSurface); $event.stopPropagation()">
+      <title>{{ getFaceTooltip(bottomSurface) }}</title>
 
-      <ng-container [ngSwitch]="getFaceDiagnoses('Lingual').length">
+      <ng-container [ngSwitch]="getFaceDiagnoses(bottomSurface).length">
         <rect *ngSwitchCase="0" x="39" y="78" width="22" height="24" rx="8" class="surface" />
 
         <rect *ngSwitchCase="1" x="39" y="78" width="22" height="24" rx="8" class="surface"
-          [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Lingual')[0])" />
+          [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(bottomSurface)[0])" />
 
         <ng-container *ngSwitchCase="2">
           <rect x="39" y="78" width="11" height="24" rx="3" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Lingual')[0])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(bottomSurface)[0])" />
           <rect x="50" y="78" width="11" height="24" rx="3" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Lingual')[1])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(bottomSurface)[1])" />
         </ng-container>
 
         <ng-container *ngSwitchCase="3">
           <rect x="39" y="78" width="22" height="8" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Lingual')[0])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(bottomSurface)[0])" />
           <rect x="39" y="86" width="22" height="8" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Lingual')[1])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(bottomSurface)[1])" />
           <rect x="39" y="94" width="22" height="8" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Lingual')[2])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(bottomSurface)[2])" />
         </ng-container>
 
         <ng-container *ngSwitchDefault>
           <rect x="39" y="78" width="11" height="12" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Lingual')[0])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(bottomSurface)[0])" />
           <rect x="50" y="78" width="11" height="12" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Lingual')[1])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(bottomSurface)[1])" />
           <rect x="39" y="90" width="11" height="12" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Lingual')[2])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(bottomSurface)[2])" />
           <rect x="50" y="90" width="11" height="12" rx="2" class="surface"
-            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses('Lingual')[3])" />
+            [ngClass]="getDiagnosisCssClass(getFaceDiagnoses(bottomSurface)[3])" />
         </ng-container>
       </ng-container>
     </g>

@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { Footer } from '../../complements/footer/footer';
 import { Navbar } from '../../complements/navbar/navbar';
-import { FinanzasService, MovimientoRow, MovimientoFilters } from './service/finanzas.service';
+import { FinanzasService, MovimientoRow, MovimientoFilters, PagoMovimiento } from './service/finanzas.service';
 import { PatientsService, PatientRow } from '../../user/service/pacientes.service';
 
 @Component({
@@ -64,6 +64,12 @@ export class Finance implements OnInit {
     return egresos.length ? egresos.reduce((a, b) => (a.monto >= b.monto ? a : b)) : null;
   }
 
+  // ── Abonos / pagos parciales ───────────────────────────────────────────────
+  expandedPagosId: number | null = null;
+  pagoForm: FormGroup;
+  pagoErrorMessage = '';
+  confirmDeletePago: { movimiento: MovimientoRow; pagoId: number } | null = null;
+
   constructor(
     private fb: FormBuilder,
     private finanzasService: FinanzasService,
@@ -80,6 +86,12 @@ export class Finance implements OnInit {
       metodoPago: ['Efectivo'],
       estado: ['PENDIENTE'],
       pacienteId: [null],
+    });
+
+    this.pagoForm = this.fb.group({
+      monto: [null, [Validators.required, Validators.min(1)]],
+      fecha: [this.todayISO(), Validators.required],
+      metodoPago: ['Efectivo'],
     });
   }
 
@@ -304,6 +316,7 @@ export class Finance implements OnInit {
     this.finanzasService.delete(id).subscribe({
       next: () => {
         this.successMessage = 'Movimiento eliminado';
+        if (this.expandedPagosId === id) this.expandedPagosId = null;
         this.loadMovimientos();
       },
       error: () => {
@@ -316,6 +329,85 @@ export class Finance implements OnInit {
   cancelarEliminar(): void {
     this.confirmDeleteId = null;
   }
+
+  // ── Abonos ────────────────────────────────────────────────────────────────
+
+  toggleAbonos(id: number): void {
+    if (this.expandedPagosId === id) {
+      this.expandedPagosId = null;
+      return;
+    }
+    this.expandedPagosId = id;
+    this.pagoForm.reset({ monto: null, fecha: this.todayISO(), metodoPago: 'Efectivo' });
+    this.pagoErrorMessage = '';
+    this.cdr.detectChanges();
+  }
+
+  getTotalPagado(m: MovimientoRow): number {
+    return (m.pagos || []).reduce((acc, p) => acc + p.monto, 0);
+  }
+
+  getPorcentajePagado(m: MovimientoRow): number {
+    if (!m.monto) return 0;
+    return Math.min(100, (this.getTotalPagado(m) / m.monto) * 100);
+  }
+
+  agregarPago(movimiento: MovimientoRow): void {
+    if (this.pagoForm.invalid) {
+      this.pagoForm.markAllAsTouched();
+      return;
+    }
+    const raw = this.pagoForm.getRawValue();
+    this.finanzasService.createPago(movimiento.id, {
+      monto: Number(raw.monto),
+      fecha: raw.fecha,
+      metodoPago: raw.metodoPago || null,
+    }).subscribe({
+      next: (res) => {
+        this.movimientos = this.movimientos.map(m => m.id === movimiento.id ? res.data : m);
+        this.pagoForm.reset({ monto: null, fecha: '', metodoPago: 'Efectivo' });
+        this.pagoErrorMessage = '';
+        this.calcularStats();
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.pagoErrorMessage = err?.error?.message || 'No se pudo registrar el abono';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  pedirEliminarPago(movimiento: MovimientoRow, pagoId: number): void {
+    this.confirmDeletePago = { movimiento, pagoId };
+  }
+
+  confirmarEliminarPago(): void {
+    if (!this.confirmDeletePago) return;
+    const { movimiento, pagoId } = this.confirmDeletePago;
+    this.confirmDeletePago = null;
+    this.finanzasService.deletePago(movimiento.id, pagoId).subscribe({
+      next: (res) => {
+        this.movimientos = this.movimientos.map(m => m.id === movimiento.id ? res.data : m);
+        this.calcularStats();
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.pagoErrorMessage = 'No se pudo eliminar el abono';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  cancelarEliminarPago(): void {
+    this.confirmDeletePago = null;
+  }
+
+  hasPagoError(field: string): boolean {
+    const c = this.pagoForm.get(field);
+    return !!(c && c.invalid && c.touched);
+  }
+
+  // ── Helpers de presentación ───────────────────────────────────────────────
 
   getTipoClass(tipo: string): string {
     return tipo === 'INGRESO' ? 'status-badge--active' : 'status-badge--danger';
@@ -334,10 +426,18 @@ export class Finance implements OnInit {
     return map[estado] ?? '';
   }
 
+  private todayISO(): string {
+    const d = new Date();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${mm}-${dd}`;
+  }
+
   formatFecha(fecha: string): string {
-    const d = new Date(fecha);
-    if (isNaN(d.getTime())) return fecha;
-    return d.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    if (!fecha) return '';
+    const parts = fecha.substring(0, 10).split('-').map(Number);
+    if (parts.length < 3 || parts.some(isNaN)) return fecha;
+    return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
   hasError(field: string): boolean {

@@ -3,6 +3,21 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 
+export interface PagoMovimiento {
+  id: number;
+  movimientoId: number;
+  monto: number;
+  fecha: string;
+  metodoPago: string | null;
+  createdAt: string;
+}
+
+export interface PagoPayload {
+  monto: number;
+  fecha: string;
+  metodoPago?: string | null;
+}
+
 export interface MovimientoPayload {
   tipo: string;
   concepto: string;
@@ -26,6 +41,7 @@ export interface MovimientoRow {
   diagnosticoRef: string | null;
   nota: string | null;
   paciente: { id: number; nombre: string; apellido: string } | null;
+  pagos: PagoMovimiento[];
   createdAt: string;
 }
 
@@ -78,5 +94,18 @@ export class FinanzasService {
 
   delete(id: number): Observable<{ ok: boolean; message: string }> {
     return this.http.delete<{ ok: boolean; message: string }>(`${this.api}/${id}`);
+  }
+
+  createPago(movimientoId: number, payload: PagoPayload): Observable<{ ok: boolean; data: MovimientoRow }> {
+    return this.http.post<{ ok: boolean; data: MovimientoRow }>(
+      `${this.api}/${movimientoId}/pagos`,
+      payload,
+    );
+  }
+
+  deletePago(movimientoId: number, pagoId: number): Observable<{ ok: boolean; data: MovimientoRow }> {
+    return this.http.delete<{ ok: boolean; data: MovimientoRow }>(
+      `${this.api}/${movimientoId}/pagos/${pagoId}`,
+    );
   }
 }

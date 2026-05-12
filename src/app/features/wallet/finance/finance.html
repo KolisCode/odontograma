@@ -127,8 +127,17 @@
           <label>Medio de pago</label>
           <select formControlName="metodoPago">
             <option value="Efectivo">Efectivo</option>
-            <option value="Transferencia">Transferencia</option>
-            <option value="Tarjeta">Tarjeta</option>
+            <option value="Nequi">Nequi</option>
+            <option value="Daviplata">Daviplata</option>
+            <option value="Bancolombia">Bancolombia</option>
+            <option value="Bre-B">Bre-B</option>
+            <option value="Pibank">Pibank</option>
+            <option value="Nubank">Nubank</option>
+            <option value="Transferencia bancaria">Transferencia bancaria</option>
+            <option value="Tarjeta débito">Tarjeta débito</option>
+            <option value="Tarjeta crédito">Tarjeta crédito</option>
+            <option value="PSE">PSE</option>
+            <option value="Cheque">Cheque</option>
           </select>
         </div>
 
@@ -296,30 +305,141 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let m of movimientos" [class.row--editing]="m.id === editingId">
-            <td>{{ formatFecha(m.fecha) }}</td>
-            <td><span class="status-badge" [ngClass]="getTipoClass(m.tipo)">{{ getTipoLabel(m.tipo) }}</span></td>
-            <td>
-              {{ m.concepto }}
-              <span *ngIf="m.nota" class="finance-nota" [title]="m.nota">{{ m.nota }}</span>
-            </td>
-            <td>{{ m.metodoPago ?? '—' }}</td>
-            <td><span class="status-badge" [ngClass]="getEstadoClass(m.estado)">{{ m.estado }}</span></td>
-            <td>
-              <span [class.money--in]="m.tipo === 'INGRESO'" [class.money--out]="m.tipo === 'EGRESO'">
-                {{ m.monto | currency:'COP ':'symbol':'1.0-0' }}
-              </span>
-            </td>
-            <td class="table-actions-cell">
-              <button class="btn-edit" type="button" (click)="editarMovimiento(m)">Editar</button>
-              <button class="btn-delete" type="button" (click)="eliminar(m.id)">Eliminar</button>
-            </td>
-          </tr>
+          <ng-container *ngFor="let m of movimientos">
+            <tr [class.row--editing]="m.id === editingId" [class.row--expanded]="m.id === expandedPagosId">
+              <td>{{ formatFecha(m.fecha) }}</td>
+              <td><span class="status-badge" [ngClass]="getTipoClass(m.tipo)">{{ getTipoLabel(m.tipo) }}</span></td>
+              <td>
+                {{ m.concepto }}
+                <span *ngIf="m.nota" class="finance-nota" [title]="m.nota">{{ m.nota }}</span>
+              </td>
+              <td>{{ m.metodoPago ?? '—' }}</td>
+              <td><span class="status-badge" [ngClass]="getEstadoClass(m.estado)">{{ m.estado }}</span></td>
+              <td>
+                <span [class.money--in]="m.tipo === 'INGRESO'" [class.money--out]="m.tipo === 'EGRESO'">
+                  {{ m.monto | currency:'COP ':'symbol':'1.0-0' }}
+                </span>
+              </td>
+              <td class="table-actions-cell">
+                <button class="btn-abonos" type="button" (click)="toggleAbonos(m.id)"
+                  [class.btn-abonos--active]="m.id === expandedPagosId">
+                  Abonos<span *ngIf="m.pagos.length"> ({{ m.pagos.length }})</span>
+                </button>
+                <button class="btn-edit" type="button" (click)="editarMovimiento(m)">Editar</button>
+                <button class="btn-delete" type="button" (click)="eliminar(m.id)">Eliminar</button>
+              </td>
+            </tr>
+
+            <!-- Panel de abonos expandible -->
+            <tr *ngIf="m.id === expandedPagosId" class="abonos-panel-row">
+              <td colspan="7" class="abonos-panel-cell">
+                <div class="abonos-panel">
+
+                  <!-- Barra de progreso -->
+                  <div class="abonos-progress">
+                    <div class="abonos-progress__labels">
+                      <span>
+                        Pagado: <strong>{{ getTotalPagado(m) | currency:'COP ':'symbol':'1.0-0' }}</strong>
+                      </span>
+                      <span>
+                        Total: <strong>{{ m.monto | currency:'COP ':'symbol':'1.0-0' }}</strong>
+                      </span>
+                      <span class="abonos-progress__pending"
+                        *ngIf="getTotalPagado(m) < m.monto">
+                        Pendiente: {{ (m.monto - getTotalPagado(m)) | currency:'COP ':'symbol':'1.0-0' }}
+                      </span>
+                      <span class="abonos-progress__complete" *ngIf="getTotalPagado(m) >= m.monto">
+                        Cubierto
+                      </span>
+                    </div>
+                    <div class="abonos-progress__bar">
+                      <div class="abonos-progress__fill"
+                        [style.width.%]="getPorcentajePagado(m)"
+                        [class.abonos-progress__fill--complete]="getTotalPagado(m) >= m.monto">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Lista de abonos registrados -->
+                  <div class="abonos-list" *ngIf="m.pagos.length">
+                    <div class="abonos-list__header">
+                      <span>Fecha</span>
+                      <span>Medio</span>
+                      <span>Monto</span>
+                      <span></span>
+                    </div>
+                    <div class="abono-item" *ngFor="let pago of m.pagos">
+                      <span>{{ formatFecha(pago.fecha) }}</span>
+                      <span>{{ pago.metodoPago ?? '—' }}</span>
+                      <span class="money--in">{{ pago.monto | currency:'COP ':'symbol':'1.0-0' }}</span>
+                      <button class="btn-delete" type="button" (click)="pedirEliminarPago(m, pago.id)">Eliminar</button>
+                    </div>
+                  </div>
+
+                  <div class="abonos-empty" *ngIf="!m.pagos.length">
+                    Sin abonos registrados aún.
+                  </div>
+
+                  <!-- Formulario para agregar abono -->
+                  <form class="pago-form" [formGroup]="pagoForm" (ngSubmit)="agregarPago(m)">
+                    <div class="pago-form__fields">
+                      <div class="form-group">
+                        <label>Monto del abono</label>
+                        <input type="number" formControlName="monto" placeholder="Ej. 50000" min="1" />
+                        <span *ngIf="hasPagoError('monto')" class="field-error">Monto requerido (mayor a 0).</span>
+                      </div>
+                      <div class="form-group">
+                        <label>Fecha</label>
+                        <input type="date" formControlName="fecha" />
+                        <span *ngIf="hasPagoError('fecha')" class="field-error">La fecha es obligatoria.</span>
+                      </div>
+                      <div class="form-group">
+                        <label>Medio de pago</label>
+                        <select formControlName="metodoPago">
+                          <option value="Efectivo">Efectivo</option>
+                          <option value="Nequi">Nequi</option>
+                          <option value="Daviplata">Daviplata</option>
+                          <option value="Bancolombia">Bancolombia</option>
+                          <option value="Bre-B">Bre-B</option>
+                          <option value="Pibank">Pibank</option>
+                          <option value="Nubank">Nubank</option>
+                          <option value="Transferencia bancaria">Transferencia bancaria</option>
+                          <option value="Tarjeta débito">Tarjeta débito</option>
+                          <option value="Tarjeta crédito">Tarjeta crédito</option>
+                          <option value="PSE">PSE</option>
+                          <option value="Cheque">Cheque</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div *ngIf="pagoErrorMessage" class="finance-alert finance-alert--error pago-error">
+                      {{ pagoErrorMessage }}
+                    </div>
+                    <button class="btn btn-primary pago-form__submit" type="submit">
+                      Registrar abono
+                    </button>
+                  </form>
+
+                </div>
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>
   </section>
 </section>
+<!-- Modal: Confirmar eliminación de abono -->
+<div class="confirm-modal-backdrop" *ngIf="confirmDeletePago !== null" (click)="cancelarEliminarPago()">
+  <div class="confirm-modal" (click)="$event.stopPropagation()">
+    <h3>Eliminar abono</h3>
+    <p>¿Confirmas que deseas eliminar este abono? El estado del movimiento puede revertirse a Pendiente.</p>
+    <div class="confirm-modal-actions">
+      <button class="btn btn-secondary" type="button" (click)="cancelarEliminarPago()">Cancelar</button>
+      <button class="btn btn-danger" type="button" (click)="confirmarEliminarPago()">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Confirmar eliminación -->
 <div class="confirm-modal-backdrop" *ngIf="confirmDeleteId !== null" (click)="cancelarEliminar()">
   <div class="confirm-modal" (click)="$event.stopPropagation()">

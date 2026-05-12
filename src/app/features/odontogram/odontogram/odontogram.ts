@@ -853,25 +853,27 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
   // ── Mapeos ────────────────────────────────────────────────────────────────
   private mapBackendSurface(surface: string): ToothSurface | null {
     const surfaceMap: Record<string, ToothSurface> = {
+      // Códigos nuevos (nombres completos)
+      Vestibular: 'Vestibular',
+      Lingual:    'Lingual',
+      Palatina:   'Palatina',
+      Mesial:     'Mesial',
+      Distal:     'Distal',
+      Oclusal:    'Oclusal',
+      // Códigos legacy (un solo carácter)
       M: 'Mesial',
       D: 'Distal',
-      V: 'Centro',
       L: 'Lingual',
-      O: 'Oclusal',
-      C: 'Centro',
+      O: 'Vestibular',
+      C: 'Oclusal',
+      V: 'Vestibular',
     };
     return surfaceMap[surface] ?? null;
   }
 
   private mapFrontendSurfaceToBackend(surface: ToothSurface): string {
-    const surfaceMap: Record<ToothSurface, string> = {
-      Mesial: 'M',
-      Distal: 'D',
-      Lingual: 'L',
-      Oclusal: 'O',
-      Centro: 'C',
-    };
-    return surfaceMap[surface];
+    // Almacenamos el nombre semántico completo para mayor legibilidad
+    return surface;
   }
 
   private mapBackendDiagnosis(diagnosis: string): DiagnosisType | null {
@@ -1053,7 +1055,9 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
 
   formatFecha(fecha: string): string {
     if (!fecha) return '';
-    return new Date(fecha).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' });
+    const parts = fecha.substring(0, 10).split('-').map(Number);
+    if (parts.length < 3 || parts.some(isNaN)) return fecha;
+    return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' });
   }
 
   // ── Navegación ────────────────────────────────────────────────────────────

@@ -787,6 +787,159 @@
   background: #fee2e2;
 }
 
+/* ── Botón abonos ─────────────────────────────────────────────────────────── */
+.btn-abonos {
+  background: none;
+  border: none;
+  color: #2f73d9;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-abonos:hover {
+  background: #ebf2fc;
+}
+
+.btn-abonos--active {
+  background: #ebf2fc;
+  color: #1a5db3;
+}
+
+/* ── Fila expandida ───────────────────────────────────────────────────────── */
+.row--expanded {
+  background: #f0f6ff;
+  border-left: 3px solid #2f73d9;
+}
+
+/* ── Panel de abonos ──────────────────────────────────────────────────────── */
+.abonos-panel-row td {
+  padding: 0;
+  border-bottom: 2px solid #c5d9f5;
+}
+
+.abonos-panel-cell {
+  padding: 0 !important;
+}
+
+.abonos-panel {
+  padding: 20px 24px;
+  background: #f7faff;
+  border-top: 1px solid #d6e6fb;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Barra de progreso */
+.abonos-progress__labels {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 0.88rem;
+  color: #4b6178;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.abonos-progress__labels strong {
+  color: #183247;
+}
+
+.abonos-progress__pending {
+  color: #a06200;
+  font-weight: 600;
+}
+
+.abonos-progress__complete {
+  color: #247447;
+  font-weight: 600;
+}
+
+.abonos-progress__bar {
+  height: 6px;
+  background: #dce8f5;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.abonos-progress__fill {
+  height: 100%;
+  background: #2f73d9;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.abonos-progress__fill--complete {
+  background: #247447;
+}
+
+/* Lista de abonos */
+.abonos-list__header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 12px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.abono-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 10px;
+  background: #fff;
+  border: 1px solid #dde8f5;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: #1e3a52;
+}
+
+.abono-item + .abono-item {
+  margin-top: 6px;
+}
+
+.abonos-empty {
+  font-size: 0.88rem;
+  color: #8a99a8;
+  padding: 6px 0;
+}
+
+/* Formulario de abono */
+.pago-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px solid #dde8f5;
+}
+
+.pago-form__fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pago-form__submit {
+  align-self: flex-start;
+  padding: 10px 20px;
+  font-size: 0.88rem;
+}
+
+.pago-error {
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
 .finance-nota {
   display: block;
   font-size: 11px;
