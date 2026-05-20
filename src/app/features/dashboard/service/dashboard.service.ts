@@ -33,7 +33,6 @@ export interface DashboardSummaryResponse {
 })
 export class DashboardService {
   private api = `${environment.apiUrl}/dashboard`;
-  //private api = '/api/dashboard';
 
   constructor(private http: HttpClient) {}
 

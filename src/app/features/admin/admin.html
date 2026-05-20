@@ -167,9 +167,63 @@
           <h3>Gestión de usuarios</h3>
           <p>Asigna roles y activa o desactiva cuentas del consultorio.</p>
         </div>
-        <button type="button" class="btn-refresh" (click)="loadUsers()" [disabled]="usersLoading">
-          {{ usersLoading ? 'Cargando...' : 'Actualizar' }}
-        </button>
+        <div class="admin-card__actions">
+          <button type="button" class="btn btn-secondary btn-sm" (click)="abrirNuevoUsuario()" [disabled]="newUserFormVisible">
+            Nuevo usuario
+          </button>
+          <button type="button" class="btn-refresh" (click)="loadUsers()" [disabled]="usersLoading">
+            {{ usersLoading ? 'Cargando...' : 'Actualizar' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulario creación de usuario -->
+      <div *ngIf="newUserFormVisible" class="new-user-form" [formGroup]="newUserForm">
+        <h4 class="new-user-form__title">Nuevo usuario</h4>
+        <div class="new-user-form__grid">
+          <div class="form-field">
+            <label>Nombre *</label>
+            <input type="text" formControlName="nombre" placeholder="Nombre" />
+            <small *ngIf="newUserForm.get('nombre')?.touched && newUserForm.get('nombre')?.invalid">Obligatorio (mín. 2 caracteres)</small>
+          </div>
+          <div class="form-field">
+            <label>Apellido *</label>
+            <input type="text" formControlName="apellido" placeholder="Apellido" />
+            <small *ngIf="newUserForm.get('apellido')?.touched && newUserForm.get('apellido')?.invalid">Obligatorio (mín. 2 caracteres)</small>
+          </div>
+          <div class="form-field">
+            <label>Correo *</label>
+            <input type="email" formControlName="correo" placeholder="correo@ejemplo.com" />
+            <small *ngIf="newUserForm.get('correo')?.touched && newUserForm.get('correo')?.invalid">Correo inválido</small>
+          </div>
+          <div class="form-field">
+            <label>Contraseña *</label>
+            <input type="password" formControlName="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
+            <small *ngIf="newUserForm.get('password')?.touched && newUserForm.get('password')?.invalid">Mínimo 8 caracteres</small>
+          </div>
+          <div class="form-field">
+            <label>Rol *</label>
+            <select formControlName="rol">
+              <option *ngFor="let r of ROLES" [value]="r">{{ ROLE_LABELS[r] }}</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Teléfono</label>
+            <input type="text" formControlName="telefono" placeholder="Opcional" />
+          </div>
+          <div class="form-field">
+            <label>Documento</label>
+            <input type="text" formControlName="documento" placeholder="Opcional" />
+          </div>
+        </div>
+        <div *ngIf="newUserError"   class="admin-alert admin-alert--error">{{ newUserError }}</div>
+        <div *ngIf="newUserSuccess" class="admin-alert admin-alert--success">{{ newUserSuccess }}</div>
+        <div class="new-user-form__actions">
+          <button type="button" class="btn btn-secondary btn-sm" (click)="cerrarNuevoUsuario()">Cancelar</button>
+          <button type="button" class="btn btn-primary btn-sm" [disabled]="newUserLoading" (click)="crearUsuario()">
+            {{ newUserLoading ? 'Creando...' : 'Crear usuario' }}
+          </button>
+        </div>
       </div>
 
       <div *ngIf="usersError" class="admin-alert admin-alert--error">{{ usersError }}</div>
@@ -230,8 +284,8 @@
         <h3>Backup de base de datos</h3>
       </div>
       <p class="admin-card__desc">
-        Descarga una copia del archivo SQLite. Guárdala en un lugar seguro
-        (USB, carpeta externa) para poder restaurar el sistema si es necesario.
+        Descarga un archivo ZIP con la base de datos y todos los documentos e imágenes del consultorio.
+        Guárdalo en un lugar seguro (USB, carpeta externa) para poder restaurar el sistema si es necesario.
       </p>
 
       <div *ngIf="backupError" class="admin-alert admin-alert--error">{{ backupError }}</div>
@@ -242,7 +296,7 @@
           class="btn btn-primary"
           [disabled]="backupLoading"
           (click)="descargarBackup()">
-          {{ backupLoading ? 'Descargando…' : 'Descargar backup (.db)' }}
+          {{ backupLoading ? 'Descargando…' : 'Descargar backup (.zip)' }}
         </button>
         <p *ngIf="lastBackupDate" class="admin-card__note">
           Último backup: {{ lastBackupDate }}
@@ -256,7 +310,8 @@
         <h3>Restaurar backup</h3>
       </div>
       <p class="admin-card__desc">
-        Reemplaza la base de datos con un archivo de backup anterior.
+        Restaura la base de datos y los documentos e imágenes desde un backup ZIP generado por Biodont.
+        También acepta archivos .db de backups anteriores (solo restaura la base de datos).
       </p>
 
       <div class="admin-alert admin-alert--warning">
@@ -269,10 +324,10 @@
         <label class="restore-file-label">
           <input
             type="file"
-            accept=".db"
+            accept=".zip,.db"
             class="restore-file-input"
             (change)="onRestoreFileSelected($event)" />
-          <span class="btn btn-secondary btn-sm">Seleccionar archivo .db</span>
+          <span class="btn btn-secondary btn-sm">Seleccionar backup (.zip o .db)</span>
         </label>
         <span *ngIf="restoreFile" class="restore-filename">{{ restoreFile.name }}</span>
       </div>

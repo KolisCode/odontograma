@@ -163,7 +163,7 @@
           <button class="btn btn-secondary" type="button" (click)="limpiar()">
             {{ editingId ? 'Cancelar edición' : 'Cancelar' }}
           </button>
-          <button class="btn btn-primary" type="submit">
+          <button class="btn btn-primary" type="submit" [disabled]="loading">
             {{ editingId ? 'Actualizar movimiento' : 'Guardar movimiento' }}
           </button>
         </div>

@@ -1,6 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { Navbar } from '../../complements/navbar/navbar';
 import { Footer } from '../../complements/footer/footer';
@@ -23,7 +25,7 @@ export interface AlertaClinica {
   templateUrl: './resumen.html',
   styleUrl: './resumen.css',
 })
-export class ResumenHistoria implements OnInit {
+export class ResumenHistoria implements OnInit, OnDestroy {
   pacienteId!: number;
   patientName = '';
   patientDocument = '';
@@ -40,6 +42,7 @@ export class ResumenHistoria implements OnInit {
   historialLoading = false;
   versionModal: BackendOdontogramResponse | null = null;
   versionModalVisible = false;
+  private destroy$ = new Subject<void>();
 
   medicamentos: { medicamento: string; dosis: string; frecuencia: string }[] = [];
 
@@ -80,8 +83,13 @@ export class ResumenHistoria implements OnInit {
     private cdr: ChangeDetectorRef,
   ) {}
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const id = params.get('id');
       if (!id || isNaN(Number(id))) {
         this.errorMessage = 'Paciente no válido';
@@ -95,7 +103,7 @@ export class ResumenHistoria implements OnInit {
   }
 
   private loadData(): void {
-    this.historiaService.getHistoriaByPaciente(this.pacienteId).subscribe({
+    this.historiaService.getHistoriaByPaciente(this.pacienteId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         const paciente = response?.data?.paciente;
         const historia = response?.data?.historia;
@@ -275,7 +283,7 @@ export class ResumenHistoria implements OnInit {
 
   private loadHistorialOdonto(): void {
     this.historialLoading = true;
-    this.odontogramService.getHistorial(this.pacienteId).subscribe({
+    this.odontogramService.getHistorial(this.pacienteId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
         this.historialOdonto = data.filter(v => !v.activo).sort((a, b) => b.version - a.version);
         this.historialLoading = false;

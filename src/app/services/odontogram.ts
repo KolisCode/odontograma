@@ -17,6 +17,10 @@ export class OdontogramService {
     return this.http.get<BackendOdontogramResponse | null>(`${this.apiUrl}/${patientId}`);
   }
 
+  getPlan(patientId: number): Observable<BackendOdontogramResponse | null> {
+    return this.http.get<BackendOdontogramResponse | null>(`${this.apiUrl}/plan/${patientId}`);
+  }
+
   getHistorial(patientId: number): Observable<BackendOdontogramResponse[]> {
     return this.http.get<BackendOdontogramResponse[]>(`${this.apiUrl}/historial/${patientId}`);
   }

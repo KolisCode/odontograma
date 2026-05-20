@@ -155,7 +155,6 @@ export class HistoriaClinica implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.cdr.detectChanges();
   }
 
   createMedicamentoGroup(data?: any): FormGroup {

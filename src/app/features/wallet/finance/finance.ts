@@ -1,12 +1,15 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, of } from 'rxjs';
+import { takeUntil, switchMap, catchError } from 'rxjs/operators';
 
 import { Footer } from '../../complements/footer/footer';
 import { Navbar } from '../../complements/navbar/navbar';
 import { FinanzasService, MovimientoRow, MovimientoFilters, PagoMovimiento } from './service/finanzas.service';
 import { PatientsService, PatientRow } from '../../user/service/pacientes.service';
+import { formatDateForInput } from '../../../utils/date.utils';
 
 @Component({
   selector: 'app-finance',
@@ -14,7 +17,7 @@ import { PatientsService, PatientRow } from '../../user/service/pacientes.servic
   templateUrl: './finance.html',
   styleUrl: './finance.css',
 })
-export class Finance implements OnInit {
+export class Finance implements OnInit, OnDestroy {
   movimientos: MovimientoRow[] = [];
   formVisible = false;
   asideVisible = false;
@@ -64,6 +67,9 @@ export class Finance implements OnInit {
     return egresos.length ? egresos.reduce((a, b) => (a.monto >= b.monto ? a : b)) : null;
   }
 
+  private destroy$ = new Subject<void>();
+  private movimientosRequest$ = new Subject<MovimientoFilters>();
+
   // ── Abonos / pagos parciales ───────────────────────────────────────────────
   expandedPagosId: number | null = null;
   pagoForm: FormGroup;
@@ -80,9 +86,9 @@ export class Finance implements OnInit {
   ) {
     this.form = this.fb.group({
       tipo: ['INGRESO', Validators.required],
-      monto: [null, [Validators.required, Validators.min(0)]],
+      monto: [null, [Validators.required, Validators.min(1)]],
       concepto: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
-      fecha: ['', Validators.required],
+      fecha: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
       metodoPago: ['Efectivo'],
       estado: ['PENDIENTE'],
       pacienteId: [null],
@@ -90,14 +96,45 @@ export class Finance implements OnInit {
 
     this.pagoForm = this.fb.group({
       monto: [null, [Validators.required, Validators.min(1)]],
-      fecha: [this.todayISO(), Validators.required],
+      fecha: [formatDateForInput(new Date()), [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
       metodoPago: ['Efectivo'],
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   ngOnInit(): void {
     this.loadPatients();
-    this.route.queryParamMap.subscribe((params) => {
+
+    this.movimientosRequest$
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((filters) => {
+          this.loading = true;
+          this.cdr.detectChanges();
+          return this.finanzasService.getAll(filters).pipe(
+            catchError(() => {
+              this.errorMessage = 'No se pudieron cargar los movimientos';
+              this.loading = false;
+              this.cdr.detectChanges();
+              return of(null);
+            })
+          );
+        })
+      )
+      .subscribe((res) => {
+        if (res) {
+          this.movimientos = res.data;
+          this.calcularStats();
+          this.loading = false;
+          this.cdr.detectChanges();
+        }
+      });
+
+    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const id = params.get('pacienteId');
       if (id && !isNaN(Number(id))) {
         const numId = Number(id);
@@ -108,7 +145,7 @@ export class Finance implements OnInit {
         } else {
           // Lista aún vacía: cargar el paciente puntualmente y luego los movimientos
           this.movimientos = [];
-          this.patientsService.getPatientById(numId).subscribe({
+          this.patientsService.getPatientById(numId).pipe(takeUntil(this.destroy$)).subscribe({
             next: (res) => {
               this.selectedPatient = {
                 id: res.data.id,
@@ -137,9 +174,12 @@ export class Finance implements OnInit {
   }
 
   loadPatients(): void {
-    this.patientsService.getPatients().subscribe({
+    this.patientsService.getPatients().pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.patients = res.data;
+        this.cdr.detectChanges();
+      },
+      error: () => {
         this.cdr.detectChanges();
       },
     });
@@ -178,7 +218,6 @@ export class Finance implements OnInit {
   }
 
   loadMovimientos(): void {
-    this.loading = true;
     const filters: MovimientoFilters = this.selectedPatient
       ? { pacienteId: this.selectedPatient.id }
       : this.soloSinPaciente
@@ -189,19 +228,7 @@ export class Finance implements OnInit {
     if (this.filtroEstado) filters.estado = this.filtroEstado;
     if (this.filtroFechaDesde) filters.fechaDesde = this.filtroFechaDesde;
     if (this.filtroFechaHasta) filters.fechaHasta = this.filtroFechaHasta;
-    this.finanzasService.getAll(filters).subscribe({
-      next: (res) => {
-        this.movimientos = res.data;
-        this.calcularStats();
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.errorMessage = 'No se pudieron cargar los movimientos';
-        this.loading = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.movimientosRequest$.next(filters);
   }
 
   private calcularStats(): void {
@@ -262,7 +289,7 @@ export class Finance implements OnInit {
     };
 
     if (this.editingId !== null) {
-      this.finanzasService.update(this.editingId, payload).subscribe({
+      this.finanzasService.update(this.editingId, payload).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
           this.successMessage = 'Movimiento actualizado correctamente';
           this.errorMessage = '';
@@ -280,7 +307,7 @@ export class Finance implements OnInit {
       return;
     }
 
-    this.finanzasService.create(payload).subscribe({
+    this.finanzasService.create(payload).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.successMessage = 'Movimiento registrado correctamente';
         this.errorMessage = '';
@@ -313,7 +340,7 @@ export class Finance implements OnInit {
     const id = this.confirmDeleteId;
     this.confirmDeleteId = null;
 
-    this.finanzasService.delete(id).subscribe({
+    this.finanzasService.delete(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.successMessage = 'Movimiento eliminado';
         if (this.expandedPagosId === id) this.expandedPagosId = null;
@@ -338,7 +365,7 @@ export class Finance implements OnInit {
       return;
     }
     this.expandedPagosId = id;
-    this.pagoForm.reset({ monto: null, fecha: this.todayISO(), metodoPago: 'Efectivo' });
+    this.pagoForm.reset({ monto: null, fecha: formatDateForInput(new Date()), metodoPago: 'Efectivo' });
     this.pagoErrorMessage = '';
     this.cdr.detectChanges();
   }
@@ -362,7 +389,7 @@ export class Finance implements OnInit {
       monto: Number(raw.monto),
       fecha: raw.fecha,
       metodoPago: raw.metodoPago || null,
-    }).subscribe({
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.movimientos = this.movimientos.map(m => m.id === movimiento.id ? res.data : m);
         this.pagoForm.reset({ monto: null, fecha: '', metodoPago: 'Efectivo' });
@@ -385,7 +412,7 @@ export class Finance implements OnInit {
     if (!this.confirmDeletePago) return;
     const { movimiento, pagoId } = this.confirmDeletePago;
     this.confirmDeletePago = null;
-    this.finanzasService.deletePago(movimiento.id, pagoId).subscribe({
+    this.finanzasService.deletePago(movimiento.id, pagoId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.movimientos = this.movimientos.map(m => m.id === movimiento.id ? res.data : m);
         this.calcularStats();
@@ -424,13 +451,6 @@ export class Finance implements OnInit {
       PENDIENTE: 'status-badge--pending',
     };
     return map[estado] ?? '';
-  }
-
-  private todayISO(): string {
-    const d = new Date();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    return `${d.getFullYear()}-${mm}-${dd}`;
   }
 
   formatFecha(fecha: string): string {

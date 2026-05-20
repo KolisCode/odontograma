@@ -145,3 +145,34 @@
   transform: scaleX(1.15);
 }
 
+/* ── Procedimientos de plan de tratamiento ─────────────────────────────── */
+.plan-resina {
+  fill: #20c997 !important;
+  stroke: #0ca678 !important;
+}
+
+.plan-profilaxis {
+  fill: #22b8cf !important;
+  stroke: #1098ad !important;
+}
+
+.plan-blanqueamiento {
+  fill: #fcc419 !important;
+  stroke: #f59f00 !important;
+}
+
+.plan-exodoncia {
+  fill: #ff6b6b !important;
+  stroke: #c92a2a !important;
+}
+
+.plan-tratamiento-periodontal {
+  fill: #748ffc !important;
+  stroke: #4263eb !important;
+}
+
+.plan-cirugia {
+  fill: #cc5de8 !important;
+  stroke: #9c36b5 !important;
+}
+

@@ -30,7 +30,6 @@ export interface HistoriaClinicaPayload {
   providedIn: 'root'
 })
 export class HistoriaClinicaService {
-  // private api = '/api/historias-clinicas';
   private api = `${environment.apiUrl}/historias-clinicas`;
 
 

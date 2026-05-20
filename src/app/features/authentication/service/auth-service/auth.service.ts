@@ -19,16 +19,12 @@ export class AuthService {
   login(data: { correo: string; password: string }): Observable<any> {
     return this.http.post(`${this.api}/login`, data).pipe(
       tap((response: any) => {
-        const token = response?.data?.token;
-        const user = response?.data?.user;
-
-        if (token) {
-          localStorage.setItem('token', token);
-        }
-
-        if (user) {
-          localStorage.setItem('user', JSON.stringify(user));
-        }
+        try {
+          const token = response?.data?.token;
+          const user = response?.data?.user;
+          if (token) localStorage.setItem('token', token);
+          if (user) localStorage.setItem('user', JSON.stringify(user));
+        } catch { /* storage unavailable */ }
       })
     );
   }
@@ -38,21 +34,34 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('biodont_last_export');
+      localStorage.removeItem('biodont_last_backup');
+    } catch { /* storage unavailable */ }
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    try { return localStorage.getItem('token'); } catch { return null; }
   }
 
   getUser(): any | null {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    try {
+      const user = localStorage.getItem('user');
+      return user ? JSON.parse(user) : null;
+    } catch { return null; }
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token) return false;
+    const parts = token.split('.');
+    if (parts.length !== 3) return false;
+    try {
+      const payload = JSON.parse(atob(parts[1]));
+      return payload.exp * 1000 > Date.now();
+    } catch { return false; }
   }
 
   getUserRole(): string | null {

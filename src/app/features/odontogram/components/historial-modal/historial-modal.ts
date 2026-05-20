@@ -78,7 +78,7 @@ export class OdontogramHistorialModal implements OnChanges {
       Vestibular: 'Vestibular', Lingual: 'Lingual', Palatina: 'Palatina',
       Mesial: 'Mesial', Distal: 'Distal', Oclusal: 'Oclusal',
       // Legacy
-      M: 'Mesial', D: 'Distal', L: 'Lingual', O: 'Vestibular', C: 'Oclusal', V: 'Vestibular',
+      M: 'Mesial', D: 'Distal', L: 'Lingual', O: 'Oclusal', C: 'Oclusal', V: 'Vestibular',
     };
 
     for (const diente of data.dientes ?? []) {

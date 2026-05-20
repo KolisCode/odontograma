@@ -1,6 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { calcularEdad as calcEdad, formatDateForInput as fmtDate } from '../../../utils/date.utils';
 import { ImportParserService, ParsedRow } from '../../../services/import-parser.service';
 import { ImportResult } from '../service/pacientes.service';
 import {
@@ -31,7 +34,7 @@ import {
   templateUrl: './list.html',
   styleUrls: ['./list.css'],
 })
-export class List implements OnInit {
+export class List implements OnInit, OnDestroy {
   patientForm: FormGroup;
 
   formVisible = false;
@@ -46,10 +49,11 @@ export class List implements OnInit {
   searchTerm = '';
   mostrarInactivos = false;
   recentPatients: RecentPatient[] = [];
+  private destroy$ = new Subject<void>();
 
   // ── Toggle activo / inactivo ──────────────────────────────────────────────
   toggleActivoTarget: PatientRow | null = null;
-  toggleActivoPendientes: { movimientosPendientes: number; odontogramasActivos: number } | null = null;
+  toggleActivoPendientes: { movimientosPendientes: number; odontogramasActivos: number; tratamientosActivos: number } | null = null;
   toggleActivoLoading = false;
   toggleActivoError = '';
 
@@ -67,14 +71,7 @@ export class List implements OnInit {
   }
 
   calcularEdad(fechaNacimiento: string | null): number | null {
-    if (!fechaNacimiento) return null;
-    const hoy = new Date();
-    const nac = new Date(`${fechaNacimiento}T00:00:00`);
-    if (isNaN(nac.getTime())) return null;
-    let edad = hoy.getFullYear() - nac.getFullYear();
-    const m = hoy.getMonth() - nac.getMonth();
-    if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
-    return edad;
+    return calcEdad(fechaNacimiento);
   }
   quickInfo: QuickInfo = {
     alergiasRegistradas: 0,
@@ -166,6 +163,11 @@ export class List implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   ngOnInit(): void {
     this.loadPatientsModuleData();
   }
@@ -179,7 +181,7 @@ export class List implements OnInit {
   loadPatients(): void {
     this.tableLoading = true;
 
-    this.patientsService.getPatients().subscribe({
+    this.patientsService.getPatients().pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         this.patients = response.data;
         this.tableLoading = false;
@@ -194,7 +196,7 @@ export class List implements OnInit {
   }
 
   loadRecentPatients(): void {
-    this.patientsService.getRecentPatients().subscribe({
+    this.patientsService.getRecentPatients().pipe(takeUntil(this.destroy$)).subscribe({
       next: (response: any) => {
         this.recentPatients = response.data;
         this.cdr.detectChanges();
@@ -207,7 +209,7 @@ export class List implements OnInit {
   }
 
   loadQuickInfo(): void {
-    this.patientsService.getQuickInfo().subscribe({
+    this.patientsService.getQuickInfo().pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         this.quickInfo = response.data;
         this.cdr.detectChanges();
@@ -234,7 +236,7 @@ export class List implements OnInit {
 
   editPatient(id: number): void {
     this.formVisible = true;
-    this.patientsService.getPatientById(id).subscribe({
+    this.patientsService.getPatientById(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res: any) => {
         const p = res.data;
         this.editingId = id;
@@ -282,7 +284,7 @@ export class List implements OnInit {
     const payload = this.buildPayload();
 
     if (this.editingId !== null) {
-      this.patientsService.updatePatient(this.editingId, payload).subscribe({
+      this.patientsService.updatePatient(this.editingId, payload).pipe(takeUntil(this.destroy$)).subscribe({
         next: (response: any) => {
           this.successMessage = response.message || 'Paciente actualizado correctamente';
           this.loading = false;
@@ -299,7 +301,7 @@ export class List implements OnInit {
         },
       });
     } else {
-      this.patientsService.createPatient(payload).subscribe({
+      this.patientsService.createPatient(payload).pipe(takeUntil(this.destroy$)).subscribe({
         next: (response: any) => {
           this.successMessage = response.message || 'Paciente registrado correctamente';
           this.loading = false;
@@ -340,7 +342,7 @@ export class List implements OnInit {
     this.toggleActivoLoading = true;
     this.cdr.detectChanges();
 
-    this.patientsService.toggleActivo(patient.id, !patient.activo, false).subscribe({
+    this.patientsService.toggleActivo(patient.id, !patient.activo, false).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         // Sin pendientes — se ejecutó directamente
         this.toggleActivoTarget = null;
@@ -366,7 +368,7 @@ export class List implements OnInit {
     this.toggleActivoLoading = true;
     this.toggleActivoError = '';
 
-    this.patientsService.toggleActivo(this.toggleActivoTarget.id, !this.toggleActivoTarget.activo, true).subscribe({
+    this.patientsService.toggleActivo(this.toggleActivoTarget.id, !this.toggleActivoTarget.activo, true).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.toggleActivoTarget = null;
         this.toggleActivoPendientes = null;
@@ -403,6 +405,10 @@ export class List implements OnInit {
 
   goToFinance(patientId: number): void {
     this.router.navigate(['/finance'], { queryParams: { pacienteId: patientId } });
+  }
+
+  goToTratamientos(patientId: number): void {
+    this.router.navigate(['/tratamientos', patientId]);
   }
 
   getControl(controlName: string): AbstractControl | null {
@@ -540,7 +546,7 @@ export class List implements OnInit {
 
     const mapped = this.importParser.applyMapping(this._importAllRows, this.importColumnMapping);
 
-    this.patientsService.importarPacientes(mapped as any).subscribe({
+    this.patientsService.importarPacientes(mapped as any).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.importResult = res.data;
         this.importStep = 'result';
@@ -599,11 +605,7 @@ export class List implements OnInit {
   }
 
   private formatDateForInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const day = `${date.getDate()}`.padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
+    return fmtDate(date);
   }
 
   private noFutureDateValidator(): ValidatorFn {

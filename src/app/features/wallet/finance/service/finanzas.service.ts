@@ -75,13 +75,6 @@ export class FinanzasService {
     return this.http.post<{ ok: boolean; data: MovimientoRow }>(this.api, payload);
   }
 
-  updateEstado(id: number, estado: string): Observable<{ ok: boolean; data: MovimientoRow }> {
-    return this.http.patch<{ ok: boolean; data: MovimientoRow }>(
-      `${this.api}/${id}/estado`,
-      { estado },
-    );
-  }
-
   update(id: number, payload: Partial<MovimientoPayload>): Observable<{ ok: boolean; data: MovimientoRow }> {
     return this.http.put<{ ok: boolean; data: MovimientoRow }>(`${this.api}/${id}`, payload);
   }

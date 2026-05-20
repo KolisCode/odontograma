@@ -46,6 +46,10 @@ export class AdminService {
   }
 
   // ── Gestión de usuarios ───────────────────────────────────────────────────
+  createUser(data: { nombre: string; apellido: string; correo: string; password: string; rol: string; telefono?: string; documento?: string }): Observable<{ ok: boolean; data: UserRow }> {
+    return this.http.post<{ ok: boolean; data: UserRow }>(`${this.authApi}/register`, data);
+  }
+
   listUsers(): Observable<{ ok: boolean; data: UserRow[] }> {
     return this.http.get<{ ok: boolean; data: UserRow[] }>(`${this.authApi}/users`);
   }

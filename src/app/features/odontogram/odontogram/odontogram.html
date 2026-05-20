@@ -71,6 +71,24 @@
   </div>
 </div>
 
+<!-- Tab: Diagnóstico / Plan de tratamiento -->
+<div class="odontogram-main-tabs">
+  <button
+    type="button"
+    class="odontogram-main-tab"
+    [class.odontogram-main-tab--active]="odontogramTab() === 'diagnostico'"
+    (click)="switchOdontogramTab('diagnostico')">
+    Diagnóstico
+  </button>
+  <button
+    type="button"
+    class="odontogram-main-tab odontogram-main-tab--plan"
+    [class.odontogram-main-tab--active]="odontogramTab() === 'plan'"
+    (click)="switchOdontogramTab('plan')">
+    Plan de tratamiento
+  </button>
+</div>
+
 <div class="odontogram-layout">
   <div class="left-column">
     <div class="dental-chart-scaler" [class.dental-chart-scaler--active]="scaledChartHeight() !== null" [style.height.px]="scaledChartHeight()">
@@ -242,23 +260,23 @@
 
     <section class="diagnostic-record">
       <div class="section-header">
-        <h3>Registro</h3>
+        <h3>{{ odontogramTab() === 'plan' ? 'Plan de tratamiento' : 'Registro' }}</h3>
         <div class="record-counters">
-          <span class="record-counter">{{ groupedDiagnosesByTooth().length }} diagnósticos</span>
-          <span class="record-counter record-counter--piece" *ngIf="pieces().length > 0">
-            {{ pieces().length }} piezas
+          <span class="record-counter">{{ groupedDiagnosesByTooth().length }} {{ odontogramTab() === 'plan' ? 'procedimientos' : 'diagnósticos' }}</span>
+          <span class="record-counter record-counter--piece" *ngIf="activePieces().length > 0">
+            {{ activePieces().length }} piezas
           </span>
         </div>
       </div>
 
       <!-- Piezas registradas -->
-      <div *ngIf="pieces().length > 0" class="pieces-record">
+      <div *ngIf="activePieces().length > 0" class="pieces-record">
         <div class="pieces-record__title">Piezas protésicas</div>
         <div class="pieces-list">
-          <div class="piece-tag" *ngFor="let p of pieces()" [ngClass]="'piece-tag--' + p.type.toLowerCase()">
+          <div class="piece-tag" *ngFor="let p of activePieces()" [ngClass]="'piece-tag--' + p.type.toLowerCase()">
             <span class="piece-tag__tooth">#{{ p.tooth }}</span>
             <span class="piece-tag__label">{{ getPieceLabel(p.type) }}</span>
-            <ng-container *ngIf="originalOdontogram">
+            <ng-container *ngIf="odontogramTab() === 'diagnostico' && originalOdontogram">
               <span *ngIf="hasCobro(buildPieceRef(p.tooth, p.type))" class="cobro-badge">Cobrado</span>
               <button
                 *ngIf="!hasCobro(buildPieceRef(p.tooth, p.type))"
@@ -278,9 +296,9 @@
             <tr>
               <th>Diente</th>
               <th>Cara</th>
-              <th>Diagnóstico(s)</th>
+              <th>{{ odontogramTab() === 'plan' ? 'Procedimiento(s)' : 'Diagnóstico(s)' }}</th>
               <th>Fecha</th>
-              <th>Cobro</th>
+              <th *ngIf="odontogramTab() === 'diagnostico'">Cobro</th>
               <th></th>
             </tr>
           </thead>
@@ -307,7 +325,7 @@
                 <td *ngIf="first" [attr.rowspan]="record.surfaces.length" class="record-cell-date">
                   {{ record.date | date: 'dd/MM/yy' }}
                 </td>
-                <td *ngIf="first" [attr.rowspan]="record.surfaces.length" class="record-cell-cobro">
+                <td *ngIf="first && odontogramTab() === 'diagnostico'" [attr.rowspan]="record.surfaces.length" class="record-cell-cobro">
                   <ng-container *ngIf="originalOdontogram">
                     <ng-container *ngFor="let diagType of getUniqueDiagnoses(record)">
                       <span *ngIf="hasCobro(buildDiagnosticoRef(record.tooth, diagType))" class="cobro-badge">
@@ -389,8 +407,8 @@
         </div>
       </div>
 
-      <!-- Selector de modo (solo si no hay odontograma guardado) -->
-      <div class="mode-selector" *ngIf="!originalOdontogram">
+      <!-- Selector de modo (solo en diagnóstico y sin odontograma guardado) -->
+      <div class="mode-selector" *ngIf="!originalOdontogram && odontogramTab() === 'diagnostico'">
         <div class="mode-selector-label">Tipo de dentición</div>
         <div class="mode-selector-buttons">
           <button type="button" class="mode-btn" [class.active]="!isPediatric && !isMixed" (click)="setOdontogramMode('ADULTO')">
@@ -477,8 +495,8 @@
         </ng-template>
       </div>
 
-      <!-- Guardar / Nueva versión -->
-      <div class="save-section">
+      <!-- Guardar — diagnóstico -->
+      <div class="save-section" *ngIf="odontogramTab() === 'diagnostico'">
         <div class="save-actions">
           <button type="button" class="save-btn" (click)="save()" [disabled]="isSaving">
             {{ isSaving ? 'Guardando...' : 'Actualizar' }}
@@ -503,6 +521,20 @@
         }">{{ saveMessage }}</div>
       </div>
 
+      <!-- Guardar — plan de tratamiento -->
+      <div class="save-section" *ngIf="odontogramTab() === 'plan'">
+        <div class="save-actions">
+          <button type="button" class="save-btn save-btn--plan" (click)="savePlan()" [disabled]="planSaving">
+            {{ planSaving ? 'Guardando...' : (originalPlan ? 'Guardar plan' : 'Crear plan') }}
+          </button>
+        </div>
+        <div *ngIf="planMessage" class="save-message" [ngClass]="{
+          'save-success': planMessageType === 'success',
+          'save-error': planMessageType === 'error',
+          'save-info': planMessageType === 'info'
+        }">{{ planMessage }}</div>
+      </div>
+
       <!-- Guía de caras -->
       <div class="tooth-guide-card">
         <div class="tooth-guide-header">
@@ -514,8 +546,8 @@
         </div>
       </div>
 
-      <!-- Historial de versiones -->
-      <div class="historial-section" *ngIf="originalOdontogram">
+      <!-- Historial de versiones (solo diagnóstico) -->
+      <div class="historial-section" *ngIf="originalOdontogram && odontogramTab() === 'diagnostico'">
         <button type="button" class="historial-toggle" (click)="toggleHistorial()">
           Versiones anteriores
           <span class="historial-chevron" [class.historial-chevron--open]="historialVisible">▾</span>
@@ -542,12 +574,12 @@
       <div class="resumen-panel-content">
         <div class="section-header">
           <h3>Resumen</h3>
-          <span class="record-counter">{{ diagnoses().length }} total</span>
+          <span class="record-counter">{{ activeDiagnoses().length }} total</span>
         </div>
 
-        <div *ngIf="diagnoses().length > 0; else noSummary" class="summary-grid">
+        <div *ngIf="activeDiagnoses().length > 0; else noSummary" class="summary-grid">
           <div class="summary-card" *ngFor="let item of diagnosisSummary() | keyvalue">
-            <div class="summary-label">{{ item.key }}</div>
+            <div class="summary-label">{{ getDiagnosisLabel(item.key) }}</div>
             <div class="summary-value">{{ item.value }}</div>
           </div>
         </div>

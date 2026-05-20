@@ -1,3 +1,47 @@
+/* ── Tab principal: Diagnóstico / Plan de tratamiento ────────────────────── */
+.odontogram-main-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 20px;
+  background: #f4f6f9;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.odontogram-main-tab {
+  padding: 12px 28px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.odontogram-main-tab:hover {
+  color: #1e293b;
+}
+
+.odontogram-main-tab--active {
+  color: #2f73d9;
+  border-bottom-color: #2f73d9;
+}
+
+.odontogram-main-tab--plan.odontogram-main-tab--active {
+  color: #0ca678;
+  border-bottom-color: #0ca678;
+}
+
+.save-btn--plan {
+  background: #0ca678;
+}
+
+.save-btn--plan:hover:not(:disabled) {
+  background: #087f5b;
+}
+
 .odontogram-layout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) 380px;

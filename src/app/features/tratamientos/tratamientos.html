@@ -57,7 +57,7 @@
 
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="cancelForm()">Cancelar</button>
-        <button type="submit" class="btn btn-primary">{{ editingId ? 'Guardar cambios' : 'Registrar' }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="submitting">{{ editingId ? 'Guardar cambios' : 'Registrar' }}</button>
       </div>
     </form>
   </div>

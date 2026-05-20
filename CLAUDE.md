@@ -144,23 +144,22 @@ El sistema aplica un estilo clínico-institucional consistente en todos los mód
 
 ## Funcionalidades pendientes
 
-- `list.html`: botón **"Importar"** — sin acción
-- `resumen/:id` (ResumenHistoria): apartado para **subir documentos del paciente** (radiografías, exámenes, imágenes de interés) — pendiente de diseño e implementación. El backend no tiene endpoint aún.
-- **Módulo de tratamientos** — frontend en pausa, esperando reunión con cliente que defina la UX
-- **Módulos clínicos "Próximamente"** en historia clínica: Fórmulas médicas, Evolución de tratamiento, Enfermedades odontológicas, Presupuesto
-- **Odontograma modo MIXTO** — tercer modo para dentición mixta (~6-12 años), mezcla de dientes temporales (51-85) y permanentes en erupción (11-48). Pendiente de diseño y discusión.
+- **Módulos clínicos "Próximamente"** en historia clínica (`historia-clinica.html`): Fórmulas médicas, Evolución de tratamiento, Enfermedades odontológicas, Presupuesto — placeholders visuales sin implementar.
 
-### Pendientes sesión 2026-05-09/10
-
-- **[4] Pagos parciales en movimientos** — Un movimiento (deuda) se paga en cuotas. Requiere nueva tabla `PagoMovimiento` (id, movimientoId, monto, fecha, metodoPago) en el schema de Prisma + migración. El `estado` del movimiento pasa a PAGADO solo cuando `SUM(pagos) >= monto`. Frontend: sección de abonos dentro del detalle del movimiento en `/finance`.
-
-- **[5] Odontograma de tratamientos** — Vista del odontograma que muestra el *plan de tratamiento* (qué se hará) en lugar del estado diagnóstico (qué tiene). Diferencias clave:
+- **[5] Odontograma modo TRATAMIENTO** — Vista del odontograma que muestra el *plan de tratamiento* (qué se hará) en lugar del estado diagnóstico (qué tiene). Diferencias clave:
   - `Odontograma.tipo` nuevo valor `"TRATAMIENTO"` (actualmente solo "ADULTO"/"PEDIATRICO"/"MIXTO")
   - Paleta de colores y leyenda distintas: procedimientos a realizar vs. patologías existentes
   - El componente `OdontogramComponent` necesita un `@Input() modo: 'diagnostico' | 'tratamiento'`
-  - Acceso desde el módulo de **Tratamientos** (que también está en pausa) — ambos deben desbloquearse juntos
+  - Acceso desde el módulo de **Tratamientos**
   - Backend ya tiene `Tratamiento.odontogramaId` para vincular el plan al odontograma de tratamiento
-  - Pendiente de que el cliente defina la UX del módulo de tratamientos antes de implementar
+  - Pendiente de que el cliente defina la UX antes de implementar
+
+## Funcionalidades implementadas (antes marcadas como pendientes)
+
+- `list.html`: botón **"Importar"** — ✅ implementado con modal completo (CSV/Excel), `openImportModal()` en `list.ts`, endpoint `POST /pacientes/importar` en backend.
+- **Módulo de tratamientos** — ✅ implementado (formulario, tabla, cambio de estado, modal de confirmación en `tratamientos.html`/`tratamientos.ts`).
+- **Pagos parciales en movimientos** — ✅ implementado. Panel de abonos expandible por fila en `finance.html`, barra de progreso, `PagoMovimiento` en schema, servicios `pagoMovimiento.service.js` / `pagoMovimiento.controller.js` en backend.
+- **Odontograma modo MIXTO** — ✅ implementado. Arcadas mixtas definidas en `odontogram.ts` (`mixedUpperRight`, etc.), botón de selección en UI, soportado en historial modal.
 
 ## UX para uso local en consultorio
 

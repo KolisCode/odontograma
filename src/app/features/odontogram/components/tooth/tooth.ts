@@ -55,6 +55,7 @@ export class Tooth {
   }>();
 
   private diagnosisClassMap: Record<string, string> = {
+    // Diagnósticos
     Caries: 'diagnosis-caries',
     Obturacion: 'diagnosis-obturacion',
     Fractura: 'diagnosis-fractura',
@@ -65,6 +66,13 @@ export class Tooth {
     Sano: 'diagnosis-sano',
     Pulpotomia: 'diagnosis-pulpotomia',
     Pulpectomia: 'diagnosis-pulpectomia',
+    // Procedimientos de plan de tratamiento
+    Resina: 'plan-resina',
+    Profilaxis: 'plan-profilaxis',
+    Blanqueamiento: 'plan-blanqueamiento',
+    Exodoncia: 'plan-exodoncia',
+    TratamientoPeriodontal: 'plan-tratamiento-periodontal',
+    Cirugia: 'plan-cirugia',
   };
 
   /** Intercambia Mesial↔Distal para los cuadrantes que lo requieren. */

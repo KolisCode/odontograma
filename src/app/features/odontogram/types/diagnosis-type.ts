@@ -1,4 +1,5 @@
 export type DiagnosisType =
+  // Diagnósticos
   | 'Caries'
   | 'Obturacion'
   | 'Fractura'
@@ -8,4 +9,11 @@ export type DiagnosisType =
   | 'TratamientoConducto'
   | 'Sano'
   | 'Pulpotomia'
-  | 'Pulpectomia';
+  | 'Pulpectomia'
+  // Procedimientos de plan de tratamiento
+  | 'Resina'
+  | 'Profilaxis'
+  | 'Blanqueamiento'
+  | 'Exodoncia'
+  | 'TratamientoPeriodontal'
+  | 'Cirugia';

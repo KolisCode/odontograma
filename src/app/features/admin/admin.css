@@ -624,3 +624,66 @@
   opacity: 0.5;
   cursor: default;
 }
+
+/* ── Acciones del header de tarjeta ──────────────────────────────────────── */
+.admin-card__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ── Formulario nuevo usuario ────────────────────────────────────────────── */
+.new-user-form {
+  margin: 16px 0;
+  padding: 16px;
+  background: #f5f8fb;
+  border-left: 3px solid #2f73d9;
+  border-radius: 8px;
+}
+
+.new-user-form__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #27445c;
+  margin: 0 0 12px;
+}
+
+.new-user-form__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #27445c;
+}
+
+.form-field input,
+.form-field select {
+  padding: 7px 10px;
+  border: 1px solid #dbe3ec;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: #fff;
+}
+
+.form-field small {
+  color: #c0392b;
+  font-size: 0.75rem;
+}
+
+.new-user-form__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}

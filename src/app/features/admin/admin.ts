@@ -1,6 +1,8 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Navbar } from '../complements/navbar/navbar';
 import { Footer } from '../complements/footer/footer';
 import { AdminService, ExportConfig, HealthStatus, UserRow } from './admin.service';
@@ -10,11 +12,11 @@ import { AuthService } from '../authentication/service/auth-service/auth.service
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, Navbar, Footer],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, Navbar, Footer],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
-export class Admin implements OnInit {
+export class Admin implements OnInit, OnDestroy {
   // ── Estado del sistema ─────────────────────────────────────────────────────
   health: HealthStatus | null = null;
   healthLoading = true;
@@ -31,7 +33,7 @@ export class Admin implements OnInit {
   exportLoading  = false;
   exportError    = '';
   exportSuccess  = '';
-  lastExportDate = localStorage.getItem('biodont_last_export') ?? null;
+  lastExportDate = (() => { try { return localStorage.getItem('biodont_last_export'); } catch { return null; } })();
 
   // ── Gestión de usuarios ───────────────────────────────────────────────────
   users: UserRow[] = [];
@@ -50,6 +52,13 @@ export class Admin implements OnInit {
     RECEPCION:  'Recepción',
   };
 
+  // ── Crear usuario ─────────────────────────────────────────────────────────
+  newUserFormVisible = false;
+  newUserForm: FormGroup;
+  newUserLoading  = false;
+  newUserError    = '';
+  newUserSuccess  = '';
+
   // ── Cambio de contraseña ──────────────────────────────────────────────────
   pwdModalUser: UserRow | null = null;
   pwdNueva     = '';
@@ -62,19 +71,32 @@ export class Admin implements OnInit {
   // ── Backup / Restore ─────────────────────────────────────────────────────
   backupLoading  = false;
   backupError    = '';
-  lastBackupDate = localStorage.getItem('biodont_last_backup') ?? null;
+  lastBackupDate = (() => { try { return localStorage.getItem('biodont_last_backup'); } catch { return null; } })();
 
   restoreFile:    File | null = null;
   restoreLoading  = false;
   restoreError    = '';
   restoreSuccess  = '';
+  private restoreTimer: ReturnType<typeof setTimeout> | null = null;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private adminService: AdminService,
     private exportService: ExportService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
-  ) {}
+    private fb: FormBuilder,
+  ) {
+    this.newUserForm = this.fb.group({
+      nombre:    ['', [Validators.required, Validators.minLength(2)]],
+      apellido:  ['', [Validators.required, Validators.minLength(2)]],
+      correo:    ['', [Validators.required, Validators.email]],
+      password:  ['', [Validators.required, Validators.minLength(8)]],
+      rol:       ['RECEPCION', Validators.required],
+      telefono:  [''],
+      documento: [''],
+    });
+  }
 
   ngOnInit(): void {
     this.currentUserId = this.authService.getUser()?.id ?? null;
@@ -82,11 +104,17 @@ export class Admin implements OnInit {
     this.loadUsers();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    if (this.restoreTimer) clearTimeout(this.restoreTimer);
+  }
+
   // ── Sistema ────────────────────────────────────────────────────────────────
 
   checkHealth(): void {
     this.healthLoading = true;
-    this.adminService.checkHealth().subscribe({
+    this.adminService.checkHealth().pipe(takeUntil(this.destroy$)).subscribe({
       next: (h) => {
         this.health = h;
         this.healthLoading = false;
@@ -141,7 +169,7 @@ export class Admin implements OnInit {
       tratamientos: this.tratamientos.incluir ? { ...this.tratamientos } : undefined,
     };
 
-    this.adminService.exportar(config).subscribe({
+    this.adminService.exportar(config).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.exportService.descargar(res.data);
         const total = res.data.hojas.reduce((s, h) => s + h.total, 0);
@@ -149,7 +177,7 @@ export class Admin implements OnInit {
           ? `Archivo generado con ${total} registro(s) en ${res.data.hojas.length} hoja(s).`
           : `Archivo generado — ningún registro coincide con los filtros aplicados.`;
         this.lastExportDate = new Date().toLocaleString('es-CO');
-        localStorage.setItem('biodont_last_export', this.lastExportDate);
+        try { localStorage.setItem('biodont_last_export', this.lastExportDate!); } catch { /* storage unavailable */ }
         this.exportLoading = false;
         this.cdr.detectChanges();
       },
@@ -166,7 +194,7 @@ export class Admin implements OnInit {
   loadUsers(): void {
     this.usersLoading = true;
     this.usersError   = '';
-    this.adminService.listUsers().subscribe({
+    this.adminService.listUsers().pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.users = res.data;
         this.usersLoading = false;
@@ -183,7 +211,7 @@ export class Admin implements OnInit {
   changeRole(user: UserRow, nuevoRol: string): void {
     if (user.rol === nuevoRol || this.savingRoleId === user.id) return;
     this.savingRoleId = user.id;
-    this.adminService.updateUserRole(user.id, nuevoRol).subscribe({
+    this.adminService.updateUserRole(user.id, nuevoRol).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         const idx = this.users.findIndex(u => u.id === user.id);
         if (idx !== -1) this.users[idx].rol = res.data.rol;
@@ -200,7 +228,7 @@ export class Admin implements OnInit {
   toggleStatus(user: UserRow): void {
     if (this.savingStatusId === user.id) return;
     this.savingStatusId = user.id;
-    this.adminService.updateUserStatus(user.id, !user.activo).subscribe({
+    this.adminService.updateUserStatus(user.id, !user.activo).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         const idx = this.users.findIndex(u => u.id === user.id);
         if (idx !== -1) this.users[idx].activo = res.data.activo;
@@ -209,6 +237,55 @@ export class Admin implements OnInit {
       },
       error: () => {
         this.savingStatusId = null;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  abrirNuevoUsuario(): void {
+    this.newUserFormVisible = true;
+    this.newUserError  = '';
+    this.newUserSuccess = '';
+    this.newUserForm.reset({ rol: 'RECEPCION' });
+  }
+
+  cerrarNuevoUsuario(): void {
+    this.newUserFormVisible = false;
+    this.newUserForm.reset({ rol: 'RECEPCION' });
+  }
+
+  crearUsuario(): void {
+    if (this.newUserForm.invalid || this.newUserLoading) {
+      this.newUserForm.markAllAsTouched();
+      return;
+    }
+    this.newUserLoading = true;
+    this.newUserError   = '';
+    this.newUserSuccess = '';
+    this.cdr.detectChanges();
+
+    const raw = this.newUserForm.getRawValue();
+    const payload = {
+      nombre:    raw.nombre.trim(),
+      apellido:  raw.apellido.trim(),
+      correo:    raw.correo.trim().toLowerCase(),
+      password:  raw.password,
+      rol:       raw.rol,
+      telefono:  raw.telefono?.trim() || undefined,
+      documento: raw.documento?.trim() || undefined,
+    };
+
+    this.adminService.createUser(payload).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        this.users = [...this.users, res.data];
+        this.newUserSuccess = `Usuario ${res.data.nombre} ${res.data.apellido} creado correctamente.`;
+        this.newUserLoading = false;
+        this.newUserForm.reset({ rol: 'RECEPCION' });
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.newUserError   = err?.error?.message ?? 'No se pudo crear el usuario';
+        this.newUserLoading = false;
         this.cdr.detectChanges();
       },
     });
@@ -241,7 +318,7 @@ export class Admin implements OnInit {
     this.pwdSuccess = '';
     this.cdr.detectChanges();
 
-    this.adminService.changeUserPassword(this.pwdModalUser.id, this.pwdNueva).subscribe({
+    this.adminService.changeUserPassword(this.pwdModalUser.id, this.pwdNueva).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.pwdSuccess = res.message;
         this.pwdNueva   = '';
@@ -265,17 +342,17 @@ export class Admin implements OnInit {
     this.backupError   = '';
     this.cdr.detectChanges();
 
-    this.adminService.downloadBackup().subscribe({
+    this.adminService.downloadBackup().pipe(takeUntil(this.destroy$)).subscribe({
       next: (blob) => {
         const fecha = new Date().toISOString().substring(0, 10);
         const url = URL.createObjectURL(blob);
         const a   = document.createElement('a');
         a.href     = url;
-        a.download = `biodont_backup_${fecha}.db`;
+        a.download = `biodont_backup_${fecha}.zip`;
         a.click();
         URL.revokeObjectURL(url);
         this.lastBackupDate = new Date().toLocaleString('es-CO');
-        localStorage.setItem('biodont_last_backup', this.lastBackupDate);
+        try { localStorage.setItem('biodont_last_backup', this.lastBackupDate!); } catch { /* storage unavailable */ }
         this.backupLoading = false;
         this.cdr.detectChanges();
       },
@@ -302,13 +379,13 @@ export class Admin implements OnInit {
     this.restoreSuccess = '';
     this.cdr.detectChanges();
 
-    this.adminService.restoreBackup(this.restoreFile).subscribe({
+    this.adminService.restoreBackup(this.restoreFile).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.restoreSuccess = res.message + ' La página se recargará en 3 segundos.';
         this.restoreFile    = null;
         this.restoreLoading = false;
         this.cdr.detectChanges();
-        setTimeout(() => window.location.reload(), 3000);
+        this.restoreTimer = setTimeout(() => window.location.reload(), 3000);
       },
       error: (err: any) => {
         this.restoreError   = err?.error?.message ?? 'No se pudo restaurar la base de datos';

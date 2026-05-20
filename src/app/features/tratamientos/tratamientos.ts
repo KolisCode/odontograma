@@ -1,7 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { Navbar } from '../complements/navbar/navbar';
 import { Footer } from '../complements/footer/footer';
@@ -15,12 +17,13 @@ import { PatientsService } from '../user/service/pacientes.service';
   templateUrl: './tratamientos.html',
   styleUrl: './tratamientos.css',
 })
-export class Tratamientos implements OnInit {
+export class Tratamientos implements OnInit, OnDestroy {
   pacienteId!: number;
   patientName = '';
 
   tratamientos: TratamientoRow[] = [];
   loading = false;
+  submitting = false;
   errorMessage = '';
   successMessage = '';
 
@@ -30,6 +33,7 @@ export class Tratamientos implements OnInit {
   confirmDeleteId: number | null = null;
 
   estados = ['ACTIVO', 'FINALIZADO', 'PAUSADO'];
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -47,8 +51,13 @@ export class Tratamientos implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const id = params.get('id');
       if (!id || isNaN(Number(id))) return;
       this.pacienteId = Number(id);
@@ -58,7 +67,7 @@ export class Tratamientos implements OnInit {
   }
 
   private loadPatient(): void {
-    this.patientsService.getPatientById(this.pacienteId).subscribe({
+    this.patientsService.getPatientById(this.pacienteId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res: any) => {
         this.patientName = `${res.data.nombre} ${res.data.apellido}`.trim();
         this.cdr.detectChanges();
@@ -72,7 +81,7 @@ export class Tratamientos implements OnInit {
 
   loadTratamientos(): void {
     this.loading = true;
-    this.tratamientosService.getByPaciente(this.pacienteId).subscribe({
+    this.tratamientosService.getByPaciente(this.pacienteId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.tratamientos = res.data;
         this.loading = false;
@@ -120,6 +129,9 @@ export class Tratamientos implements OnInit {
       return;
     }
 
+    this.submitting = true;
+    this.errorMessage = '';
+
     const raw = this.form.getRawValue();
     const data = {
       descripcion: raw.descripcion.trim(),
@@ -130,27 +142,31 @@ export class Tratamientos implements OnInit {
     };
 
     if (this.editingId) {
-      this.tratamientosService.update(this.editingId, data).subscribe({
+      this.tratamientosService.update(this.editingId, data).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
+          this.submitting = false;
           this.successMessage = 'Tratamiento actualizado correctamente';
           this.cdr.detectChanges();
           this.cancelForm();
           this.loadTratamientos();
         },
         error: (err: any) => {
+          this.submitting = false;
           this.errorMessage = err?.error?.message || 'No se pudo actualizar el tratamiento';
           this.cdr.detectChanges();
         },
       });
     } else {
-      this.tratamientosService.create({ ...data, pacienteId: this.pacienteId }).subscribe({
+      this.tratamientosService.create({ ...data, pacienteId: this.pacienteId }).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
+          this.submitting = false;
           this.successMessage = 'Tratamiento registrado correctamente';
           this.cdr.detectChanges();
           this.cancelForm();
           this.loadTratamientos();
         },
         error: (err: any) => {
+          this.submitting = false;
           this.errorMessage = err?.error?.message || 'No se pudo registrar el tratamiento';
           this.cdr.detectChanges();
         },
@@ -159,7 +175,7 @@ export class Tratamientos implements OnInit {
   }
 
   cambiarEstado(t: TratamientoRow, nuevoEstado: string): void {
-    this.tratamientosService.update(t.id, { estado: nuevoEstado }).subscribe({
+    this.tratamientosService.update(t.id, { estado: nuevoEstado }).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => this.loadTratamientos(),
       error: () => {
         this.errorMessage = 'No se pudo actualizar el estado';
@@ -177,7 +193,7 @@ export class Tratamientos implements OnInit {
     const id = this.confirmDeleteId;
     this.confirmDeleteId = null;
 
-    this.tratamientosService.delete(id).subscribe({
+    this.tratamientosService.delete(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.successMessage = 'Tratamiento eliminado';
         this.cdr.detectChanges();

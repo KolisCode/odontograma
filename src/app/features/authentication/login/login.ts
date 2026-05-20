@@ -1,7 +1,9 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../service/auth-service/auth.service';
 import { Footer } from '../../complements/footer/footer';
 
@@ -12,11 +14,13 @@ import { Footer } from '../../complements/footer/footer';
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
 })
-export class Login {
+export class Login implements OnDestroy {
   loginForm: FormGroup;
   loading = false;
   errorMessage = '';
   showPassword = false;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -30,6 +34,11 @@ export class Login {
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
@@ -41,7 +50,7 @@ export class Login {
 
     const payload = this.loginForm.value;
 
-    this.authService.login(payload).subscribe({
+    this.authService.login(payload).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.loading = false;
         this.router.navigate(['/dashboard']);

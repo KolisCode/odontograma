@@ -1,4 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 interface CalendarDay {
   date: string;
@@ -29,7 +31,10 @@ import {
   UpcomingAppointment,
   AgendaSummary,
   CitaFilters,
+  ClinicalStaffRow,
 } from './appointment.service/appointment.service';
+import { PatientRow } from '../service/pacientes.service';
+import { formatDateForInput } from '../../../utils/date.utils';
 
 @Component({
   selector: 'app-appointment',
@@ -38,7 +43,7 @@ import {
   templateUrl: './appointment.html',
   styleUrls: ['./appointment.css'],
 })
-export class Appointment implements OnInit {
+export class Appointment implements OnInit, OnDestroy {
   appointmentForm: FormGroup;
   asideVisible = false;
 
@@ -63,8 +68,8 @@ export class Appointment implements OnInit {
 
   appointments: AppointmentRow[] = [];
   upcomingAppointments: UpcomingAppointment[] = [];
-  patients: any[] = [];
-  clinicalStaff: any[] = [];
+  patients: PatientRow[] = [];
+  clinicalStaff: ClinicalStaffRow[] = [];
 
   // ── Calendario ────────────────────────────────────────────────────────────
   calendarView = false;
@@ -87,7 +92,7 @@ export class Appointment implements OnInit {
     this.calendarLoading = true;
     const fechaDesde = this.toDateKey(new Date(this.calendarYear, this.calendarMonth, 1));
     const fechaHasta = this.toDateKey(new Date(this.calendarYear, this.calendarMonth + 1, 0));
-    this.appointmentService.getAppointments({ fechaDesde, fechaHasta }).subscribe({
+    this.appointmentService.getAppointments({ fechaDesde, fechaHasta }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.calendarAppointments = res.data;
         this.calendarLoading = false;
@@ -219,6 +224,7 @@ export class Appointment implements OnInit {
   filtroDocumento = '';
   filtroPacienteId: number | null = null;
   private documentoFiltroTimer: ReturnType<typeof setTimeout> | null = null;
+  private destroy$ = new Subject<void>();
 
   get filtrosActivos(): number {
     return [this.filtroEstado, this.filtroTipoAtencion, this.filtroFechaDesde, this.filtroFechaHasta]
@@ -253,6 +259,14 @@ export class Appointment implements OnInit {
     this.loadAppointmentsModuleData();
   }
 
+  ngOnDestroy(): void {
+    if (this.documentoFiltroTimer) {
+      clearTimeout(this.documentoFiltroTimer);
+    }
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadAppointmentsModuleData(): void {
     this.loadStats();
     this.loadUpcomingAppointments();
@@ -263,16 +277,19 @@ export class Appointment implements OnInit {
   }
 
   loadStats(): void {
-    this.appointmentService.getStats().subscribe({
+    this.appointmentService.getStats().pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         this.stats = response.data;
+        this.cdr.detectChanges();
+      },
+      error: () => {
         this.cdr.detectChanges();
       },
     });
   }
 
   loadUpcomingAppointments(): void {
-    this.appointmentService.getUpcoming().subscribe({
+    this.appointmentService.getUpcoming().pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         this.upcomingAppointments = response.data;
         this.cdr.detectChanges();
@@ -285,9 +302,12 @@ export class Appointment implements OnInit {
   }
 
   loadSummary(): void {
-    this.appointmentService.getSummary().subscribe({
+    this.appointmentService.getSummary().pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         this.summary = response.data;
+        this.cdr.detectChanges();
+      },
+      error: () => {
         this.cdr.detectChanges();
       },
     });
@@ -303,7 +323,7 @@ export class Appointment implements OnInit {
     if (this.filtroFechaHasta) filters.fechaHasta = this.filtroFechaHasta;
     if (this.filtroPacienteId !== null) filters.pacienteId = this.filtroPacienteId;
 
-    this.appointmentService.getAppointments(filters).subscribe({
+    this.appointmentService.getAppointments(filters).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         this.appointments = response.data;
         this.tableLoading = false;
@@ -328,8 +348,8 @@ export class Appointment implements OnInit {
     // Partial match: filter client-side by patients whose documento contains the typed string
     const matchingIds = new Set<number>(
       this.patients
-        .filter((p: any) => p.documento.includes(trimmed))
-        .map((p: any) => p.id)
+        .filter(p => p.documento.includes(trimmed))
+        .map(p => p.id)
     );
     if (matchingIds.size === 0) return [];
     return this.appointments.filter(a => a.pacienteId !== undefined && matchingIds.has(a.pacienteId));
@@ -337,7 +357,7 @@ export class Appointment implements OnInit {
 
   onDocumentoFiltroChange(value: string): void {
     this.filtroDocumento = value;
-    const match = this.patients.find((p: any) => p.documento === value.trim());
+    const match = this.patients.find(p => p.documento === value.trim());
     this.filtroPacienteId = match ? match.id : null;
     if (this.documentoFiltroTimer) clearTimeout(this.documentoFiltroTimer);
     this.documentoFiltroTimer = setTimeout(() => this.loadAppointments(), 300);
@@ -359,9 +379,9 @@ export class Appointment implements OnInit {
   }
 
   loadPatients(): void {
-    this.appointmentService.getPatients().subscribe({
-      next: (response: any) => {
-        this.patients = response.data || [];
+    this.appointmentService.getPatients().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (response) => {
+        this.patients = response.data;
         this.cdr.detectChanges();
       },
       error: () => {
@@ -372,9 +392,9 @@ export class Appointment implements OnInit {
   }
 
   loadClinicalStaff(): void {
-    this.appointmentService.getClinicalStaff().subscribe({
-      next: (response: any) => {
-        this.clinicalStaff = response.data || [];
+    this.appointmentService.getClinicalStaff().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (response) => {
+        this.clinicalStaff = response.data;
         this.cdr.detectChanges();
       },
       error: () => {
@@ -402,17 +422,17 @@ export class Appointment implements OnInit {
     const hora = String(this.appointmentForm.get('hora')?.value ?? '');
     const motivo = String(this.appointmentForm.get('motivo')?.value ?? '');
 
-    this.appointmentService.createAppointment(payload).subscribe({
+    this.appointmentService.createAppointment(payload).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         this.successMessage = response.message || 'Cita registrada correctamente';
         this.loading = false;
         this.formVisible = false;
 
         // Generar enlace de WhatsApp si el paciente tiene teléfono
-        const patient = this.patients.find((p: any) => p.id === pacienteId);
-        if (patient?.telefono) {
-          const phone = String(patient.telefono).replace(/\D/g, '');
-          const nombre = String(patient.nombreCompleto).split(' ')[0];
+        const patient = this.patients.find(p => p.id === pacienteId);
+        const phone = String(patient?.telefono ?? '').replace(/\D/g, '');
+        if (phone.length >= 7) {
+          const nombre = String(patient!.nombreCompleto).split(' ')[0];
           const fechaLabel = new Date(`${fecha}T00:00:00`).toLocaleDateString('es-CO', {
             weekday: 'long', day: 'numeric', month: 'long',
           });
@@ -450,7 +470,7 @@ export class Appointment implements OnInit {
   }
 
   cambiarEstado(id: number, estado: string): void {
-    this.appointmentService.updateEstado(id, estado).subscribe({
+    this.appointmentService.updateEstado(id, estado).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.loadAppointmentsModuleData();
       },
@@ -576,10 +596,7 @@ export class Appointment implements OnInit {
   }
 
   private formatDateForInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const day = `${date.getDate()}`.padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return formatDateForInput(date);
   }
 
   private noPastDateValidator(): ValidatorFn {

@@ -1,6 +1,8 @@
 import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { DocumentosService, Documento, DocumentoTipo } from '../documentos.service';
 
 interface TipoOption {
@@ -17,6 +19,8 @@ interface TipoOption {
 })
 export class DocumentosComponent implements OnInit, OnDestroy {
   @Input() pacienteId!: number;
+
+  private destroy$ = new Subject<void>();
 
   documentos: Documento[] = [];
   loading = false;
@@ -55,6 +59,8 @@ export class DocumentosComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     if (this.previewUrl) {
       URL.revokeObjectURL(this.previewUrl);
     }
@@ -63,7 +69,7 @@ export class DocumentosComponent implements OnInit, OnDestroy {
   loadDocumentos(): void {
     if (!this.pacienteId) return;
     this.loading = true;
-    this.documentosService.getByPaciente(this.pacienteId).subscribe({
+    this.documentosService.getByPaciente(this.pacienteId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.documentos = res.data;
         this.loading = false;
@@ -110,7 +116,7 @@ export class DocumentosComponent implements OnInit, OnDestroy {
     this.uploading = true;
     this.uploadError = '';
 
-    this.documentosService.upload(formData).subscribe({
+    this.documentosService.upload(formData).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.documentos = [res.data, ...this.documentos];
         this.uploading = false;
@@ -131,7 +137,7 @@ export class DocumentosComponent implements OnInit, OnDestroy {
       this.abrirEnNuevaTab(doc);
       return;
     }
-    this.documentosService.getArchivoBlob(doc.id).subscribe({
+    this.documentosService.getArchivoBlob(doc.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (blob) => {
         if (this.previewUrl) URL.revokeObjectURL(this.previewUrl);
         this.previewUrl = URL.createObjectURL(blob);
@@ -146,17 +152,21 @@ export class DocumentosComponent implements OnInit, OnDestroy {
   }
 
   abrirEnNuevaTab(doc: Documento): void {
-    this.documentosService.getArchivoBlob(doc.id).subscribe({
+    this.documentosService.getArchivoBlob(doc.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
         setTimeout(() => URL.revokeObjectURL(url), 10000);
       },
+      error: () => {
+        this.errorMessage = 'No se pudo abrir el archivo';
+        this.cdr.detectChanges();
+      },
     });
   }
 
   descargarDocumento(doc: Documento): void {
-    this.documentosService.getArchivoBlob(doc.id).subscribe({
+    this.documentosService.getArchivoBlob(doc.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -164,6 +174,10 @@ export class DocumentosComponent implements OnInit, OnDestroy {
         a.download = doc.nombre;
         a.click();
         URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.errorMessage = 'No se pudo descargar el archivo';
+        this.cdr.detectChanges();
       },
     });
   }
@@ -187,7 +201,7 @@ export class DocumentosComponent implements OnInit, OnDestroy {
     const id = this.confirmDeleteId;
     this.confirmDeleteId = null;
 
-    this.documentosService.delete(id).subscribe({
+    this.documentosService.delete(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.documentos = this.documentos.filter(d => d.id !== id);
         this.cdr.detectChanges();

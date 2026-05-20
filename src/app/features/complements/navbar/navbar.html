@@ -63,6 +63,188 @@
   </nav>
 
   <div class="header-right">
+    <!-- ── Campana de notificaciones ───────────────────────────────────────── -->
+    <div class="notif-wrapper">
+      <button class="notif-bell" type="button" (click)="toggleNotifPanel()">
+        Avisos
+        <span class="notif-badge" *ngIf="totalNoLeidas > 0">{{ totalNoLeidas }}</span>
+      </button>
+
+      <div class="notif-panel" *ngIf="notifPanelOpen">
+        <div class="notif-panel__header">
+          <span class="notif-panel__title">Notificaciones</span>
+          <button
+            class="notif-crear-toggle"
+            type="button"
+            (click)="toggleCrear()">
+            {{ notifCrearVisible ? 'Cancelar' : '+ Nueva' }}
+          </button>
+        </div>
+
+        <!-- Formulario de creación -->
+        <form class="notif-form" *ngIf="notifCrearVisible" [formGroup]="notifForm" (ngSubmit)="crearNotificacion()">
+          <div class="notif-field">
+            <input
+              class="notif-input"
+              [class.notif-input--error]="notifForm.get('titulo')!.invalid && notifForm.get('titulo')!.touched"
+              formControlName="titulo"
+              type="text"
+              placeholder="Título" />
+            <span class="notif-field-error"
+              *ngIf="notifForm.get('titulo')!.touched && notifForm.get('titulo')!.hasError('required')">
+              El título es obligatorio
+            </span>
+            <span class="notif-field-error"
+              *ngIf="notifForm.get('titulo')!.touched && notifForm.get('titulo')!.hasError('maxlength')">
+              Máximo 100 caracteres
+            </span>
+          </div>
+          <div class="notif-field">
+            <textarea
+              class="notif-textarea"
+              [class.notif-input--error]="notifForm.get('mensaje')!.invalid && notifForm.get('mensaje')!.touched"
+              formControlName="mensaje"
+              rows="2"
+              placeholder="Mensaje"></textarea>
+            <span class="notif-field-error"
+              *ngIf="notifForm.get('mensaje')!.touched && notifForm.get('mensaje')!.hasError('required')">
+              El mensaje es obligatorio
+            </span>
+            <span class="notif-field-error"
+              *ngIf="notifForm.get('mensaje')!.touched && notifForm.get('mensaje')!.hasError('maxlength')">
+              Máximo 500 caracteres
+            </span>
+          </div>
+          <select class="notif-select" formControlName="tipo">
+            <option value="GLOBAL">Global — visible para todos</option>
+            <option value="PERSONAL">Personal — solo para mí</option>
+          </select>
+          <div class="notif-tipo-toggle">
+            <button
+              type="button"
+              class="notif-tipo-btn"
+              [class.notif-tipo-btn--active]="tipoCreacion === 'general'"
+              (click)="tipoCreacion = 'general'; notifForm.get('programadaPara')!.reset()">
+              General
+            </button>
+            <button
+              type="button"
+              class="notif-tipo-btn"
+              [class.notif-tipo-btn--active]="tipoCreacion === 'programada'"
+              (click)="tipoCreacion = 'programada'">
+              Bajo fecha
+            </button>
+          </div>
+          <ng-container *ngIf="tipoCreacion === 'programada'">
+            <div class="notif-field">
+              <input
+                class="notif-input"
+                [class.notif-input--error]="notifForm.get('programadaPara')!.touched && notifForm.get('programadaPara')!.hasError('required')"
+                type="datetime-local"
+                formControlName="programadaPara"
+                [min]="minFechaPrograma" />
+              <span class="notif-field-error"
+                *ngIf="notifForm.get('programadaPara')!.touched && notifForm.get('programadaPara')!.hasError('required')">
+                Indica la fecha y hora
+              </span>
+            </div>
+          </ng-container>
+          <div class="notif-form-row notif-form-row--end">
+            <button class="notif-submit" type="submit">Guardar</button>
+          </div>
+        </form>
+
+        <!-- Cargando -->
+        <div class="notif-empty" *ngIf="notifLoading">Cargando...</div>
+
+        <ng-container *ngIf="!notifLoading && notificaciones">
+
+          <!-- Sin notificaciones -->
+          <div class="notif-empty"
+               *ngIf="!notificaciones.auto.length && !notificaciones.manuales.length && !notificaciones.proximas.length">
+            Sin notificaciones activas
+          </div>
+
+          <!-- Alertas automáticas -->
+          <ng-container *ngIf="notificaciones.auto.length > 0">
+            <p class="notif-section-label">Alertas del sistema</p>
+            <div class="notif-item notif-item--auto"
+                 *ngFor="let a of notificaciones.auto">
+              <div class="notif-item__dot"
+                   [class.notif-item__dot--cita]="a.categoria === 'CITA'"
+                   [class.notif-item__dot--pago]="a.categoria === 'PAGO'"></div>
+              <div class="notif-item__content">
+                <span class="notif-item__titulo">{{ a.titulo }}</span>
+                <span class="notif-item__mensaje">{{ a.mensaje }}</span>
+              </div>
+              <button
+                class="notif-item__dismiss"
+                type="button"
+                title="Descartar por hoy"
+                (click)="descartarAuto(a.clave)">×</button>
+            </div>
+          </ng-container>
+
+          <!-- Mensajes manuales -->
+          <ng-container *ngIf="notificaciones.manuales.length > 0">
+            <p class="notif-section-label">Mensajes</p>
+            <div class="notif-item"
+                 [class.notif-item--unread]="!n.leida"
+                 *ngFor="let n of notificaciones.manuales"
+                 (click)="marcarLeida(n.id)">
+              <div class="notif-item__dot"
+                   [class.notif-item__dot--unread]="!n.leida"></div>
+              <div class="notif-item__content">
+                <span class="notif-item__titulo">{{ n.titulo }}</span>
+                <span class="notif-item__mensaje">{{ n.mensaje }}</span>
+                <span class="notif-item__meta">
+                  {{ n.tipo === 'GLOBAL' ? 'Global' : 'Personal' }}
+                  <ng-container *ngIf="n.creadorNombre"> · {{ n.creadorNombre }}</ng-container>
+                  <ng-container *ngIf="n.programadaPara"> · Prog. {{ n.programadaPara | date:'dd/MM HH:mm' }}</ng-container>
+                </span>
+              </div>
+              <button
+                class="notif-item__dismiss"
+                type="button"
+                title="Eliminar"
+                (click)="$event.stopPropagation(); eliminarNotif(n.id)">×</button>
+            </div>
+            <button
+              class="notif-ver-mas"
+              type="button"
+              *ngIf="notificaciones.hayMasManuales"
+              [disabled]="cargandoMas"
+              (click)="cargarMasManuales()">
+              {{ cargandoMas ? 'Cargando...' : 'Ver más' }}
+            </button>
+          </ng-container>
+
+          <!-- Próximas (programadas, aún no activas) -->
+          <ng-container *ngIf="notificaciones.proximas.length > 0">
+            <p class="notif-section-label">Próximas</p>
+            <div class="notif-item notif-item--proxima"
+                 *ngFor="let p of notificaciones.proximas">
+              <div class="notif-item__dot notif-item__dot--proxima"></div>
+              <div class="notif-item__content">
+                <span class="notif-item__titulo">{{ p.titulo }}</span>
+                <span class="notif-item__mensaje">{{ p.mensaje }}</span>
+                <span class="notif-item__meta">
+                  {{ p.tipo === 'GLOBAL' ? 'Global' : 'Personal' }}
+                  · {{ p.programadaPara | date:'dd/MM/yy HH:mm' }}
+                </span>
+              </div>
+              <button
+                class="notif-item__dismiss"
+                type="button"
+                title="Cancelar"
+                (click)="eliminarNotif(p.id)">×</button>
+            </div>
+          </ng-container>
+
+        </ng-container>
+      </div>
+    </div>
+
     <div class="user-chip">
       <div class="avatar">{{ avatarLetter }}</div>
       <div class="user-info">

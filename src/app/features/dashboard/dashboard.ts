@@ -1,6 +1,8 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe, NgClass } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Navbar } from '../complements/navbar/navbar';
 import { Footer } from '../complements/footer/footer';
 import { DashboardService, DashboardStats, AgendaItem } from './service/dashboard.service';
@@ -12,9 +14,10 @@ import { DashboardService, DashboardStats, AgendaItem } from './service/dashboar
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy {
   loading = true;
   errorMessage = '';
+  private destroy$ = new Subject<void>();
 
   stats: DashboardStats = {
     pacientesRegistrados: 0,
@@ -33,6 +36,11 @@ export class Dashboard implements OnInit {
     private cdr: ChangeDetectorRef
   ) {}
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   ngOnInit(): void {
     this.loadDashboard();
   }
@@ -41,7 +49,7 @@ export class Dashboard implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    this.dashboardService.getSummary().subscribe({
+    this.dashboardService.getSummary().pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         this.stats = response.data.stats;
         this.agendaHoy = response.data.agendaHoy;

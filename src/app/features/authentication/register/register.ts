@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -9,9 +9,10 @@ import {
   ValidationErrors,
 } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../service/auth-service/auth.service';
 import { Footer } from '../../complements/footer/footer';
-import { ChangeDetectorRef } from '@angular/core';
 
 function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
   const password = group.get('password')?.value;
@@ -26,11 +27,12 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
-export class Register {
+export class Register implements OnDestroy {
   registerForm: FormGroup;
   loading = false;
   successMessage = '';
   errorMessage = '';
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -39,15 +41,20 @@ export class Register {
   ) {
     this.registerForm = this.fb.group(
       {
-        nombre: ['', Validators.required],
-        apellido: ['', Validators.required],
+        nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+        apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
         correo: ['', [Validators.required, Validators.email]],
-        rol: ['', Validators.required],
-        password: ['', [Validators.required, Validators.minLength(6)]],
+        rol: ['', [Validators.required, Validators.pattern(/^(ADMIN|ODONTOLOGO|AUXILIAR|RECEPCION)$/)]],
+        password: ['', [Validators.required, Validators.minLength(8)]],
         confirmPassword: ['', Validators.required],
       },
       { validators: passwordMatchValidator },
     );
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onSubmit(): void {
@@ -62,7 +69,7 @@ export class Register {
 
     const { nombre, apellido, correo, rol, password } = this.registerForm.value;
 
-    this.authService.register({ nombre, apellido, correo, rol, password }).subscribe({
+    this.authService.register({ nombre, apellido, correo, rol, password }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (resp) => {
         this.successMessage = resp.message || 'Cuenta creada correctamente.';
         this.registerForm.reset();

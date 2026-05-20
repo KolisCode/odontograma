@@ -57,7 +57,6 @@ export interface ImportResult {
 })
 export class PatientsService {
   private api = `${environment.apiUrl}/pacientes`
-  // private api = '/api/pacientes'
 
   constructor(private http: HttpClient) {}
 
