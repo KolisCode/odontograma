@@ -69,7 +69,7 @@
           <label>Paciente</label>
           <select formControlName="pacienteId">
             <option value="">Selecciona un paciente</option>
-            <option *ngFor="let patient of patients" [value]="patient.id">
+            <option *ngFor="let patient of patients; trackBy: trackById" [value]="patient.id">
               {{ patient.nombreCompleto }}
             </option>
           </select>
@@ -82,7 +82,7 @@
           <label>Profesional</label>
           <select formControlName="usuarioId">
             <option value="">Selecciona un profesional</option>
-            <option *ngFor="let user of clinicalStaff" [value]="user.id">
+            <option *ngFor="let user of clinicalStaff; trackBy: trackById" [value]="user.id">
               {{ user.nombreCompleto }} - {{ user.rol }}
             </option>
           </select>
@@ -112,8 +112,6 @@
           <select formControlName="estado">
             <option value="PROGRAMADA">Programada</option>
             <option value="CONFIRMADA">Confirmada</option>
-            <option value="ATENDIDA">Atendida</option>
-            <option value="CANCELADA">Cancelada</option>
           </select>
           <small *ngIf="hasError('estado')" class="field-error">
             {{ getErrorMessage('estado') }}
@@ -167,7 +165,7 @@
         </div>
 
         <div class="agenda-list" *ngIf="upcomingAppointments.length > 0; else noUpcomingAppointments">
-          <div class="agenda-item" *ngFor="let item of upcomingAppointments">
+          <div class="agenda-item" *ngFor="let item of upcomingAppointments; trackBy: trackById">
             <div class="agenda-item__top">
               <strong>{{ item.hora }} · {{ item.pacienteNombre }}</strong>
               <span class="status-badge" [ngClass]="getStatusClass(item.estado)">
@@ -225,9 +223,9 @@
 
     <ng-container *ngIf="!calendarLoading">
       <div class="cal-grid">
-        <div class="cal-weekday" *ngFor="let d of WEEK_DAYS">{{ d }}</div>
+        <div class="cal-weekday" *ngFor="let d of WEEK_DAYS; trackBy: trackByIndex">{{ d }}</div>
         <div class="cal-day"
-             *ngFor="let day of calendarDays"
+             *ngFor="let day of calendarDays; trackBy: trackByDate"
              [class.cal-day--other]="!day.isCurrentMonth"
              [class.cal-day--today]="day.isToday"
              [class.cal-day--selected]="selectedCalendarDay === day.date"
@@ -236,7 +234,7 @@
           <span class="cal-day__num">{{ day.day }}</span>
           <div class="cal-chips" *ngIf="day.isCurrentMonth && day.appointments.length > 0">
             <div class="cal-chip"
-                 *ngFor="let a of day.appointments.slice(0, 2)"
+                 *ngFor="let a of day.appointments.slice(0, 2); trackBy: trackById"
                  [ngClass]="'cal-chip--' + getStatusKey(a.estado)">
               <span class="cal-chip__hour">{{ getChipHour(a.hora) }}</span>
               <span class="cal-chip__name">{{ getShortName(a.pacienteNombre) }}</span>
@@ -254,7 +252,7 @@
           </span>
         </div>
         <div class="cal-day-panel__list">
-          <div class="agenda-item" *ngFor="let a of selectedDayAppointments">
+          <div class="agenda-item" *ngFor="let a of selectedDayAppointments; trackBy: trackById">
             <div class="agenda-item__top">
               <strong>{{ a.hora }} · {{ a.pacienteNombre }}</strong>
               <span class="status-badge" [ngClass]="getStatusClass(a.estado)">{{ getStatusLabel(a.estado) }}</span>
@@ -329,7 +327,7 @@
             (input)="onDocumentoFiltroChange($any($event.target).value)"
           />
           <datalist id="pacientes-doc-list">
-            <option *ngFor="let p of patients" [value]="p.documento">{{ p.nombreCompleto }}</option>
+            <option *ngFor="let p of patients; trackBy: trackById" [value]="p.documento">{{ p.nombreCompleto }}</option>
           </datalist>
           <span class="filter-search-hint" *ngIf="filtroDocumento && filtroPacienteId === null">Sin coincidencia</span>
           <span class="filter-search-hint filter-search-hint--match" *ngIf="filtroPacienteId !== null">{{ getPacienteNombreById(filtroPacienteId) }}</span>
@@ -358,18 +356,25 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let item of displayedAppointments">
+          <tr *ngFor="let item of displayedAppointments; trackBy: trackById">
             <td>{{ item.fecha }}</td>
             <td>{{ item.hora }}</td>
             <td>{{ item.pacienteNombre }}</td>
             <td>{{ item.profesional }}</td>
             <td>{{ item.motivo }}</td>
             <td>
+              <span
+                *ngIf="item.estado === 'ATENDIDA' || item.estado === 'CANCELADA'"
+                class="status-badge estado-terminal"
+                [ngClass]="getStatusClass(item.estado)">
+                {{ getStatusLabel(item.estado) }}
+              </span>
               <select
+                *ngIf="item.estado !== 'ATENDIDA' && item.estado !== 'CANCELADA'"
                 class="estado-select"
                 [ngClass]="getStatusClass(item.estado)"
                 [value]="item.estado"
-                (change)="cambiarEstado(item.id, $any($event.target).value)"
+                (change)="solicitarCambioEstado(item, $any($event.target).value)"
               >
                 <option value="PROGRAMADA">Programada</option>
                 <option value="CONFIRMADA">Confirmada</option>
@@ -386,8 +391,33 @@
           </tr>
         </tbody>
       </table>
+
+      <div class="pagination" *ngIf="paginaMeta && paginaMeta.totalPages > 1">
+        <button class="pagination__btn" (click)="prevPage()" [disabled]="currentPage === 1">← Anterior</button>
+        <span class="pagination__info">Página {{ currentPage }} de {{ paginaMeta.totalPages }} &nbsp;·&nbsp; {{ paginaMeta.total }} citas</span>
+        <button class="pagination__btn" (click)="nextPage()" [disabled]="currentPage === paginaMeta.totalPages">Siguiente →</button>
+      </div>
     </div>
   </section>
 </section>
+
+<!-- Modal: Cancelar cita con cobro pendiente -->
+<div class="cita-cancel-backdrop" *ngIf="citaCancelando" (click)="citaCancelando = null">
+  <div class="cita-cancel-modal" (click)="$event.stopPropagation()">
+    <h3>Cancelar cita</h3>
+    <p>Esta cita tiene un cobro pendiente. ¿Qué deseas hacer con ese cobro?</p>
+    <div class="cita-cancel-actions">
+      <button class="btn-cancel-action btn-cancel-action--secondary" type="button" (click)="citaCancelando = null">
+        No cancelar
+      </button>
+      <button class="btn-cancel-action" type="button" (click)="confirmarCancelacion(false)">
+        Cancelar cita, conservar cobro
+      </button>
+      <button class="btn-cancel-action btn-cancel-action--danger" type="button" (click)="confirmarCancelacion(true)">
+        Cancelar cita y cobro
+      </button>
+    </div>
+  </div>
+</div>
 
 <app-footer></app-footer>

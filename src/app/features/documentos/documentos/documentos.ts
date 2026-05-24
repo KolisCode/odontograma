@@ -85,7 +85,15 @@ export class DocumentosComponent implements OnInit, OnDestroy {
 
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.selectedFile = input.files?.[0] ?? null;
+    const file = input.files?.[0] ?? null;
+    if (file && file.size > 10 * 1024 * 1024) {
+      this.uploadError = 'El archivo supera el límite de 10 MB';
+      this.selectedFile = null;
+      input.value = '';
+      this.cdr.detectChanges();
+      return;
+    }
+    this.selectedFile = file;
     this.uploadError = '';
   }
 

@@ -74,6 +74,7 @@ npx tsc --noEmit
   - `/historias-clinicas` — historia clínica
   - `/tratamientos` — tratamientos por paciente
   - `/dashboard` — estadísticas generales
+  - `/notificaciones` — panel de avisos (manuales, automáticas, programadas)
 
 ## Schema Prisma — modelos clave
 
@@ -107,6 +108,15 @@ HistoriaClinica  id, pacienteId, usuarioId?, odontogramaId?, numeroHistoria (uni
                               antecedentesHematologicos, ginecoObstetricos, habitos,
                               antecedentesOdontologicos, higieneOral
                  declaracionAceptada (bool)
+
+Notificacion     id, titulo, mensaje, tipo (PERSONAL|GLOBAL), leida (bool),
+                 usuarioId? (destinatario para PERSONAL), creadoPor? (FK a Usuario),
+                 programadaPara? (DateTime — null = inmediata, futuro = programada),
+                 createdAt. @@index([programadaPara])
+
+NotificacionDescarte  id, usuarioId, clave (string), fecha (Date)
+                      — registra que el usuario descartó una alerta automática ese día
+                      @@unique([usuarioId, clave])
 ```
 
 ## Odontograma — sistema de dos categorías
@@ -120,6 +130,41 @@ El odontograma distingue entre:
    - Tipos: `Corona`, `Puente`, `Implante`, `ProtesisParcial`, `ProtesisTotal`, `DienteAusente`
    - Un diente puede tener **múltiples piezas simultáneas** (Map<number, PieceType[]>)
    - Compatibilidad legacy: `Protesis` del backend se mapea a `ProtesisParcial`
+
+## Notificaciones — notas de implementación
+
+### Arquitectura general
+
+Hay tres tipos de notificación en el panel "Avisos" de la navbar:
+
+| Sección | Fuente | Persistencia |
+|---|---|---|
+| **Alertas del sistema** | Computadas en `getNotificacionesService` | No — se calculan en cada request |
+| **Mensajes** | Tabla `Notificacion` con `programadaPara IS NULL` o `<= ahora` | Sí |
+| **Próximas** | Tabla `Notificacion` con `programadaPara > ahora` | Sí |
+
+### Backend — `notificaciones.service.js`
+
+- `PAGE_MANUALES = 5` — página para la sección "Mensajes". `take: PAGE_MANUALES + 1` para detectar si hay más.
+- `getNotificacionesService(usuarioId, { manualesSkip })`:
+  - Ejecuta 4 queries en `Promise.all`: manuales paginados, alertas automáticas, próximas, `count()` de no leídas.
+  - El `count()` usa el mismo `where` que los manuales **sin** `skip/take` → badge siempre correcto aunque el usuario no haya cargado todas las páginas.
+  - Próximas: solo muestra las creadas por el propio usuario (`creadoPor`) o dirigidas a él (`PERSONAL`), ordenadas por `programadaPara asc`.
+- Alertas automáticas (`getAutoNotificaciones`): citas hoy, citas mañana, pagos pendientes >15 días, pagos con abono incompleto. Se filtran descartando claves en `NotificacionDescarte` para la fecha actual.
+- `createNotificacionService`: valida que `programadaPara`, si se envía, sea una fecha futura. Si no pasa validación lanza `BadRequestError`.
+
+### Frontend — `navbar.ts` / `navbar.html`
+
+- **Formulario de creación** (`notifCrearVisible`): toggle "General" / "Bajo fecha" controla `tipoCreacion: 'general'|'programada'`. El campo `datetime-local` solo aparece en modo programada.
+- **`minFechaPrograma`**: getter que devuelve la hora local actual +1 min formateada como `yyyy-MM-ddTHH:mm`. **No usar `toISOString()`** — devuelve UTC y en Colombia (UTC-5) el min quedaría 5 horas adelantado.
+- **Paginación "Ver más"**: `manualesSkip` acumula en pasos de 5. Los ítems nuevos se *append* al array existente (`[...prev, ...nuevos]`). Si falla el request, `manualesSkip -= 5` hace rollback.
+- **`cargarNotificaciones()`** resetea `manualesSkip = 0` y `cargandoMas = false` antes de cada carga completa. Llama `cdr.detectChanges()` tanto al iniciar (para mostrar "Cargando...") como al terminar — necesario por conflicto zone.js / interceptor funcional en Angular 21.
+- **Validación de formulario**: `markAllAsTouched()` antes de retornar, errores inline con `.notif-input--error` y `.notif-field-error`.
+
+### Trampas conocidas
+
+- Si se usa `prisma migrate dev` en lugar de `prisma db push` puede fallar por drift de schema. Usar `db push` para cambios aditivos en desarrollo.
+- La comparación `notificaciones.proximas.length > 0` en el template HTML no puede usar `?.` porque retorna `number | undefined` y TypeScript strict rechaza la comparación — `proximas` está definida como no-opcional en la interfaz.
 
 ## Citas — notas de implementación
 
@@ -144,15 +189,24 @@ El sistema aplica un estilo clínico-institucional consistente en todos los mód
 
 ## Funcionalidades pendientes
 
-- **Módulos clínicos "Próximamente"** en historia clínica (`historia-clinica.html`): Fórmulas médicas, Evolución de tratamiento, Enfermedades odontológicas, Presupuesto — placeholders visuales sin implementar.
+- **Módulos clínicos "Próximamente"** en historia clínica (`historia-clinica.html`): cuatro tiles con clase `module-tile--disabled` sin implementación de fondo:
+  - Fórmulas médicas
+  - Evolución de tratamiento
+  - Enfermedades odontológicas
+  - Presupuesto
 
-- **[5] Odontograma modo TRATAMIENTO** — Vista del odontograma que muestra el *plan de tratamiento* (qué se hará) en lugar del estado diagnóstico (qué tiene). Diferencias clave:
-  - `Odontograma.tipo` nuevo valor `"TRATAMIENTO"` (actualmente solo "ADULTO"/"PEDIATRICO"/"MIXTO")
-  - Paleta de colores y leyenda distintas: procedimientos a realizar vs. patologías existentes
-  - El componente `OdontogramComponent` necesita un `@Input() modo: 'diagnostico' | 'tratamiento'`
-  - Acceso desde el módulo de **Tratamientos**
-  - Backend ya tiene `Tratamiento.odontogramaId` para vincular el plan al odontograma de tratamiento
-  - Pendiente de que el cliente defina la UX antes de implementar
+- **Odontograma modo TRATAMIENTO — integración con módulo Tratamientos**
+  - El backend ya soporta `tipo='TRATAMIENTO'` (validado en `TIPOS_VALIDOS`; una sola instancia activa por paciente)
+  - El frontend tiene `odontogramTab = signal<'diagnostico'|'plan'>('diagnostico')` y señales `planDiagnoses`/`planPieces` — el tab "plan" existe pero no se conecta con el módulo de Tratamientos
+  - Lo que falta: navegación desde `tratamientos.ts` al odontograma en modo plan, y decidir con el cliente si la paleta de colores es distinta
+  - **Discusión pendiente (2026-05-23):** La lógica de cobro entre los dos tabs tiene fricción. Tab Diagnóstico tiene cobro (clave `{diente}-{tipo}`); tab Plan no tiene cobro. En odontología estricta el diagnóstico es un hallazgo (no cobrable) y el cobro debería originarse del tratamiento realizado. Las piezas también tienen semántica diferente en cada tab (existentes vs. planeadas) pero la UI no lo distingue. **No modificar esta lógica hasta que el cliente defina el flujo real del consultorio.**
+
+- **Scripts de arranque con un clic** — ✅ implementados (2026-05-24). Tres scripts `.command` en `/Biodont/` (raíz del workspace):
+  - `iniciar.command` — modo desarrollo: abre 2 terminales (`npm run dev` en :3000 + `ng serve` en :4200)
+  - `iniciar-produccion.command` — modo producción: `NODE_ENV=production node src/server.js`, sirve el build Angular desde Express en :3000, abre el navegador automáticamente
+  - `reconstruir.command` — ejecutar después de cambios de código: corre `ng build` y copia el resultado a `Biodont/public/`
+
+- **Acceso multi-equipo** — ✅ funcional en producción. Backend escucha en `0.0.0.0`. Con `NODE_ENV=production`, Express sirve el frontend desde `public/` (mismo origen → sin CORS). Acceso desde cualquier equipo de la red en `http://<IP_DEL_MAC>:3000` (actualmente `http://192.168.2.8:3000`). La IP del Mac puede cambiar si el router asigna IPs dinámicas — configurar IP estática en las Preferencias de Red si se usa en consultorio.
 
 ## Funcionalidades implementadas (antes marcadas como pendientes)
 
@@ -160,17 +214,16 @@ El sistema aplica un estilo clínico-institucional consistente en todos los mód
 - **Módulo de tratamientos** — ✅ implementado (formulario, tabla, cambio de estado, modal de confirmación en `tratamientos.html`/`tratamientos.ts`).
 - **Pagos parciales en movimientos** — ✅ implementado. Panel de abonos expandible por fila en `finance.html`, barra de progreso, `PagoMovimiento` en schema, servicios `pagoMovimiento.service.js` / `pagoMovimiento.controller.js` en backend.
 - **Odontograma modo MIXTO** — ✅ implementado. Arcadas mixtas definidas en `odontogram.ts` (`mixedUpperRight`, etc.), botón de selección en UI, soportado en historial modal.
+- **Notificaciones programadas y paginación** — ✅ implementado (2026-05-21). Campo `programadaPara` en `Notificacion`, sección "Próximas" en el panel, formulario con toggle General/Bajo fecha, validación inline, paginación de 5 en 5 con append.
 
 ## UX para uso local en consultorio
 
-El sistema corre en local en 1–2 computadores. Hay decisiones de UX y operación pendientes de diseño:
+El sistema corre en local en 1–2 computadores.
 
-- **Backups de la base de datos**: SQLite es un solo archivo (`prisma/dev.db`). El consultorio necesita una forma de hacer copias de seguridad sin intervención técnica — opciones: botón "Exportar backup" en el sistema que copie el archivo a una carpeta/USB, o un script programado en el sistema operativo.
-- **Restauración**: procedimiento claro para restaurar desde backup en caso de fallo o cambio de equipo.
-- **Acceso multi-equipo**: si se usan 2 computadores simultáneamente, ambos deben apuntar al mismo servidor backend (uno actúa como servidor, el otro como cliente). Requiere configurar la `BASE_URL` del frontend según la IP local de la red, no `localhost`.
-- **Arranque del sistema**: el personal del consultorio necesita iniciar backend y frontend sin usar la terminal — pendiente crear scripts o accesos directos `.bat`/`.sh` de un clic.
-- **Sesión persistente**: evaluar si el tiempo de expiración del JWT es adecuado para una jornada laboral sin forzar re-login innecesario.
-- **Pantalla de bienvenida / estado del servidor**: indicador visible de que el sistema está conectado al backend, para que el personal detecte si el servidor está caído antes de empezar a trabajar.
+- **Backup/restore** — ✅ implementado en módulo Admin (`/admin`). Descarga `.zip` (dev.db + documentos), restaura desde `.zip` o `.db` con recarga automática de página.
+- **Sesión JWT** — Token de 8 horas (`expiresIn: '8h'`). Al expirar el interceptor limpia `localStorage` y redirige a `/login`. No hay refresh token — adecuado para jornada de consultorio.
+- **Arranque del sistema** — ✅ implementado (2026-05-24). `iniciar-produccion.command` (doble clic) arranca el backend con `NODE_ENV=production` y abre `http://localhost:3000`. `iniciar.command` para modo desarrollo (2 terminales). `reconstruir.command` para rebuild del frontend.
+- **Acceso multi-equipo** — ✅ funcional. Con `iniciar-produccion.command`, cualquier equipo de la red puede acceder en `http://192.168.2.8:3000` (IP puede cambiar si es dinámica — ver nota en sección Scripts).
 
 ## Historia clínica — notas de implementación
 

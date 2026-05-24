@@ -23,6 +23,7 @@ import { RouterModule } from '@angular/router';
 
 import { Navbar } from '../../complements/navbar/navbar';
 import { Footer } from '../../complements/footer/footer';
+import { AdminService } from '../../admin/admin.service';
 import {
   AppointmentService,
   AppointmentPayload,
@@ -32,6 +33,7 @@ import {
   AgendaSummary,
   CitaFilters,
   ClinicalStaffRow,
+  PaginaMeta,
 } from './appointment.service/appointment.service';
 import { PatientRow } from '../service/pacientes.service';
 import { formatDateForInput } from '../../../utils/date.utils';
@@ -50,6 +52,7 @@ export class Appointment implements OnInit, OnDestroy {
   formVisible = false;
   loading = false;
   whatsappLink: string | null = null;
+  private indicativoPais = '57';
   tableLoading = false;
   errorMessage = '';
   successMessage = '';
@@ -70,6 +73,9 @@ export class Appointment implements OnInit, OnDestroy {
   upcomingAppointments: UpcomingAppointment[] = [];
   patients: PatientRow[] = [];
   clinicalStaff: ClinicalStaffRow[] = [];
+  paginaMeta: PaginaMeta | null = null;
+  currentPage = 1;
+  readonly PAGE_SIZE = 25;
 
   // ── Calendario ────────────────────────────────────────────────────────────
   calendarView = false;
@@ -231,14 +237,15 @@ export class Appointment implements OnInit, OnDestroy {
       .filter(v => !!v).length + (this.filtroPacienteId !== null ? 1 : 0);
   }
 
-  minDate = this.formatDateForInput(new Date());
+  get minDate(): string { return this.formatDateForInput(new Date()); }
 
-  readonly validStatuses = ['PROGRAMADA', 'CONFIRMADA', 'ATENDIDA', 'CANCELADA'];
+  readonly validStatuses = ['PROGRAMADA', 'CONFIRMADA'];
   readonly validAttentionTypes = ['Valoración', 'Limpieza', 'Control', 'Urgencia'];
 
   constructor(
     private fb: FormBuilder,
     private appointmentService: AppointmentService,
+    private adminService: AdminService,
     private cdr: ChangeDetectorRef,
   ) {
     this.appointmentForm = this.fb.group({
@@ -256,6 +263,9 @@ export class Appointment implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.adminService.getConfig().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => { this.indicativoPais = res.data.indicativoPais || '57'; },
+    });
     this.loadAppointmentsModuleData();
   }
 
@@ -316,7 +326,7 @@ export class Appointment implements OnInit, OnDestroy {
   loadAppointments(): void {
     this.tableLoading = true;
 
-    const filters: CitaFilters = {};
+    const filters: CitaFilters = { page: this.currentPage, pageSize: this.PAGE_SIZE };
     if (this.filtroEstado) filters.estado = this.filtroEstado;
     if (this.filtroTipoAtencion) filters.tipoAtencion = this.filtroTipoAtencion;
     if (this.filtroFechaDesde) filters.fechaDesde = this.filtroFechaDesde;
@@ -326,6 +336,7 @@ export class Appointment implements OnInit, OnDestroy {
     this.appointmentService.getAppointments(filters).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
         this.appointments = response.data;
+        this.paginaMeta = response.meta ?? null;
         this.tableLoading = false;
         this.cdr.detectChanges();
       },
@@ -338,7 +349,19 @@ export class Appointment implements OnInit, OnDestroy {
   }
 
   aplicarFiltros(): void {
+    this.currentPage = 1;
     this.loadAppointments();
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) { this.currentPage--; this.loadAppointments(); }
+  }
+
+  nextPage(): void {
+    if (this.paginaMeta && this.currentPage < this.paginaMeta.totalPages) {
+      this.currentPage++;
+      this.loadAppointments();
+    }
   }
 
   get displayedAppointments(): AppointmentRow[] {
@@ -424,7 +447,7 @@ export class Appointment implements OnInit, OnDestroy {
 
     this.appointmentService.createAppointment(payload).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
-        this.successMessage = response.message || 'Cita registrada correctamente';
+        this.setSuccess(response.message || 'Cita registrada correctamente');
         this.loading = false;
         this.formVisible = false;
 
@@ -432,12 +455,12 @@ export class Appointment implements OnInit, OnDestroy {
         const patient = this.patients.find(p => p.id === pacienteId);
         const phone = String(patient?.telefono ?? '').replace(/\D/g, '');
         if (phone.length >= 7) {
-          const nombre = String(patient!.nombreCompleto).split(' ')[0];
+          const nombre = String(patient?.nombreCompleto ?? 'Paciente').split(' ')[0];
           const fechaLabel = new Date(`${fecha}T00:00:00`).toLocaleDateString('es-CO', {
             weekday: 'long', day: 'numeric', month: 'long',
           });
           const msg = `Hola ${nombre}, le recordamos su cita en Biodont el ${fechaLabel} a las ${hora}. Motivo: ${motivo}. Por favor confirmar su asistencia.`;
-          this.whatsappLink = `https://wa.me/57${phone}?text=${encodeURIComponent(msg)}`;
+          this.whatsappLink = `https://wa.me/${this.indicativoPais}${phone}?text=${encodeURIComponent(msg)}`;
         } else {
           this.whatsappLink = null;
         }
@@ -469,8 +492,25 @@ export class Appointment implements OnInit, OnDestroy {
     this.whatsappLink = null;
   }
 
-  cambiarEstado(id: number, estado: string): void {
-    this.appointmentService.updateEstado(id, estado).pipe(takeUntil(this.destroy$)).subscribe({
+  citaCancelando: { id: number; tienePendientes: boolean } | null = null;
+
+  solicitarCambioEstado(item: AppointmentRow, nuevoEstado: string): void {
+    if (nuevoEstado === 'CANCELADA' && item.tienePendientes) {
+      this.citaCancelando = { id: item.id, tienePendientes: true };
+    } else {
+      this.cambiarEstado(item.id, nuevoEstado);
+    }
+  }
+
+  confirmarCancelacion(cancelarMovimientos: boolean): void {
+    if (!this.citaCancelando) return;
+    const id = this.citaCancelando.id;
+    this.citaCancelando = null;
+    this.cambiarEstado(id, 'CANCELADA', cancelarMovimientos);
+  }
+
+  cambiarEstado(id: number, estado: string, cancelarMovimientos = false): void {
+    this.appointmentService.updateEstado(id, estado, cancelarMovimientos).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.loadAppointmentsModuleData();
       },
@@ -577,6 +617,15 @@ export class Appointment implements OnInit, OnDestroy {
       estado: this.cleanText(raw.estado).toUpperCase(),
       tipoAtencion: this.cleanText(raw.tipoAtencion),
     };
+  }
+
+  trackById(_index: number, item: { id: number }): number { return item.id; }
+  trackByDate(_index: number, day: CalendarDay): string { return day.date; }
+  trackByIndex(index: number): number { return index; }
+
+  private setSuccess(msg: string): void {
+    this.successMessage = msg;
+    setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
   }
 
   private resetForm(): void {

@@ -25,6 +25,7 @@ export interface AppointmentRow {
   motivo: string;
   tipoAtencion: string;
   estado: string;
+  tienePendientes?: boolean;
 }
 
 export interface AppointmentStats {
@@ -48,12 +49,21 @@ export interface AgendaSummary {
   espaciosDisponibles: number;
 }
 
+export interface PaginaMeta {
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export interface CitaFilters {
   estado?: string;
   tipoAtencion?: string;
   pacienteId?: number;
   fechaDesde?: string;
   fechaHasta?: string;
+  page?: number;
+  pageSize?: number;
 }
 
 export interface ClinicalStaffRow {
@@ -77,14 +87,16 @@ export class AppointmentService {
     return this.http.post(this.api, payload);
   }
 
-  getAppointments(filters?: CitaFilters): Observable<{ ok: boolean; data: AppointmentRow[] }> {
+  getAppointments(filters?: CitaFilters): Observable<{ ok: boolean; data: AppointmentRow[]; meta?: PaginaMeta }> {
     let params = new HttpParams();
-    if (filters?.estado) params = params.set('estado', filters.estado);
+    if (filters?.estado)     params = params.set('estado', filters.estado);
     if (filters?.tipoAtencion) params = params.set('tipoAtencion', filters.tipoAtencion);
     if (filters?.pacienteId) params = params.set('pacienteId', filters.pacienteId.toString());
     if (filters?.fechaDesde) params = params.set('fechaDesde', filters.fechaDesde);
     if (filters?.fechaHasta) params = params.set('fechaHasta', filters.fechaHasta);
-    return this.http.get<{ ok: boolean; data: AppointmentRow[] }>(this.api, { params });
+    if (filters?.page)       params = params.set('page', filters.page.toString());
+    if (filters?.pageSize)   params = params.set('pageSize', filters.pageSize.toString());
+    return this.http.get<{ ok: boolean; data: AppointmentRow[]; meta?: PaginaMeta }>(this.api, { params });
   }
 
   getStats(): Observable<{ ok: boolean; data: AppointmentStats }> {
@@ -100,14 +112,14 @@ export class AppointmentService {
   }
 
   getPatients(): Observable<{ ok: boolean; data: PatientRow[] }> {
-    return this.http.get<{ ok: boolean; data: PatientRow[] }>(this.patientsApi);
+    return this.http.get<{ ok: boolean; data: PatientRow[] }>(`${this.patientsApi}?soloActivos=true`);
   }
 
   getClinicalStaff(): Observable<{ ok: boolean; data: ClinicalStaffRow[] }> {
     return this.http.get<{ ok: boolean; data: ClinicalStaffRow[] }>(`${this.authApi}/clinical-staff`);
   }
 
-  updateEstado(id: number, estado: string): Observable<any> {
-    return this.http.patch(`${this.api}/${id}/estado`, { estado });
+  updateEstado(id: number, estado: string, cancelarMovimientos = false): Observable<any> {
+    return this.http.patch(`${this.api}/${id}/estado`, { estado, cancelarMovimientos });
   }
 }

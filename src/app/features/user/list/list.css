@@ -36,6 +36,7 @@
   grid-template-columns: 1.7fr 1fr;
   gap: 18px;
   margin-bottom: 18px;
+  align-items: start;
 }
 
 .patients-side {
@@ -159,6 +160,18 @@
 
 .btn-primary:hover {
   background: #255fc0;
+}
+
+.btn:disabled,
+.btn-table:disabled,
+.btn-table-primary:disabled,
+.btn-table-secondary:disabled,
+.btn-table-edit:disabled,
+.btn-table-danger:disabled,
+.btn-table-success:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .btn-secondary {
@@ -496,6 +509,39 @@
   color: #9ca3af;
 }
 
+/* ── Dropdown de módulos por fila ─────────────────────────────────────────── */
+.row-dropdown__panel-fixed {
+  position: fixed;
+  z-index: 1000;
+  background: #ffffff;
+  border: 1px solid #dce5ec;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(18, 38, 63, 0.12);
+  min-width: 148px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.row-dropdown__item {
+  background: none;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #354a5e;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s;
+  width: 100%;
+}
+
+.row-dropdown__item:hover {
+  background: #f1f5f9;
+  color: #183247;
+}
+
 /* ── Buscador de pacientes ───────────────────────────────────────────────── */
 .patients-search-wrapper {
   flex-shrink: 0;
@@ -751,3 +797,23 @@
   gap: 10px;
   justify-content: flex-end;
 }
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 14px 0 4px;
+}
+.pagination__btn {
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: #374151;
+}
+.pagination__btn:hover:not(:disabled) { background: #f3f4f6; }
+.pagination__btn:disabled { opacity: 0.4; cursor: default; }
+.pagination__info { font-size: 0.85rem; color: #6b7280; }

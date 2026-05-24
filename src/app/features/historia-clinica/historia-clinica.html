@@ -35,6 +35,12 @@
             patológicos</button>
           <button type="button" class="section-nav__item" (click)="scrollToSection('higiene-oral')">Higiene
             oral</button>
+          <button type="button" class="section-nav__item" (click)="scrollToSection('enfermedades-odontologicas')">Enfermedades
+            odontológicas</button>
+          <button type="button" class="section-nav__item" (click)="scrollToSection('formulas-medicas')">Fórmulas
+            médicas</button>
+          <button type="button" class="section-nav__item" (click)="scrollToSection('evolucion-tratamiento')">Evolución
+            de tratamiento</button>
           <button type="button" class="section-nav__item" (click)="scrollToSection('modulos')">Módulos
             clínicos</button>
         </nav>
@@ -602,6 +608,241 @@
         </div>
       </section>
 
+      <section class="clinical-card" id="enfermedades-odontologicas">
+        <div class="clinical-card__header">
+          <div>
+            <h2>Enfermedades odontológicas</h2>
+            <span>Condiciones dentales diagnosticadas en el paciente</span>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <p class="subsection-note">¿Ha sido diagnosticado con alguna de estas condiciones?</p>
+
+          <div class="checkbox-grid">
+            <label><input type="checkbox" formControlName="odontBruxismo" /> Bruxismo</label>
+            <label><input type="checkbox" formControlName="odontPeriodontitis" /> Periodontitis</label>
+            <label><input type="checkbox" formControlName="odontGingivitis" /> Gingivitis</label>
+            <label><input type="checkbox" formControlName="odontMaloclusion" /> Maloclusión</label>
+            <label><input type="checkbox" formControlName="odontXerostomia" /> Xerostomía (boca seca)</label>
+            <label><input type="checkbox" formControlName="odontHipersensibilidad" /> Hipersensibilidad dentinal</label>
+            <label><input type="checkbox" formControlName="odontFluorosis" /> Fluorosis</label>
+            <label><input type="checkbox" formControlName="odontErosion" /> Erosión dental</label>
+            <label><input type="checkbox" formControlName="odontAtm" /> Trastorno temporomandibular (ATM)</label>
+          </div>
+
+          <div class="form-group form-group--full">
+            <label>Observaciones</label>
+            <textarea rows="3" formControlName="odontObservaciones"
+              placeholder="Detalles adicionales sobre condiciones odontológicas"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="clinical-card" id="formulas-medicas">
+        <div class="clinical-card__header">
+          <div>
+            <h2>Fórmulas médicas</h2>
+            <span>Recetas y prescripciones emitidas al paciente</span>
+          </div>
+          <button class="btn btn-primary" type="button" (click)="formulaFormVisible = !formulaFormVisible">
+            {{ formulaFormVisible ? 'Cancelar' : 'Nueva fórmula' }}
+          </button>
+        </div>
+
+        <div class="formula-form" *ngIf="formulaFormVisible">
+          <div class="clinical-form-grid">
+            <div class="form-group form-group--full">
+              <label>Diagnóstico / motivo</label>
+              <input type="text"
+                [value]="formulaDiagnostico"
+                (input)="formulaDiagnostico = $any($event.target).value"
+                placeholder="Ej. Infección periapical, procedimiento postextracción" />
+            </div>
+          </div>
+
+          <div class="subsection">
+            <h3>Medicamentos</h3>
+            <div class="mini-table">
+              <div class="mini-table__head formula-head">
+                <span>Medicamento</span>
+                <span>Dosis</span>
+                <span>Frecuencia</span>
+                <span>Duración</span>
+              </div>
+              <div class="mini-table__row formula-row"
+                *ngFor="let med of formulaMedicamentos; let i = index">
+                <div>
+                  <input type="text"
+                    [value]="med.medicamento"
+                    (input)="med.medicamento = $any($event.target).value"
+                    placeholder="Ej. Amoxicilina 500 mg" />
+                </div>
+                <div>
+                  <input type="text"
+                    [value]="med.dosis"
+                    (input)="med.dosis = $any($event.target).value"
+                    placeholder="Ej. 1 cápsula" />
+                </div>
+                <div>
+                  <input type="text"
+                    [value]="med.frecuencia"
+                    (input)="med.frecuencia = $any($event.target).value"
+                    placeholder="Ej. Cada 8 horas" />
+                </div>
+                <div>
+                  <input type="text"
+                    [value]="med.duracion"
+                    (input)="med.duracion = $any($event.target).value"
+                    placeholder="Ej. 7 días" />
+                </div>
+              </div>
+              <div class="mini-table-actions">
+                <button class="btn btn-secondary" type="button" (click)="addFormulaMedicamento()">Agregar medicamento</button>
+                <button class="btn btn-secondary" type="button"
+                  (click)="removeFormulaMedicamento(formulaMedicamentos.length - 1)"
+                  [disabled]="formulaMedicamentos.length <= 1">Quitar último</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="clinical-form-grid">
+            <div class="form-group form-group--full">
+              <label>Indicaciones generales</label>
+              <textarea rows="3"
+                [value]="formulaInstrucciones"
+                (input)="formulaInstrucciones = $any($event.target).value"
+                placeholder="Ej. Tomar con alimentos, evitar conducir, completar tratamiento"></textarea>
+            </div>
+          </div>
+
+          <div *ngIf="formulaError" class="clinical-alert clinical-alert--error">{{ formulaError }}</div>
+
+          <div class="formula-form-actions">
+            <button class="btn btn-primary" type="button" (click)="guardarFormula()" [disabled]="guardandoFormula">
+              {{ guardandoFormula ? 'Guardando...' : 'Guardar fórmula' }}
+            </button>
+            <button class="btn btn-secondary" type="button" (click)="formulaFormVisible = false">Cancelar</button>
+          </div>
+        </div>
+
+        <div *ngIf="loadingFormulas" class="evolucion-loading">Cargando fórmulas...</div>
+
+        <div *ngIf="!loadingFormulas && formulas.length === 0 && !formulaFormVisible" class="evolucion-empty">
+          No hay fórmulas médicas registradas para este paciente.
+        </div>
+
+        <div class="formula-list" *ngIf="!loadingFormulas && formulas.length > 0">
+          <div class="formula-item" *ngFor="let f of formulas">
+            <div class="formula-item__header">
+              <div class="formula-item__meta">
+                <span class="evolucion-item__fecha">{{ formatDateTime(f.createdAt) }}</span>
+                <span class="evolucion-item__autor" *ngIf="f.usuario">
+                  — {{ f.usuario.nombre }} {{ f.usuario.apellido }}
+                </span>
+              </div>
+              <div class="evolucion-item__actions">
+                <button *ngIf="confirmandoEliminarFormula !== f.id"
+                  class="btn-link btn-link--danger" type="button"
+                  (click)="confirmandoEliminarFormula = f.id">Eliminar</button>
+                <ng-container *ngIf="confirmandoEliminarFormula === f.id">
+                  <span class="evolucion-confirm-text">¿Eliminar esta fórmula?</span>
+                  <button class="btn-link btn-link--danger" type="button"
+                    (click)="eliminarFormula(f.id)">Sí, eliminar</button>
+                  <button class="btn-link" type="button"
+                    (click)="confirmandoEliminarFormula = null">Cancelar</button>
+                </ng-container>
+              </div>
+            </div>
+
+            <p class="formula-item__diagnostico" *ngIf="f.diagnostico">
+              <strong>Diagnóstico:</strong> {{ f.diagnostico }}
+            </p>
+
+            <table class="formula-table">
+              <thead>
+                <tr>
+                  <th>Medicamento</th>
+                  <th>Dosis</th>
+                  <th>Frecuencia</th>
+                  <th>Duración</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let med of f.medicamentos">
+                  <td>{{ med.medicamento }}</td>
+                  <td>{{ med.dosis }}</td>
+                  <td>{{ med.frecuencia }}</td>
+                  <td>{{ med.duracion }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p class="formula-item__instrucciones" *ngIf="f.instrucciones">
+              <strong>Indicaciones:</strong> {{ f.instrucciones }}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="clinical-card" id="evolucion-tratamiento">
+        <div class="clinical-card__header">
+          <div>
+            <h2>Evolución de tratamiento</h2>
+            <span>Bitácora cronológica de sesiones clínicas</span>
+          </div>
+        </div>
+
+        <div class="evolucion-form">
+          <div class="form-group form-group--full">
+            <label>Nueva nota de evolución</label>
+            <textarea rows="4"
+              [value]="nuevaNota"
+              (input)="nuevaNota = $any($event.target).value"
+              placeholder="Describe el procedimiento, observaciones o evolución del paciente en esta sesión..."
+              maxlength="2000"></textarea>
+            <span class="evolucion-char-count">{{ nuevaNota.length }} / 2000</span>
+          </div>
+          <div *ngIf="notaError" class="clinical-alert clinical-alert--error">{{ notaError }}</div>
+          <button class="btn btn-primary" type="button" (click)="agregarNota()" [disabled]="guardandoNota">
+            {{ guardandoNota ? 'Guardando...' : 'Registrar nota' }}
+          </button>
+        </div>
+
+        <div *ngIf="loadingEvoluciones" class="evolucion-loading">Cargando evoluciones...</div>
+
+        <div *ngIf="!loadingEvoluciones && evoluciones.length === 0" class="evolucion-empty">
+          No hay notas de evolución registradas para este paciente.
+        </div>
+
+        <div class="evolucion-timeline" *ngIf="!loadingEvoluciones && evoluciones.length > 0">
+          <div class="evolucion-item" *ngFor="let ev of evoluciones">
+            <div class="evolucion-item__dot"></div>
+            <div class="evolucion-item__body">
+              <div class="evolucion-item__meta">
+                <span class="evolucion-item__fecha">{{ formatDateTime(ev.createdAt) }}</span>
+                <span class="evolucion-item__autor" *ngIf="ev.usuario">
+                  — {{ ev.usuario.nombre }} {{ ev.usuario.apellido }}
+                </span>
+              </div>
+              <p class="evolucion-item__nota">{{ ev.nota }}</p>
+              <div class="evolucion-item__actions">
+                <button *ngIf="confirmandoEliminarNota !== ev.id"
+                  class="btn-link btn-link--danger" type="button"
+                  (click)="confirmandoEliminarNota = ev.id">Eliminar</button>
+                <ng-container *ngIf="confirmandoEliminarNota === ev.id">
+                  <span class="evolucion-confirm-text">¿Eliminar esta nota?</span>
+                  <button class="btn-link btn-link--danger" type="button"
+                    (click)="eliminarNota(ev.id)">Sí, eliminar</button>
+                  <button class="btn-link" type="button"
+                    (click)="confirmandoEliminarNota = null">Cancelar</button>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="clinical-card" id="modulos">
         <div class="clinical-card__header">
           <div>
@@ -621,19 +862,20 @@
             <span>Movimientos financieros vinculados al paciente</span>
           </div>
 
-          <div class="module-tile module-tile--disabled">
+          <div class="module-tile" (click)="scrollToSection('formulas-medicas')">
             <strong>Fórmulas médicas</strong>
-            <span>Próximamente</span>
+            <span>Recetas y prescripciones del paciente</span>
           </div>
 
-          <div class="module-tile module-tile--disabled">
-            <strong>Evolución de tratamiento</strong>
-            <span>Próximamente</span>
-          </div>
 
-          <div class="module-tile module-tile--disabled">
+          <div class="module-tile" (click)="scrollToSection('enfermedades-odontologicas')">
             <strong>Enfermedades odontológicas</strong>
-            <span>Próximamente</span>
+            <span>Condiciones dentales diagnosticadas</span>
+          </div>
+
+          <div class="module-tile" (click)="scrollToSection('evolucion-tratamiento')">
+            <strong>Evolución de tratamiento</strong>
+            <span>Bitácora cronológica de sesiones</span>
           </div>
 
           <div class="module-tile module-tile--disabled">

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -9,11 +9,12 @@ import { Navbar } from '../complements/navbar/navbar';
 import { Footer } from '../complements/footer/footer';
 import { TratamientosService, TratamientoRow } from './service/tratamientos.service';
 import { PatientsService } from '../user/service/pacientes.service';
+import { DocumentosComponent } from '../documentos/documentos/documentos';
 
 @Component({
   selector: 'app-tratamientos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, Navbar, Footer],
+  imports: [CommonModule, ReactiveFormsModule, Navbar, Footer, DocumentosComponent],
   templateUrl: './tratamientos.html',
   styleUrl: './tratamientos.css',
 })
@@ -37,6 +38,7 @@ export class Tratamientos implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
     private tratamientosService: TratamientosService,
@@ -95,6 +97,10 @@ export class Tratamientos implements OnInit, OnDestroy {
     });
   }
 
+  verPlanOdontograma(): void {
+    this.router.navigate(['/odontogram', this.pacienteId], { queryParams: { tab: 'plan' } });
+  }
+
   showForm(): void {
     this.formVisible = true;
     this.editingId = null;
@@ -129,10 +135,17 @@ export class Tratamientos implements OnInit, OnDestroy {
       return;
     }
 
+    const raw = this.form.getRawValue();
+
+    if (raw.fechaInicio && raw.fechaFin && raw.fechaFin < raw.fechaInicio) {
+      this.errorMessage = 'La fecha de fin no puede ser anterior a la fecha de inicio';
+      this.cdr.detectChanges();
+      return;
+    }
+
     this.submitting = true;
     this.errorMessage = '';
 
-    const raw = this.form.getRawValue();
     const data = {
       descripcion: raw.descripcion.trim(),
       estado: raw.estado,
@@ -145,7 +158,7 @@ export class Tratamientos implements OnInit, OnDestroy {
       this.tratamientosService.update(this.editingId, data).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
           this.submitting = false;
-          this.successMessage = 'Tratamiento actualizado correctamente';
+          this.setSuccess('Tratamiento actualizado correctamente');
           this.cdr.detectChanges();
           this.cancelForm();
           this.loadTratamientos();
@@ -160,7 +173,7 @@ export class Tratamientos implements OnInit, OnDestroy {
       this.tratamientosService.create({ ...data, pacienteId: this.pacienteId }).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
           this.submitting = false;
-          this.successMessage = 'Tratamiento registrado correctamente';
+          this.setSuccess('Tratamiento registrado correctamente');
           this.cdr.detectChanges();
           this.cancelForm();
           this.loadTratamientos();
@@ -195,7 +208,7 @@ export class Tratamientos implements OnInit, OnDestroy {
 
     this.tratamientosService.delete(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        this.successMessage = 'Tratamiento eliminado';
+        this.setSuccess('Tratamiento eliminado');
         this.cdr.detectChanges();
         this.loadTratamientos();
       },
@@ -231,5 +244,10 @@ export class Tratamientos implements OnInit, OnDestroy {
   hasError(field: string): boolean {
     const c = this.form.get(field);
     return !!(c && c.invalid && c.touched);
+  }
+
+  private setSuccess(msg: string): void {
+    this.successMessage = msg;
+    setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
   }
 }

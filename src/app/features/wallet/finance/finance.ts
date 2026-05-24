@@ -7,7 +7,7 @@ import { takeUntil, switchMap, catchError } from 'rxjs/operators';
 
 import { Footer } from '../../complements/footer/footer';
 import { Navbar } from '../../complements/navbar/navbar';
-import { FinanzasService, MovimientoRow, MovimientoFilters, PagoMovimiento } from './service/finanzas.service';
+import { FinanzasService, MovimientoRow, MovimientoFilters, PagoMovimiento, PaginaMeta } from './service/finanzas.service';
 import { PatientsService, PatientRow } from '../../user/service/pacientes.service';
 import { formatDateForInput } from '../../../utils/date.utils';
 
@@ -26,6 +26,7 @@ export class Finance implements OnInit, OnDestroy {
   loading = false;
   errorMessage = '';
   successMessage = '';
+  warnMessage = '';
 
   // ── Contexto de paciente ──────────────────────────────────────────────────
   patients: PatientRow[] = [];
@@ -38,6 +39,10 @@ export class Finance implements OnInit, OnDestroy {
   filtroEstado = '';
   filtroFechaDesde = '';
   filtroFechaHasta = '';
+  fechaRangoError = '';
+  paginaMeta: PaginaMeta | null = null;
+  currentPage = 1;
+  readonly PAGE_SIZE = 25;
 
   get filtrosActivos(): number {
     return [this.filtroTipo, this.filtroEstado, this.filtroFechaDesde, this.filtroFechaHasta]
@@ -128,7 +133,8 @@ export class Finance implements OnInit, OnDestroy {
       .subscribe((res) => {
         if (res) {
           this.movimientos = res.data;
-          this.calcularStats();
+          this.paginaMeta = res.meta ?? null;
+          this.loadStats();
           this.loading = false;
           this.cdr.detectChanges();
         }
@@ -141,6 +147,7 @@ export class Finance implements OnInit, OnDestroy {
         // Lista ya cargada: resolución síncrona
         if (this.patients.length) {
           this.selectedPatient = this.patients.find((p) => p.id === numId) ?? null;
+          this.currentPage = 1;
           this.loadMovimientos();
         } else {
           // Lista aún vacía: cargar el paciente puntualmente y luego los movimientos
@@ -158,10 +165,12 @@ export class Finance implements OnInit, OnDestroy {
                 ultimaCita: '',
               };
               this.cdr.detectChanges();
+              this.currentPage = 1;
               this.loadMovimientos();
             },
             error: () => {
               this.selectedPatient = null;
+              this.currentPage = 1;
               this.loadMovimientos();
             },
           });
@@ -174,7 +183,7 @@ export class Finance implements OnInit, OnDestroy {
   }
 
   loadPatients(): void {
-    this.patientsService.getPatients().pipe(takeUntil(this.destroy$)).subscribe({
+    this.patientsService.getPatients(true).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.patients = res.data;
         this.cdr.detectChanges();
@@ -201,11 +210,13 @@ export class Finance implements OnInit, OnDestroy {
 
   filtrarSinPaciente(): void {
     this.soloSinPaciente = true;
+    this.currentPage = 1;
     this.loadMovimientos();
   }
 
   limpiarFiltroSinPaciente(): void {
     this.soloSinPaciente = false;
+    this.currentPage = 1;
     this.loadMovimientos();
   }
 
@@ -214,40 +225,60 @@ export class Finance implements OnInit, OnDestroy {
     this.filtroEstado = '';
     this.filtroFechaDesde = '';
     this.filtroFechaHasta = '';
+    this.fechaRangoError = '';
+    this.currentPage = 1;
     this.loadMovimientos();
   }
 
   loadMovimientos(): void {
+    if (this.filtroFechaDesde && this.filtroFechaHasta && this.filtroFechaDesde > this.filtroFechaHasta) {
+      this.fechaRangoError = 'La fecha inicial no puede ser posterior a la final.';
+      return;
+    }
+    this.fechaRangoError = '';
+
     const filters: MovimientoFilters = this.selectedPatient
       ? { pacienteId: this.selectedPatient.id }
       : this.soloSinPaciente
         ? { sinPaciente: true }
         : {};
 
-    if (this.filtroTipo) filters.tipo = this.filtroTipo;
-    if (this.filtroEstado) filters.estado = this.filtroEstado;
+    if (this.filtroTipo)      filters.tipo       = this.filtroTipo;
+    if (this.filtroEstado)    filters.estado     = this.filtroEstado;
     if (this.filtroFechaDesde) filters.fechaDesde = this.filtroFechaDesde;
     if (this.filtroFechaHasta) filters.fechaHasta = this.filtroFechaHasta;
+    filters.page     = this.currentPage;
+    filters.pageSize = this.PAGE_SIZE;
     this.movimientosRequest$.next(filters);
   }
 
-  private calcularStats(): void {
-    const now = new Date();
-    const mes = now.getMonth();
-    const anio = now.getFullYear();
+  prevPage(): void {
+    if (this.currentPage > 1) { this.currentPage--; this.loadMovimientos(); }
+  }
 
-    const delMes = this.movimientos.filter((m) => {
-      const d = new Date(m.fecha);
-      return d.getMonth() === mes && d.getFullYear() === anio;
+  nextPage(): void {
+    if (this.paginaMeta && this.currentPage < this.paginaMeta.totalPages) {
+      this.currentPage++;
+      this.loadMovimientos();
+    }
+  }
+
+  trackById(_index: number, item: { id: number }): number { return item.id; }
+  trackByIndex(index: number): number { return index; }
+
+  private setSuccess(msg: string): void {
+    this.successMessage = msg;
+    setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
+  }
+
+  private loadStats(): void {
+    this.finanzasService.getStats(this.selectedPatient?.id).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        this.ingresosMes = res.data.ingresosMes;
+        this.egresosMes  = res.data.egresosMes;
+        this.cdr.detectChanges();
+      },
     });
-
-    this.ingresosMes = delMes
-      .filter((m) => m.tipo === 'INGRESO')
-      .reduce((acc, m) => acc + m.monto, 0);
-
-    this.egresosMes = delMes
-      .filter((m) => m.tipo === 'EGRESO')
-      .reduce((acc, m) => acc + m.monto, 0);
   }
 
   editarMovimiento(m: MovimientoRow): void {
@@ -290,9 +321,13 @@ export class Finance implements OnInit, OnDestroy {
 
     if (this.editingId !== null) {
       this.finanzasService.update(this.editingId, payload).pipe(takeUntil(this.destroy$)).subscribe({
-        next: () => {
-          this.successMessage = 'Movimiento actualizado correctamente';
+        next: (res) => {
+          this.setSuccess('Movimiento actualizado correctamente');
           this.errorMessage = '';
+          const totalPagado = (res.data.pagos ?? []).reduce((acc: number, p: any) => acc + p.monto, 0);
+          this.warnMessage = totalPagado > res.data.monto
+            ? `Atención: lo cobrado ($${totalPagado.toLocaleString('es-CO')}) supera el nuevo monto ($${res.data.monto.toLocaleString('es-CO')}). Revisa los abonos registrados.`
+            : '';
           this.formVisible = false;
           this.editingId = null;
           this.form.reset({ tipo: 'INGRESO', metodoPago: 'Efectivo', estado: 'PENDIENTE', pacienteId: null });
@@ -309,7 +344,7 @@ export class Finance implements OnInit, OnDestroy {
 
     this.finanzasService.create(payload).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        this.successMessage = 'Movimiento registrado correctamente';
+        this.setSuccess('Movimiento registrado correctamente');
         this.errorMessage = '';
         this.formVisible = false;
         this.form.reset({ tipo: 'INGRESO', metodoPago: 'Efectivo', estado: 'PENDIENTE', pacienteId: null });
@@ -342,7 +377,7 @@ export class Finance implements OnInit, OnDestroy {
 
     this.finanzasService.delete(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        this.successMessage = 'Movimiento eliminado';
+        this.setSuccess('Movimiento eliminado');
         if (this.expandedPagosId === id) this.expandedPagosId = null;
         this.loadMovimientos();
       },
@@ -394,7 +429,7 @@ export class Finance implements OnInit, OnDestroy {
         this.movimientos = this.movimientos.map(m => m.id === movimiento.id ? res.data : m);
         this.pagoForm.reset({ monto: null, fecha: '', metodoPago: 'Efectivo' });
         this.pagoErrorMessage = '';
-        this.calcularStats();
+        this.loadStats();
         this.cdr.detectChanges();
       },
       error: (err: any) => {
@@ -415,7 +450,7 @@ export class Finance implements OnInit, OnDestroy {
     this.finanzasService.deletePago(movimiento.id, pagoId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.movimientos = this.movimientos.map(m => m.id === movimiento.id ? res.data : m);
-        this.calcularStats();
+        this.loadStats();
         this.cdr.detectChanges();
       },
       error: () => {

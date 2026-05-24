@@ -86,17 +86,17 @@
 }
 
 .form-control:focus {
-  border-color: #2f7d57;
+  border-color: #2f73d9;
   background: #ffffff;
 }
 
 .input-group:focus-within .input-group-text {
-  border-color: #2f7d57;
+  border-color: #2f73d9;
   background: #ffffff;
 }
 
 .input-group:focus-within .form-control {
-  box-shadow: 0 0 0 3px rgba(47, 125, 87, 0.12) !important;
+  box-shadow: 0 0 0 3px rgba(47, 115, 217, 0.14) !important;
 }
 
 .field-error {
@@ -105,6 +105,11 @@
   font-size: 0.8rem;
   margin-top: 6px;
   padding-left: 2px;
+}
+
+.form-control.ng-invalid.ng-touched {
+  border-color: #e05252;
+  background: #fffafa;
 }
 
 .alert-danger {
@@ -144,12 +149,12 @@
 }
 
 .enlace {
-  color: #2f7d57;
+  color: #2f73d9;
   transition: 0.2s ease;
 }
 
 .enlace:hover {
-  color: #246746;
+  color: #255fc0;
   text-decoration: underline !important;
 }
 

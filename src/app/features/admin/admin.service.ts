@@ -16,6 +16,11 @@ export interface HealthStatus {
   db: 'connected' | 'disconnected';
 }
 
+export interface SystemConfig {
+  indicativoPais:  string;
+  whatsappClinica: string;
+}
+
 export interface UserRow {
   id: number;
   nombre: string;
@@ -64,6 +69,15 @@ export class AdminService {
 
   changeUserPassword(id: number, password: string): Observable<{ ok: boolean; message: string }> {
     return this.http.patch<{ ok: boolean; message: string }>(`${this.authApi}/users/${id}/password`, { password });
+  }
+
+  // ── Configuración del sistema ─────────────────────────────────────────────
+  getConfig(): Observable<{ ok: boolean; data: SystemConfig }> {
+    return this.http.get<{ ok: boolean; data: SystemConfig }>(`${this.adminApi}/config`);
+  }
+
+  updateConfig(data: Partial<SystemConfig>): Observable<{ ok: boolean; data: SystemConfig }> {
+    return this.http.patch<{ ok: boolean; data: SystemConfig }>(`${this.adminApi}/config`, data);
   }
 
   // ── Backup / Restore ─────────────────────────────────────────────────────

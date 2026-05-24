@@ -7,7 +7,10 @@
       <h1>Tratamientos</h1>
       <p *ngIf="patientName">{{ patientName }}</p>
     </div>
-    <button class="btn btn-primary" (click)="showForm()">+ Nuevo tratamiento</button>
+    <div class="trat-header-actions">
+      <button class="btn btn-secondary" type="button" (click)="verPlanOdontograma()">Ver plan en odontograma</button>
+      <button class="btn btn-primary" type="button" (click)="showForm()">+ Nuevo tratamiento</button>
+    </div>
   </div>
 
   <div *ngIf="errorMessage" class="alert alert--error">{{ errorMessage }}</div>
@@ -101,8 +104,8 @@
             >
               <option *ngFor="let e of estados" [value]="e">{{ getEstadoLabel(e) }}</option>
             </select>
-            <button class="btn-icon btn-edit" title="Editar" (click)="editTratamiento(t)">✏️</button>
-            <button class="btn-icon btn-delete" title="Eliminar" (click)="eliminar(t.id)">🗑️</button>
+            <button class="btn-icon btn-edit" (click)="editTratamiento(t)">Editar</button>
+            <button class="btn-icon btn-delete" (click)="eliminar(t.id)">Eliminar</button>
           </td>
         </tr>
       </tbody>
@@ -122,5 +125,10 @@
     </div>
   </div>
 </div>
+
+<!-- Documentos del paciente -->
+<section *ngIf="pacienteId">
+  <app-documentos [pacienteId]="pacienteId"></app-documentos>
+</section>
 
 <app-footer></app-footer>

@@ -1,7 +1,7 @@
 .app-footer {
   min-height: 58px;
-  background: #327f63ad;
-  border-top: 1px solid #d9e1e8;
+  background: #2a6b53;
+  border-top: 1px solid rgba(255,255,255,0.12);
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -24,5 +24,5 @@
 
 .footer-center {
   text-align: center;
-  color: #ffffffc5;
+  color: rgba(255,255,255,0.82);
 }

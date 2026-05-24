@@ -71,6 +71,7 @@
   grid-template-columns: 1.7fr 1fr;
   gap: 18px;
   margin-bottom: 18px;
+  align-items: start;
 }
 
 .appointments-side {
@@ -204,21 +205,17 @@
 .status-badge {
   display: inline-flex;
   align-items: center;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
 }
 
-.status-badge--active {
-  color: #247447;
-}
-
-.status-badge--pending {
-  color: #a56a00;
-}
-
-.status-badge--done {
-  color: #2857a4;
-}
+.status-badge--active    { background: #f0fdf4; color: #166534; }
+.status-badge--pending   { background: #fffbeb; color: #92400e; }
+.status-badge--done      { background: #eff6ff; color: #1e40af; }
 
 .agenda-list,
 .info-stack {
@@ -386,9 +383,7 @@
   padding: 22px !important;
 }
 
-.status-badge--cancelled {
-  color: #b64040;
-}
+.status-badge--cancelled { background: #f8fafc; color: #64748b; }
 
 .form-group input.ng-invalid.ng-touched,
 .form-group select.ng-invalid.ng-touched,
@@ -403,21 +398,26 @@
   border-color: #2f7d57;
 }
 
+.estado-terminal {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
 .estado-select {
   border: none;
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 0.8rem;
-  font-weight: 700;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
   cursor: pointer;
   outline: none;
   appearance: auto;
 }
 
-.estado-select.status-badge--active    { color: #247447; }
-.estado-select.status-badge--pending   { color: #a56a00; }
-.estado-select.status-badge--done      { color: #2857a4; }
-.estado-select.status-badge--cancelled { color: #c94a4a; }
+.estado-select.status-badge--active    { background: #f0fdf4; color: #166534; }
+.estado-select.status-badge--pending   { background: #fffbeb; color: #92400e; }
+.estado-select.status-badge--done      { background: #eff6ff; color: #1e40af; }
+.estado-select.status-badge--cancelled { background: #f8fafc; color: #64748b; }
 /* ── Formulario colapsable ────────────────────────────────────── */
 .form-trigger {
   display: flex;
@@ -884,3 +884,89 @@
     font-size: 0.75rem;
   }
 }
+
+/* Modal: cancelar cita con cobro pendiente */
+.cita-cancel-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+}
+
+.cita-cancel-modal {
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px 28px 22px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+}
+
+.cita-cancel-modal h3 {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.cita-cancel-modal p {
+  margin: 0 0 20px;
+  font-size: 0.92rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.cita-cancel-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-cancel-action {
+  padding: 10px 16px;
+  border-radius: 9px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.btn-cancel-action:hover {
+  opacity: 0.85;
+}
+
+.btn-cancel-action--secondary {
+  background: none;
+  color: #64748b;
+  border: 1.5px solid #e2e8f0;
+}
+
+.btn-cancel-action--danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 14px 0 4px;
+}
+.pagination__btn {
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: #374151;
+}
+.pagination__btn:hover:not(:disabled) { background: #f3f4f6; }
+.pagination__btn:disabled { opacity: 0.4; cursor: default; }
+.pagination__info { font-size: 0.85rem; color: #6b7280; }

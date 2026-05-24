@@ -22,7 +22,7 @@ import { Odontogram } from '../interfaces/odontogram';
 import { OdontogramPayload } from '../interfaces/odontogram-payload';
 import { BackendOdontogramResponse } from '../interfaces/backend-odontogram-response';
 import { Footer } from '../../complements/footer/footer';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { PatientsService } from '../../user/service/pacientes.service';
 import { calcularEdad as calcEdad } from '../../../utils/date.utils';
@@ -33,7 +33,7 @@ import { AlertaClinica } from '../../historia-clinica/resumen/resumen';
 @Component({
   selector: 'app-odontogram',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ToothComponent, Navbar, Footer, OdontogramHistorialModal],
+  imports: [CommonModule, ReactiveFormsModule, ToothComponent, Navbar, Footer, OdontogramHistorialModal, RouterLink],
   templateUrl: './odontogram.html',
   styleUrl: './odontogram.css',
 })
@@ -62,7 +62,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
   scaledChartHeight = signal<number | null>(null);
   private naturalChartWidth = 0;
   private naturalChartHeight = 0;
-  private readonly resizeListener = () => this.applyScale();
+  private suppressNextAutoSave = false;
   private chartObserver?: ResizeObserver;
   private destroy$ = new Subject<void>();
   private cobroTimer: ReturnType<typeof setTimeout> | null = null;
@@ -79,13 +79,11 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
       this.applyScale();
     });
     this.chartObserver.observe(el);
-    window.addEventListener('resize', this.resizeListener);
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    window.removeEventListener('resize', this.resizeListener);
     this.chartObserver?.disconnect();
     if (this.cobroTimer) clearTimeout(this.cobroTimer);
     if (this.planMessageTimer) clearTimeout(this.planMessageTimer);
@@ -225,7 +223,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
       return [
         { type: 'Corona',            label: 'Corona',           icon: '♛' },
         { type: 'Puente',            label: 'Puente',           icon: '⊓⊔' },
-        { type: 'Implante',          label: 'Implante',         icon: '⚙' },
+        { type: 'Implante',          label: 'Implante',         icon: '⊕' },
         { type: 'ProtesisParcial',   label: 'Prót. Parcial',    icon: '⌒' },
         { type: 'MantenedorEspacio', label: 'Mant. Espacio',    icon: '⊞' },
         { type: 'DienteAusente',     label: 'Diente Ausente',   icon: '✕' },
@@ -234,7 +232,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
     return [
       { type: 'Corona',        label: 'Corona',          icon: '♛' },
       { type: 'Puente',        label: 'Puente',          icon: '⊓⊔' },
-      { type: 'Implante',      label: 'Implante',        icon: '⚙' },
+      { type: 'Implante',      label: 'Implante',        icon: '⊕' },
       { type: 'ProtesisParcial',label: 'Prót. Parcial',  icon: '⌒' },
       { type: 'ProtesisTotal', label: 'Prót. Total',     icon: '⊙' },
       { type: 'DienteAusente', label: 'Diente Ausente',  icon: '✕' },
@@ -349,8 +347,8 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
   private loadCobros(): void {
     if (!this.originalOdontogram?.id) return;
     this.finanzasService.getByOdontograma(this.originalOdontogram.id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res) => this.cobros.set(res.data),
-      error: () => this.cobros.set([]),
+      next: (res) => { this.cobros.set(res.data); this.cdr.detectChanges(); },
+      error: () => { this.cobros.set([]); this.cdr.detectChanges(); },
     });
   }
 
@@ -635,6 +633,10 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
       this.diagnoses();
       this.pieces();
       if (this.autoSaveTimer) clearTimeout(this.autoSaveTimer);
+      if (this.suppressNextAutoSave) {
+        this.suppressNextAutoSave = false;
+        return;
+      }
       this.autoSaveTimer = setTimeout(() => {
         if (!this.originalOdontogram?.id || this.isSaving) return;
         const payload = this.buildVersioningPayload();
@@ -678,6 +680,10 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
       this.loadPatientInfo();
       this.loadOdontogram();
       this.loadPlan();
+
+      if (this.route.snapshot.queryParamMap.get('tab') === 'plan') {
+        this.switchOdontogramTab('plan');
+      }
     });
   }
 
@@ -797,7 +803,6 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
         this.diagnoses.set([]);
         this.pieces.set([]);
         this.odontogramChecked = true;
-        if (this.patientLoaded) this.maybeSuggestPediatric();
         this.showSaveMessage('info', 'No se pudo consultar el odontograma del paciente.', true, 3000);
       },
     });
@@ -939,41 +944,8 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
     return Array.from(teethMap.values());
   }
 
-  private buildBackendStructure(): Tooth[] {
-    const teethMap = new Map<number, Tooth>();
-
-    for (const d of this.diagnoses()) {
-      for (const tooth of d.teeth) {
-        if (!teethMap.has(tooth)) {
-          teethMap.set(tooth, { number: tooth, surfaces: [] });
-        }
-        const toothEntry = teethMap.get(tooth)!;
-
-        for (const face of d.faces) {
-          const existingSurface = toothEntry.surfaces.find((s) => s.surface === face);
-          if (existingSurface) {
-            if (!existingSurface.diagnoses.includes(d.type)) {
-              existingSurface.diagnoses.push(d.type);
-            }
-          } else {
-            toothEntry.surfaces.push({ surface: face, diagnoses: [d.type] });
-          }
-        }
-      }
-    }
-
-    for (const piece of this.pieces()) {
-      if (!teethMap.has(piece.tooth)) {
-        teethMap.set(piece.tooth, { number: piece.tooth, surfaces: [] });
-      }
-      teethMap.get(piece.tooth)!.surfaces.push({ surface: 'P' as any, diagnoses: [piece.type as any] });
-    }
-
-    return Array.from(teethMap.values());
-  }
-
   private buildVersioningPayload(): OdontogramPayload {
-    const teeth = this.buildBackendStructure();
+    const teeth = this.buildBackendStructureFrom(this.diagnoses(), this.pieces());
     return {
       pacienteId: this.patientId,
       tipo: this.odontogramTipo,
@@ -1143,6 +1115,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
           this.odontogram = structuredClone(this.originalOdontogram);
 
           const { diagnoses, pieces } = this.buildDiagnosesFromBackend(response);
+          this.suppressNextAutoSave = true;
           this.diagnoses.set(diagnoses);
           this.pieces.set(pieces);
           this.loadCobros();
@@ -1202,6 +1175,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
           this.odontogram = structuredClone(this.originalOdontogram);
 
           const { diagnoses, pieces } = this.buildDiagnosesFromBackend(response);
+          this.suppressNextAutoSave = true;
           this.diagnoses.set(diagnoses);
           this.pieces.set(pieces);
           this.loadCobros();
@@ -1233,7 +1207,9 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
     this.historialLoading = true;
     this.odontogramService.getHistorial(this.patientId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (data) => {
-        this.historial = data.filter(v => !v.activo).sort((a, b) => b.version - a.version);
+        this.historial = data
+          .filter(v => !v.activo && v.tipo !== 'TRATAMIENTO')
+          .sort((a, b) => b.version - a.version);
         this.historialLoading = false;
         this.cdr.detectChanges();
       },

@@ -202,6 +202,13 @@
             <small *ngIf="newUserForm.get('password')?.touched && newUserForm.get('password')?.invalid">Mínimo 8 caracteres</small>
           </div>
           <div class="form-field">
+            <label>Confirmar contraseña *</label>
+            <input type="password" formControlName="confirmarPassword" placeholder="Repite la contraseña" autocomplete="new-password" />
+            <small *ngIf="newUserForm.get('confirmarPassword')?.touched && newUserForm.errors?.['passwordMismatch']">
+              Las contraseñas no coinciden
+            </small>
+          </div>
+          <div class="form-field">
             <label>Rol *</label>
             <select formControlName="rol">
               <option *ngFor="let r of ROLES" [value]="r">{{ ROLE_LABELS[r] }}</option>
@@ -250,9 +257,9 @@
             <td>
               <select
                 class="role-select"
-                [value]="user.rol"
+                [ngModel]="user.rol"
                 [disabled]="user.id === currentUserId || savingRoleId === user.id"
-                (change)="changeRole(user, $any($event.target).value)">
+                (ngModelChange)="changeRole(user, $event)">
                 <option *ngFor="let r of ROLES" [value]="r">{{ ROLE_LABELS[r] }}</option>
               </select>
               <span *ngIf="savingRoleId === user.id" class="saving-indicator">Guardando…</span>
@@ -348,6 +355,52 @@
       </div>
     </div>
 
+    <!-- ── Configuración del sistema ────────────────────────────────────── -->
+    <div class="admin-card">
+      <div class="admin-card__header">
+        <h3>Configuración de contacto</h3>
+      </div>
+
+      <div *ngIf="configLoading" class="admin-loading">Cargando configuración…</div>
+
+      <ng-container *ngIf="!configLoading">
+        <div class="config-field">
+          <label class="config-label">Indicativo de país (WhatsApp)</label>
+          <div class="config-input-row">
+            <span class="config-prefix">+</span>
+            <input
+              type="text"
+              class="config-input"
+              [(ngModel)]="configIndicativo"
+              placeholder="57"
+              maxlength="4" />
+          </div>
+          <small class="config-hint">Prefijo numérico del país, sin el signo +. Ej: 57 para Colombia, 1 para EE.UU.</small>
+        </div>
+
+        <div class="config-field">
+          <label class="config-label">WhatsApp de la clínica (opcional)</label>
+          <input
+            type="text"
+            class="config-input"
+            [(ngModel)]="configWhatsapp"
+            placeholder="Número de contacto de la clínica" />
+          <small class="config-hint">Si se completa, se mostrará en los mensajes de confirmación de cita.</small>
+        </div>
+
+        <div *ngIf="configError"   class="admin-alert admin-alert--error">{{ configError }}</div>
+        <div *ngIf="configSuccess" class="admin-alert admin-alert--success">{{ configSuccess }}</div>
+
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          [disabled]="configSaving"
+          (click)="guardarConfig()">
+          {{ configSaving ? 'Guardando…' : 'Guardar configuración' }}
+        </button>
+      </ng-container>
+    </div>
+
   </div>
 </section>
 
@@ -370,7 +423,7 @@
         class="pwd-input"
         autocomplete="new-password" />
       <button type="button" class="pwd-eye" (click)="pwdShow = !pwdShow">
-        {{ pwdShow ? '🙈' : '👁' }}
+        {{ pwdShow ? 'Ocultar' : 'Ver' }}
       </button>
     </div>
   </div>

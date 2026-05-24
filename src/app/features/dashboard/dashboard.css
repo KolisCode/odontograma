@@ -24,7 +24,7 @@
 
 .btn-primary {
   border: none;
-  background: #217737;
+  background: #2f73d9;
   color: white;
   padding: 12px 18px;
   border-radius: 12px;
@@ -33,7 +33,7 @@
 }
 
 .btn-primary:hover {
-  background: #1a6830;
+  background: #255fc0;
 }
 
 .stats-grid {
@@ -89,7 +89,7 @@
 
 .panel-header a {
   text-decoration: none;
-  color: #2b78d0;
+  color: #2f73d9;
   font-weight: 600;
   font-size: 0.9rem;
 }
@@ -123,21 +123,19 @@
 }
 
 .status {
-  padding: 7px 10px;
-  border-radius: 999px;
-  font-size: 0.78rem;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
   font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
 }
 
-.status.pending {
-  background: #fff3d8;
-  color: #a56a00;
-}
-
-.status.confirmed {
-  background: #e5f7ea;
-  color: #247447;
-}
+.status.pending   { background: #fffbeb; color: #92400e; }
+.status.confirmed { background: #f0fdf4; color: #166534; }
+.status.done      { background: #eff6ff; color: #1e40af; }
+.status.cancelled { background: #f8fafc; color: #64748b; }
 
 .quick-actions {
   display: grid;

@@ -53,17 +53,14 @@
     </div>
     <div class="pediatric-modal-options">
       <button type="button" class="pediatric-option pediatric-option--adulto" (click)="setOdontogramMode('ADULTO')">
-        <span class="pediatric-option-icon">🦷</span>
         <strong>Dentición adulta</strong>
         <span>Dientes permanentes (FDI 11–48)</span>
       </button>
       <button type="button" class="pediatric-option pediatric-option--mixto" (click)="setOdontogramMode('MIXTO')">
-        <span class="pediatric-option-icon">🔀</span>
         <strong>Dentición mixta</strong>
         <span>Molares permanentes + todos los temporales</span>
       </button>
       <button type="button" class="pediatric-option pediatric-option--pediatrico" (click)="setOdontogramMode('PEDIATRICO')">
-        <span class="pediatric-option-icon">🌱</span>
         <strong>Dentición pediátrica</strong>
         <span>Solo dientes primarios (FDI 51–85)</span>
       </button>
@@ -283,7 +280,7 @@
                 type="button"
                 class="piece-tag__cobrar"
                 (click)="openCobroForm(buildPieceRef(p.tooth, p.type), getPieceLabel(p.type) + ' - Diente ' + p.tooth, p.date)"
-                title="Generar cobro">$</button>
+                title="Generar cobro">Cobrar</button>
             </ng-container>
             <button type="button" class="piece-tag__remove" (click)="removePiece(p.tooth, p.type)" title="Quitar pieza">✕</button>
           </div>
@@ -315,12 +312,8 @@
                 </td>
                 <td class="record-cell-surface">{{ surface.surface }}</td>
                 <td class="record-cell-diagnoses">
-                  <span class="record-badge" *ngFor="let diagnosis of surface.diagnoses" [ngClass]="{
-                    'badge-caries':    diagnosis === 'Caries',
-                    'badge-obturacion':diagnosis === 'Obturacion',
-                    'badge-fractura':  diagnosis === 'Fractura',
-                    'badge-sellante': diagnosis === 'Sellante'
-                  }">{{ getDiagnosisLabel(diagnosis) }}</span>
+                  <span class="record-badge" *ngFor="let diagnosis of surface.diagnoses"
+                    [ngClass]="'badge-' + diagnosis.toLowerCase()">{{ getDiagnosisLabel(diagnosis) }}</span>
                 </td>
                 <td *ngIf="first" [attr.rowspan]="record.surfaces.length" class="record-cell-date">
                   {{ record.date | date: 'dd/MM/yy' }}
@@ -340,7 +333,7 @@
                           buildDiagnosticoRef(record.tooth, diagType),
                           getDiagnosisLabel(diagType) + ' - Diente ' + record.tooth,
                           record.date
-                        )">$ {{ getDiagnosisLabel(diagType) }}</button>
+                        )">{{ getDiagnosisLabel(diagType) }}</button>
                     </ng-container>
                   </ng-container>
                 </td>
@@ -488,7 +481,9 @@
           {{ selectedPiece ? 'Pieza activa' : 'Diagnóstico activo' }}
         </div>
         <ng-container *ngIf="selectedDiagnosis || selectedPiece; else noSelection">
-          <div class="active-diagnosis-value">{{ selectedDiagnosis || selectedPiece }}</div>
+          <div class="active-diagnosis-value">
+            {{ selectedDiagnosis ? getDiagnosisLabel(selectedDiagnosis) : getPieceLabel(selectedPiece!) }}
+          </div>
         </ng-container>
         <ng-template #noSelection>
           <div class="active-diagnosis-empty">Sin selección activa</div>
@@ -533,6 +528,9 @@
           'save-error': planMessageType === 'error',
           'save-info': planMessageType === 'info'
         }">{{ planMessage }}</div>
+        <a class="plan-tratamientos-link" [routerLink]="['/tratamientos', patientId]">
+          Ver lista de tratamientos
+        </a>
       </div>
 
       <!-- Guía de caras -->

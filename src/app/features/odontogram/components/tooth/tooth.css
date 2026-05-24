@@ -1,6 +1,6 @@
 .tooth-wrapper {
-  width: 64px;
-  height: 84px;
+  width: 54px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -42,7 +42,7 @@
 }
 
 .tooth-number {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 800;
   fill: #334155;
   pointer-events: none;
@@ -142,7 +142,7 @@
 
 /* Molares (más anchos) */
 .tooth-svg.molar {
-  transform: scaleX(1.15);
+  transform: scaleX(1.08);
 }
 
 /* ── Procedimientos de plan de tratamiento ─────────────────────────────── */

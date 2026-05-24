@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -25,6 +25,7 @@ import {
   PatientRow,
   QuickInfo,
   RecentPatient,
+  PaginaMeta,
 } from '../service/pacientes.service';
 
 @Component({
@@ -45,11 +46,37 @@ export class List implements OnInit, OnDestroy {
   successMessage = '';
   editingId: number | null = null;
 
-  patients: PatientRow[] = [];
+  filteredPatients: PatientRow[] = [];
   searchTerm = '';
   mostrarInactivos = false;
   recentPatients: RecentPatient[] = [];
+  paginaMeta: PaginaMeta | null = null;
+  currentPage = 1;
+  readonly PAGE_SIZE = 25;
+  private _searchDebounce: any = null;
   private destroy$ = new Subject<void>();
+
+  // ── Dropdown de módulos por fila ──────────────────────────────────────────
+  openDropdownId: number | null = null;
+  dropdownTop = 0;
+  dropdownLeft = 0;
+
+  @HostListener('document:click')
+  closeAllDropdowns(): void {
+    this.openDropdownId = null;
+  }
+
+  toggleDropdown(patientId: number, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.openDropdownId === patientId) {
+      this.openDropdownId = null;
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.dropdownTop = rect.bottom + 4;
+    this.dropdownLeft = rect.left;
+    this.openDropdownId = patientId;
+  }
 
   // ── Toggle activo / inactivo ──────────────────────────────────────────────
   toggleActivoTarget: PatientRow | null = null;
@@ -57,18 +84,33 @@ export class List implements OnInit, OnDestroy {
   toggleActivoLoading = false;
   toggleActivoError = '';
 
-  get filteredPatients(): PatientRow[] {
-    const term = this.searchTerm.trim().toLowerCase();
-    return this.patients.filter(p => {
-      if (!this.mostrarInactivos && !p.activo) return false;
-      if (!term) return true;
-      return (
-        p.nombreCompleto.toLowerCase().includes(term) ||
-        p.documento.toLowerCase().includes(term) ||
-        (p.telefono ?? '').toLowerCase().includes(term)
-      );
-    });
+  recomputeFilter(): void {
+    if (this._searchDebounce) clearTimeout(this._searchDebounce);
+    this._searchDebounce = setTimeout(() => {
+      this.currentPage = 1;
+      this.loadPatients();
+    }, 300);
   }
+
+  onFiltroInactivosChange(): void {
+    this.currentPage = 1;
+    this.loadPatients();
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) { this.currentPage--; this.loadPatients(); }
+  }
+
+  nextPage(): void {
+    if (this.paginaMeta && this.currentPage < this.paginaMeta.totalPages) {
+      this.currentPage++;
+      this.loadPatients();
+    }
+  }
+
+  trackById(_index: number, item: { id: number }): number { return item.id; }
+  trackByField(_index: number, entry: { field: string }): string { return entry.field; }
+  trackByIndex(index: number): number { return index; }
 
   calcularEdad(fechaNacimiento: string | null): number | null {
     return calcEdad(fechaNacimiento);
@@ -181,9 +223,15 @@ export class List implements OnInit, OnDestroy {
   loadPatients(): void {
     this.tableLoading = true;
 
-    this.patientsService.getPatients().pipe(takeUntil(this.destroy$)).subscribe({
+    this.patientsService.getPatients({
+      soloActivos: !this.mostrarInactivos,
+      search: this.searchTerm.trim() || undefined,
+      page: this.currentPage,
+      pageSize: this.PAGE_SIZE,
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
-        this.patients = response.data;
+        this.filteredPatients = response.data;
+        this.paginaMeta = response.meta ?? null;
         this.tableLoading = false;
         this.cdr.detectChanges();
       },
@@ -286,7 +334,7 @@ export class List implements OnInit, OnDestroy {
     if (this.editingId !== null) {
       this.patientsService.updatePatient(this.editingId, payload).pipe(takeUntil(this.destroy$)).subscribe({
         next: (response: any) => {
-          this.successMessage = response.message || 'Paciente actualizado correctamente';
+          this.setSuccess(response.message || 'Paciente actualizado correctamente');
           this.loading = false;
           this.editingId = null;
           this.formVisible = false;
@@ -303,7 +351,7 @@ export class List implements OnInit, OnDestroy {
     } else {
       this.patientsService.createPatient(payload).pipe(takeUntil(this.destroy$)).subscribe({
         next: (response: any) => {
-          this.successMessage = response.message || 'Paciente registrado correctamente';
+          this.setSuccess(response.message || 'Paciente registrado correctamente');
           this.loading = false;
           this.formVisible = false;
           this.patientForm.reset();
@@ -552,7 +600,7 @@ export class List implements OnInit, OnDestroy {
         this.importStep = 'result';
         this.importLoading = false;
         if (res.data.importados > 0 || res.data.actualizados > 0) {
-          this.loadPatients();
+          this.loadPatientsModuleData();
         }
         this.cdr.detectChanges();
       },
@@ -582,6 +630,11 @@ export class List implements OnInit, OnDestroy {
       alergias: this.cleanOptionalText(raw.alergias),
       observaciones: this.cleanOptionalText(raw.observaciones),
     };
+  }
+
+  private setSuccess(msg: string): void {
+    this.successMessage = msg;
+    setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
   }
 
   private cleanRequiredText(value: string | null | undefined): string {

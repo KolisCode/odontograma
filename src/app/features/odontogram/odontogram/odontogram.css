@@ -3,8 +3,8 @@
   display: flex;
   gap: 0;
   padding: 0 20px;
-  background: #f4f6f9;
-  border-bottom: 2px solid #e2e8f0;
+  background: #eef3f7;
+  border-bottom: 2px solid #dce5ec;
 }
 
 .odontogram-main-tab {
@@ -30,16 +30,30 @@
 }
 
 .odontogram-main-tab--plan.odontogram-main-tab--active {
-  color: #0ca678;
-  border-bottom-color: #0ca678;
+  color: #2f73d9;
+  border-bottom-color: #2f73d9;
 }
 
 .save-btn--plan {
-  background: #0ca678;
+  background: #2f73d9;
 }
 
 .save-btn--plan:hover:not(:disabled) {
-  background: #087f5b;
+  background: #255fc0;
+}
+
+.plan-tratamientos-link {
+  display: block;
+  text-align: center;
+  font-size: 0.83rem;
+  color: #64748b;
+  text-decoration: none;
+  padding: 4px 0;
+}
+
+.plan-tratamientos-link:hover {
+  color: #2f73d9;
+  text-decoration: underline;
 }
 
 .odontogram-layout {
@@ -47,7 +61,7 @@
   grid-template-columns: minmax(0, 2fr) 380px;
   gap: 18px;
   padding: 20px;
-  background: #f4f6f9;
+  background: #eef3f7;
   box-sizing: border-box;
   align-items: start;
 }
@@ -75,16 +89,18 @@
 .diagnostic-record,
 .resumen-panel {
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-  border: 1px solid #eef2f7;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(18, 38, 63, 0.06);
+  border: 1px solid #dce5ec;
 }
 
 .dental-chart {
-  padding: 24px 28px;
-  overflow-x: auto;
-  background: linear-gradient(180deg, #ffffff96 0%, #fbfcff 100%);
-  transform-origin: top center;
+  padding: 16px 20px;
+  width: max-content;
+  min-width: 100%;
+  overflow: visible;
+  background: #ffffff;
+  transform-origin: top left;
   transform: scale(var(--chart-scale, 1));
 }
 
@@ -105,14 +121,21 @@
 
 .arch {
   display: flex;
-  gap: 28px;
-  margin: 14px 0;
+  gap: 12px;
+  margin: 10px 0;
   align-items: flex-start;
+}
+
+.arch-container hr {
+  border: none;
+  border-top: 2px dashed #dde5ec;
+  width: 100%;
+  margin: 2px 0 6px;
 }
 
 .quadrant {
   display: flex;
-  gap: 16px;
+  gap: 10px;
   align-items: flex-end;
 }
 
@@ -218,14 +241,23 @@
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
-.diagnosis-btn--caries.active          { background: #dc2626; }
-.diagnosis-btn--obturacion.active      { background: #2563eb; }
-.diagnosis-btn--fractura.active        { background: #ea580c; }
-.diagnosis-btn--sellante.active        { background: #16a34a; }
-.diagnosis-btn--extraccion.active      { background: #374151; }
-.diagnosis-btn--endodoncia.active      { background: #db2777; }
+/* Diagnósticos de diagnóstico */
+.diagnosis-btn--caries.active              { background: #dc2626; }
+.diagnosis-btn--obturacion.active          { background: #2563eb; }
+.diagnosis-btn--fractura.active            { background: #ea580c; }
+.diagnosis-btn--sellante.active            { background: #16a34a; }
+.diagnosis-btn--extraccion.active          { background: #374151; }
+.diagnosis-btn--endodoncia.active          { background: #db2777; }
 .diagnosis-btn--tratamientoconducto.active { background: #9d174d; }
-.diagnosis-btn--sano.active            { background: #15803d; }
+.diagnosis-btn--sano.active                { background: #15803d; }
+
+/* Diagnósticos de plan de tratamiento */
+.diagnosis-btn--resina.active                 { background: #0d9488; }
+.diagnosis-btn--profilaxis.active             { background: #0891b2; }
+.diagnosis-btn--blanqueamiento.active         { background: #b45309; }
+.diagnosis-btn--exodoncia.active              { background: #dc2626; }
+.diagnosis-btn--tratamientoperiodontal.active { background: #4f46e5; }
+.diagnosis-btn--cirugia.active                { background: #9333ea; }
 
 /* ── Botones de pieza ─────────────────────────────────────────── */
 .piece-toolbar {
@@ -299,7 +331,7 @@
 }
 
 .active-diagnosis-card {
-  background: linear-gradient(135deg, #f8fafc, #eef4ff);
+  background: #f0f6ff;
   border: 1px solid #dbe7ff;
   border-radius: 14px;
   padding: 14px 16px;
@@ -310,11 +342,11 @@
 
 .active-diagnosis-card.empty {
   background: #f8fafc;
-  border-color: #e5e7eb;
+  border-color: #dce5ec;
 }
 
 .active-diagnosis-card.is-piece {
-  background: linear-gradient(135deg, #fdf8f0, #fff7ed);
+  background: #fff8f0;
   border-color: #fed7aa;
 }
 
@@ -343,6 +375,41 @@
   flex-direction: column;
   gap: 10px;
   margin-top: 4px;
+}
+
+/* ── Botones compartidos ─────────────────────────────────────────────────── */
+.btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-primary {
+  background: #2f73d9;
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #255fc0;
+}
+
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #475569;
+  border: 1px solid #d0dbe4;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #f8fafc;
 }
 
 .save-btn {
@@ -396,7 +463,6 @@
 
 .resumen-panel {
   padding: 20px;
-  min-height: 280px;
 }
 
 .section-header {
@@ -562,14 +628,15 @@
 }
 
 .record-tooth {
-  min-width: 42px;
-  min-height: 42px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #d0dbe4;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
   color: #334155;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -602,31 +669,49 @@
 .record-badge {
   display: inline-flex;
   width: fit-content;
-  font-size: 12px;
-  font-weight: 700;
-  margin-right: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-right: 4px;
+  margin-bottom: 2px;
 }
 
-.badge-caries    { color: #c54c43; }
-.badge-obturacion{ color: #3069cc; }
-.badge-fractura  { color: #ca682b; }
-.badge-sellante  { color: #328b50; }
+.badge-caries              { color: #b91c1c; background: #fef2f2; }
+.badge-obturacion          { color: #1d4ed8; background: #eff6ff; }
+.badge-fractura            { color: #c2410c; background: #fff7ed; }
+.badge-sellante            { color: #15803d; background: #f0fdf4; }
+.badge-extraccion          { color: #374151; background: #f1f5f9; }
+.badge-endodoncia          { color: #be185d; background: #fdf2f8; }
+.badge-tratamientoconducto { color: #9d174d; background: #fff1f7; }
+.badge-sano                { color: #15803d; background: #f0fdf4; }
+.badge-pulpotomia          { color: #7e22ce; background: #faf5ff; }
+.badge-pulpectomia         { color: #4c1d95; background: #f5f3ff; }
+.badge-mantenedorespacio   { color: #065f46; background: #ecfdf5; }
+
+/* Badges plan de tratamiento */
+.badge-resina                 { color: #065f46; background: #d1fae5; }
+.badge-profilaxis             { color: #0e7490; background: #e0f2fe; }
+.badge-blanqueamiento         { color: #92400e; background: #fef3c7; }
+.badge-exodoncia              { color: #b91c1c; background: #fef2f2; }
+.badge-tratamientoperiodontal { color: #4338ca; background: #eef2ff; }
+.badge-cirugia                { color: #7e22ce; background: #faf5ff; }
 
 .delete-btn {
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   border: none;
-  border-radius: 10px;
+  border-radius: 6px;
   background: transparent;
-  color: #b94444;
-  font-size: 18px;
+  color: #94a3b8;
+  font-size: 14px;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: background 0.15s, color 0.15s;
 }
 
 .delete-btn:hover {
   background: #fdeaea;
-  transform: scale(1.05);
+  color: #b94444;
 }
 
 .summary-grid {
@@ -677,9 +762,6 @@
 /* ── Scaler ──────────────────────────────────────────────────────────────── */
 .dental-chart-scaler {
   width: 100%;
-}
-
-.dental-chart-scaler--active {
   overflow: hidden;
 }
 
@@ -709,8 +791,8 @@
 }
 
 .tooth-guide-card {
-  background: linear-gradient(180deg, #fbfdff 0%, #f6faff 100%);
-  border: 1px solid #e3ebf5;
+  background: #f9fbfd;
+  border: 1px solid #dce5ec;
   border-radius: 14px;
   padding: 14px;
   display: flex;
@@ -740,7 +822,7 @@
 .tooth-guide-btn {
   border: 1px solid #d7e3f3;
   background: #ffffff;
-  color: #175cd3;
+  color: #2f73d9;
   border-radius: 10px;
   padding: 8px 12px;
   font-size: 12px;
@@ -936,12 +1018,11 @@
 
 .patient-context-card {
   margin: 20px 20px 0;
-  background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
-  border: 1px solid #e8eef6;
-  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #dce5ec;
+  border-radius: 14px;
   padding: 18px 22px;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-  margin-bottom: 5px;
+  box-shadow: 0 2px 8px rgba(18, 38, 63, 0.06);
 }
 
 .patient-context-main {
@@ -1011,25 +1092,23 @@
 /* ── Cobros por diagnóstico ─────────────────────────────────────────────── */
 
 .cobrar-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 6px;
+  display: inline-block;
+  padding: 2px 8px;
   border-radius: 4px;
-  border: 1px solid #bbf7d0;
-  background: none;
+  border: 1px solid #d1fae5;
+  background: #f0fdf4;
   color: #15803d;
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: background 0.15s, border-color 0.15s;
   margin: 2px 0;
   white-space: nowrap;
 }
 
 .cobrar-btn:hover {
-  border-color: #16a34a;
-  color: #14532d;
+  background: #dcfce7;
+  border-color: #86efac;
 }
 
 .record-cell-cobro {
@@ -1043,39 +1122,36 @@
 }
 
 .cobro-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 4px;
+  display: inline-block;
+  padding: 2px 8px;
   border-radius: 4px;
-  background: none;
+  background: #f0fdf4;
   color: #15803d;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  margin-right: 4px;
-  border: none;
+  font-size: 11px;
+  font-weight: 600;
+  margin: 2px 0;
+  border: 1px solid #d1fae5;
+  white-space: nowrap;
 }
 
 .piece-tag__cobrar {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 1.5px solid #16a34a;
-  background: transparent;
-  color: #16a34a;
-  font-size: 11px;
-  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid #d1fae5;
+  background: #f0fdf4;
+  color: #15803d;
+  font-size: 10px;
+  font-weight: 600;
   cursor: pointer;
   margin: 0 2px;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, border-color 0.15s;
 }
 
 .piece-tag__cobrar:hover {
-  background: #16a34a;
-  color: #fff;
+  background: #dcfce7;
+  border-color: #86efac;
 }
 
 /* ── Modal cobro ────────────────────────────────────────────────────────── */
@@ -1539,8 +1615,8 @@
 
 /* ── Odontogram status card ──────────────────────────────────────────────── */
 .odontogram-status-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #f9fbfd;
+  border: 1px solid #dce5ec;
   border-radius: 12px;
   padding: 12px 14px;
 }

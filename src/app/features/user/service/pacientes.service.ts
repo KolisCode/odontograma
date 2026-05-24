@@ -1,7 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+
+export interface PaginaMeta {
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
 
 export interface PatientPayload {
   nombre: string;
@@ -64,8 +71,13 @@ export class PatientsService {
     return this.http.post(this.api, payload);
   }
 
-  getPatients(): Observable<{ ok: boolean; data: PatientRow[] }> {
-    return this.http.get<{ ok: boolean; data: PatientRow[] }>(this.api);
+  getPatients(params: { soloActivos?: boolean; search?: string; page?: number; pageSize?: number } = {}): Observable<{ ok: boolean; data: PatientRow[]; meta?: PaginaMeta }> {
+    let p = new HttpParams();
+    if (params.soloActivos) p = p.set('soloActivos', 'true');
+    if (params.search)      p = p.set('search', params.search);
+    if (params.page)        p = p.set('page', params.page.toString());
+    if (params.pageSize)    p = p.set('pageSize', params.pageSize.toString());
+    return this.http.get<{ ok: boolean; data: PatientRow[]; meta?: PaginaMeta }>(this.api, { params: p });
   }
 
   getRecentPatients(): Observable<{ ok: boolean; data: RecentPatient[] }> {

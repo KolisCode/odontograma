@@ -1,0 +1,94 @@
+<app-navbar></app-navbar>
+
+<section class="perfil-page">
+  <div class="perfil-header">
+    <h1>Mi perfil</h1>
+    <p>Información de tu cuenta y configuración de acceso</p>
+  </div>
+
+  <div class="perfil-layout" *ngIf="user">
+    <!-- Info del usuario -->
+    <div class="perfil-card">
+      <div class="perfil-card__header">
+        <div class="perfil-avatar">{{ user.nombre?.charAt(0) | uppercase }}</div>
+        <div>
+          <h2>{{ user.nombre }} {{ user.apellido }}</h2>
+          <span class="perfil-role">{{ rolLabel }}</span>
+        </div>
+      </div>
+
+      <div class="perfil-fields">
+        <div class="perfil-field">
+          <span class="perfil-field__label">Correo electrónico</span>
+          <span class="perfil-field__value">{{ user.correo }}</span>
+        </div>
+        <div class="perfil-field" *ngIf="user.documento">
+          <span class="perfil-field__label">Documento</span>
+          <span class="perfil-field__value">{{ user.documento }}</span>
+        </div>
+        <div class="perfil-field" *ngIf="user.telefono">
+          <span class="perfil-field__label">Teléfono</span>
+          <span class="perfil-field__value">{{ user.telefono }}</span>
+        </div>
+        <div class="perfil-field">
+          <span class="perfil-field__label">Miembro desde</span>
+          <span class="perfil-field__value">{{ formatDate(user.createdAt) }}</span>
+        </div>
+        <div class="perfil-field">
+          <span class="perfil-field__label">Estado</span>
+          <span class="perfil-field__value">{{ user.activo ? 'Activo' : 'Inactivo' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cambio de contraseña -->
+    <div class="perfil-card">
+      <div class="perfil-card__title">
+        <h2>Cambiar contraseña</h2>
+        <span>La nueva contraseña debe tener al menos 8 caracteres</span>
+      </div>
+
+      <form [formGroup]="passwordForm" (ngSubmit)="onSubmit()" class="perfil-form" novalidate>
+        <div class="form-group">
+          <label>Contraseña actual</label>
+          <input type="password" formControlName="currentPassword"
+            placeholder="Ingresa tu contraseña actual"
+            [class.input--error]="hasError('currentPassword', 'required')" />
+          <span class="field-error" *ngIf="hasError('currentPassword', 'required')">
+            Campo requerido
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label>Nueva contraseña</label>
+          <input type="password" formControlName="newPassword"
+            placeholder="Mínimo 8 caracteres"
+            [class.input--error]="hasError('newPassword', 'required') || hasError('newPassword', 'minlength')" />
+          <span class="field-error" *ngIf="hasError('newPassword', 'required')">Campo requerido</span>
+          <span class="field-error" *ngIf="hasError('newPassword', 'minlength')">Mínimo 8 caracteres</span>
+        </div>
+
+        <div class="form-group">
+          <label>Confirmar nueva contraseña</label>
+          <input type="password" formControlName="confirmPassword"
+            placeholder="Repite la nueva contraseña"
+            [class.input--error]="hasError('confirmPassword', 'required') || (passwordForm.touched && passwordForm.hasError('mismatch'))" />
+          <span class="field-error" *ngIf="hasError('confirmPassword', 'required')">Campo requerido</span>
+          <span class="field-error"
+            *ngIf="passwordForm.get('confirmPassword')?.touched && passwordForm.hasError('mismatch')">
+            Las contraseñas no coinciden
+          </span>
+        </div>
+
+        <div class="perfil-alert perfil-alert--error" *ngIf="errorMessage">{{ errorMessage }}</div>
+        <div class="perfil-alert perfil-alert--success" *ngIf="successMessage">{{ successMessage }}</div>
+
+        <button class="btn btn-primary" type="submit" [disabled]="loading">
+          {{ loading ? 'Actualizando...' : 'Actualizar contraseña' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>

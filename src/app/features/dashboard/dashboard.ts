@@ -51,8 +51,8 @@ export class Dashboard implements OnInit, OnDestroy {
 
     this.dashboardService.getSummary().pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
-        this.stats = response.data.stats;
-        this.agendaHoy = response.data.agendaHoy;
+        this.stats = response?.data?.stats;
+        this.agendaHoy = response?.data?.agendaHoy ?? [];
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -83,25 +83,18 @@ export class Dashboard implements OnInit, OnDestroy {
 
   getStatusClass(estado: string): string {
     const normalized = String(estado || '').toUpperCase();
-
-    if (normalized === 'CONFIRMADA') {
-      return 'confirmed';
-    }
-
+    if (normalized === 'CONFIRMADA') return 'confirmed';
+    if (normalized === 'ATENDIDA')   return 'done';
+    if (normalized === 'CANCELADA')  return 'cancelled';
     return 'pending';
   }
 
   getStatusLabel(estado: string): string {
     const normalized = String(estado || '').toUpperCase();
-
-    if (normalized === 'CONFIRMADA') {
-      return 'Confirmada';
-    }
-
-    if (normalized === 'PENDIENTE' || normalized === 'PROGRAMADA') {
-      return 'Pendiente';
-    }
-
-    return normalized;
+    if (normalized === 'CONFIRMADA')                       return 'Confirmada';
+    if (normalized === 'PENDIENTE' || normalized === 'PROGRAMADA') return 'Programada';
+    if (normalized === 'ATENDIDA')                         return 'Atendida';
+    if (normalized === 'CANCELADA')                        return 'Cancelada';
+    return estado;
   }
 }

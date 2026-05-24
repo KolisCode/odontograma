@@ -29,6 +29,7 @@ export class Navbar implements OnInit, OnDestroy {
   notifPanelOpen = false;
   notifLoading = false;
   notifCrearVisible = false;
+  notifCrearError = '';
   tipoCreacion: 'general' | 'programada' = 'general';
   notificaciones: NotificacionesData | null = null;
   notifForm: FormGroup;
@@ -76,7 +77,7 @@ export class Navbar implements OnInit, OnDestroy {
       this.avatarLetter = (user.nombre?.charAt(0) || 'U').toUpperCase();
     }
 
-    this.patientsService.getPatients().pipe(takeUntil(this.destroy$)).subscribe({
+    this.patientsService.getPatients(true).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => { this.patients = res.data; this.cdr.detectChanges(); },
       error: () => {},
     });
@@ -148,6 +149,7 @@ export class Navbar implements OnInit, OnDestroy {
   private cerrarFormCrear(): void {
     this.notifCrearVisible = false;
     this.tipoCreacion = 'general';
+    this.notifCrearError = '';
     this.notifForm.reset({ tipo: 'GLOBAL', programadaPara: null });
   }
 
@@ -212,7 +214,10 @@ export class Navbar implements OnInit, OnDestroy {
           this.cerrarFormCrear();
           this.cargarNotificaciones();
         },
-        error: () => {},
+        error: (err: any) => {
+          this.notifCrearError = err?.error?.message || 'No se pudo crear la notificación';
+          this.cdr.detectChanges();
+        },
       });
   }
 
@@ -237,6 +242,10 @@ export class Navbar implements OnInit, OnDestroy {
       this.notifPanelOpen = false;
       this.cerrarFormCrear();
     }
+  }
+
+  goToPerfil(): void {
+    this.router.navigate(['/perfil']);
   }
 
   logout(): void {

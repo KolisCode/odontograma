@@ -687,3 +687,43 @@
   justify-content: flex-end;
   margin-top: 12px;
 }
+
+/* ── Configuración del sistema ───────────────────────────────────────────── */
+.config-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.config-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.config-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.config-prefix {
+  font-size: 0.9rem;
+  color: #555;
+  font-weight: 600;
+}
+
+.config-input {
+  padding: 7px 10px;
+  border: 1px solid #dbe3ec;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  width: 100%;
+  background: #fff;
+}
+
+.config-hint {
+  font-size: 0.75rem;
+  color: #7f8c8d;
+}

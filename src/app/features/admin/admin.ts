@@ -1,11 +1,11 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Navbar } from '../complements/navbar/navbar';
 import { Footer } from '../complements/footer/footer';
-import { AdminService, ExportConfig, HealthStatus, UserRow } from './admin.service';
+import { AdminService, ExportConfig, HealthStatus, SystemConfig, UserRow } from './admin.service';
 import { ExportService } from '../../services/export.service';
 import { AuthService } from '../authentication/service/auth-service/auth.service';
 
@@ -68,6 +68,15 @@ export class Admin implements OnInit, OnDestroy {
   pwdSuccess   = '';
   pwdShow      = false;
 
+  // ── Configuración del sistema ─────────────────────────────────────────────
+  config: SystemConfig = { indicativoPais: '57', whatsappClinica: '' };
+  configLoading  = false;
+  configSaving   = false;
+  configError    = '';
+  configSuccess  = '';
+  configIndicativo = '57';
+  configWhatsapp   = '';
+
   // ── Backup / Restore ─────────────────────────────────────────────────────
   backupLoading  = false;
   backupError    = '';
@@ -87,21 +96,29 @@ export class Admin implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private fb: FormBuilder,
   ) {
+    const passwordMatch: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
+      const pwd     = group.get('password')?.value;
+      const confirm = group.get('confirmarPassword')?.value;
+      return pwd && confirm && pwd !== confirm ? { passwordMismatch: true } : null;
+    };
+
     this.newUserForm = this.fb.group({
-      nombre:    ['', [Validators.required, Validators.minLength(2)]],
-      apellido:  ['', [Validators.required, Validators.minLength(2)]],
-      correo:    ['', [Validators.required, Validators.email]],
-      password:  ['', [Validators.required, Validators.minLength(8)]],
-      rol:       ['RECEPCION', Validators.required],
-      telefono:  [''],
-      documento: [''],
-    });
+      nombre:            ['', [Validators.required, Validators.minLength(2)]],
+      apellido:          ['', [Validators.required, Validators.minLength(2)]],
+      correo:            ['', [Validators.required, Validators.email]],
+      password:          ['', [Validators.required, Validators.minLength(8)]],
+      confirmarPassword: ['', Validators.required],
+      rol:               ['RECEPCION', Validators.required],
+      telefono:          [''],
+      documento:         [''],
+    }, { validators: passwordMatch });
   }
 
   ngOnInit(): void {
     this.currentUserId = this.authService.getUser()?.id ?? null;
     this.checkHealth();
     this.loadUsers();
+    this.loadConfig();
   }
 
   ngOnDestroy(): void {
@@ -156,6 +173,17 @@ export class Admin implements OnInit, OnDestroy {
 
   exportar(): void {
     if (this.ningunaSeleccionada || this.exportLoading) return;
+
+    if (this.movimientos.incluir && this.movimientos.fechaDesde && this.movimientos.fechaHasta
+        && this.movimientos.fechaDesde > this.movimientos.fechaHasta) {
+      this.exportError = 'El rango de fechas de movimientos es inválido: "Desde" debe ser anterior a "Hasta"';
+      return;
+    }
+    if (this.citas.incluir && this.citas.fechaDesde && this.citas.fechaHasta
+        && this.citas.fechaDesde > this.citas.fechaHasta) {
+      this.exportError = 'El rango de fechas de citas es inválido: "Desde" debe ser anterior a "Hasta"';
+      return;
+    }
 
     this.exportLoading = true;
     this.exportError   = '';
@@ -246,12 +274,12 @@ export class Admin implements OnInit, OnDestroy {
     this.newUserFormVisible = true;
     this.newUserError  = '';
     this.newUserSuccess = '';
-    this.newUserForm.reset({ rol: 'RECEPCION' });
+    this.newUserForm.reset({ rol: 'RECEPCION', confirmarPassword: '' });
   }
 
   cerrarNuevoUsuario(): void {
     this.newUserFormVisible = false;
-    this.newUserForm.reset({ rol: 'RECEPCION' });
+    this.newUserForm.reset({ rol: 'RECEPCION', confirmarPassword: '' });
   }
 
   crearUsuario(): void {
@@ -280,7 +308,7 @@ export class Admin implements OnInit, OnDestroy {
         this.users = [...this.users, res.data];
         this.newUserSuccess = `Usuario ${res.data.nombre} ${res.data.apellido} creado correctamente.`;
         this.newUserLoading = false;
-        this.newUserForm.reset({ rol: 'RECEPCION' });
+        this.newUserForm.reset({ rol: 'RECEPCION', confirmarPassword: '' });
         this.cdr.detectChanges();
       },
       error: (err: any) => {
@@ -329,6 +357,56 @@ export class Admin implements OnInit, OnDestroy {
       error: (err: any) => {
         this.pwdError   = err?.error?.message ?? 'No se pudo actualizar la contraseña';
         this.pwdLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  // ── Configuración del sistema ─────────────────────────────────────────────
+
+  loadConfig(): void {
+    this.configLoading = true;
+    this.adminService.getConfig().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        this.config = res.data;
+        this.configIndicativo = res.data.indicativoPais;
+        this.configWhatsapp   = res.data.whatsappClinica;
+        this.configLoading    = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.configLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  guardarConfig(): void {
+    const indicativo = this.configIndicativo.trim();
+    if (!/^\d{1,4}$/.test(indicativo)) {
+      this.configError = 'El indicativo debe contener entre 1 y 4 dígitos numéricos';
+      return;
+    }
+    if (this.configSaving) return;
+
+    this.configSaving  = true;
+    this.configError   = '';
+    this.configSuccess = '';
+    this.cdr.detectChanges();
+
+    this.adminService.updateConfig({
+      indicativoPais:  indicativo,
+      whatsappClinica: this.configWhatsapp.trim(),
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        this.config         = res.data;
+        this.configSuccess  = 'Configuración guardada correctamente';
+        this.configSaving   = false;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.configError  = err?.error?.message ?? 'No se pudo guardar la configuración';
+        this.configSaving = false;
         this.cdr.detectChanges();
       },
     });

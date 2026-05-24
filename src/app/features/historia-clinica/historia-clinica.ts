@@ -12,7 +12,7 @@ import { Subject, takeUntil } from 'rxjs';
 
 import { Navbar } from '../complements/navbar/navbar';
 import { Footer } from '../complements/footer/footer';
-import { HistoriaClinicaService } from './historia-clinica.service/historia-clinica.service';
+import { HistoriaClinicaService, EvolucionRow, FormulaMedicaRow, MedicamentoFormula } from './historia-clinica.service/historia-clinica.service';
 import { DocumentosComponent } from '../documentos/documentos/documentos';
 
 @Component({
@@ -32,6 +32,23 @@ export class HistoriaClinica implements OnInit, OnDestroy {
   loadingData = true;
   successMessage = '';
   errorMessage = '';
+
+  evoluciones: EvolucionRow[] = [];
+  loadingEvoluciones = false;
+  nuevaNota = '';
+  guardandoNota = false;
+  notaError = '';
+  confirmandoEliminarNota: number | null = null;
+
+  formulas: FormulaMedicaRow[] = [];
+  loadingFormulas = false;
+  formulaFormVisible = false;
+  formulaDiagnostico = '';
+  formulaInstrucciones = '';
+  formulaMedicamentos: MedicamentoFormula[] = [{ medicamento: '', dosis: '', frecuencia: '', duracion: '' }];
+  guardandoFormula = false;
+  formulaError = '';
+  confirmandoEliminarFormula: number | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -106,6 +123,18 @@ export class HistoriaClinica implements OnInit, OnDestroy {
       reaccionesAnestesia: ['No'],
       antecedentesOdontoObservaciones: [''],
 
+      // Enfermedades odontológicas
+      odontBruxismo: [false],
+      odontPeriodontitis: [false],
+      odontGingivitis: [false],
+      odontMaloclusion: [false],
+      odontXerostomia: [false],
+      odontHipersensibilidad: [false],
+      odontFluorosis: [false],
+      odontErosion: [false],
+      odontAtm: [false],
+      odontObservaciones: [''],
+
       // Higiene oral
       cepilladoVecesDia: [''],
       cambioCepillo: [''],
@@ -145,6 +174,8 @@ export class HistoriaClinica implements OnInit, OnDestroy {
 
       if (this.pacienteId) {
         this.loadHistoria();
+        this.loadEvoluciones();
+        this.loadFormulas();
       } else {
         this.errorMessage = 'No se recibió un paciente válido';
         this.loadingData = false;
@@ -181,6 +212,11 @@ export class HistoriaClinica implements OnInit, OnDestroy {
 
   addMedicamento(): void {
     this.medicamentosArray.push(this.createMedicamentoGroup());
+  }
+
+  private setSuccess(msg: string): void {
+    this.successMessage = msg;
+    setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
   }
 
   scrollToSection(sectionId: string): void {
@@ -270,6 +306,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
     const gineco = this.parseJson(historia.ginecoObstetricos);
     const habitos = this.parseJson(historia.habitos);
     const odonto = this.parseJson(historia.antecedentesOdontologicos);
+    const enfermedadesOdontol = this.parseJson(historia.enfermedadesOdontologicas);
     const medicamentos = Array.isArray(historia.medicacionActual) ? historia.medicacionActual : [];
 
     this.historiaForm.patchValue(
@@ -331,6 +368,18 @@ export class HistoriaClinica implements OnInit, OnDestroy {
         complicacionesPrevias: odonto.complicacionesPrevias || 'No',
         reaccionesAnestesia: odonto.reaccionesAnestesia || 'No',
         antecedentesOdontoObservaciones: odonto.observaciones || '',
+
+        // Enfermedades odontológicas
+        odontBruxismo: !!enfermedadesOdontol.bruxismo,
+        odontPeriodontitis: !!enfermedadesOdontol.periodontitis,
+        odontGingivitis: !!enfermedadesOdontol.gingivitis,
+        odontMaloclusion: !!enfermedadesOdontol.maloclusion,
+        odontXerostomia: !!enfermedadesOdontol.xerostomia,
+        odontHipersensibilidad: !!enfermedadesOdontol.hipersensibilidad,
+        odontFluorosis: !!enfermedadesOdontol.fluorosis,
+        odontErosion: !!enfermedadesOdontol.erosion,
+        odontAtm: !!enfermedadesOdontol.atm,
+        odontObservaciones: enfermedadesOdontol.observaciones || '',
 
         // Higiene oral
         cepilladoVecesDia: higiene.cepilladoVecesDia || '',
@@ -445,6 +494,18 @@ export class HistoriaClinica implements OnInit, OnDestroy {
         reaccionesAnestesia: value.reaccionesAnestesia,
         observaciones: value.antecedentesOdontoObservaciones,
       }),
+      enfermedadesOdontologicas: JSON.stringify({
+        bruxismo: value.odontBruxismo,
+        periodontitis: value.odontPeriodontitis,
+        gingivitis: value.odontGingivitis,
+        maloclusion: value.odontMaloclusion,
+        xerostomia: value.odontXerostomia,
+        hipersensibilidad: value.odontHipersensibilidad,
+        fluorosis: value.odontFluorosis,
+        erosion: value.odontErosion,
+        atm: value.odontAtm,
+        observaciones: value.odontObservaciones,
+      }),
       higieneOral: {
         cepilladoVecesDia: value.cepilladoVecesDia,
         cambioCepillo: value.cambioCepillo,
@@ -480,7 +541,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          this.successMessage = response?.message || 'Historia clínica guardada correctamente';
+          this.setSuccess(response?.message || 'Historia clínica guardada correctamente');
           this.loading = false;
           this.cdr.detectChanges();
         },
@@ -519,5 +580,138 @@ export class HistoriaClinica implements OnInit, OnDestroy {
 
   getControl(name: string): AbstractControl | null {
     return this.historiaForm.get(name);
+  }
+
+  loadEvoluciones(): void {
+    this.loadingEvoluciones = true;
+    this.historiaClinicaService.getEvoluciones(this.pacienteId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.evoluciones = res.data;
+          this.loadingEvoluciones = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingEvoluciones = false;
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  agregarNota(): void {
+    if (!this.nuevaNota.trim()) {
+      this.notaError = 'La nota no puede estar vacía.';
+      return;
+    }
+    this.notaError = '';
+    this.guardandoNota = true;
+    this.historiaClinicaService.crearEvolucion(this.pacienteId, this.nuevaNota)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.evoluciones = [res.data, ...this.evoluciones];
+          this.nuevaNota = '';
+          this.guardandoNota = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.notaError = err?.error?.message || 'No se pudo guardar la nota.';
+          this.guardandoNota = false;
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  eliminarNota(id: number): void {
+    this.historiaClinicaService.eliminarEvolucion(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.evoluciones = this.evoluciones.filter(e => e.id !== id);
+          this.confirmandoEliminarNota = null;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.confirmandoEliminarNota = null;
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  loadFormulas(): void {
+    this.loadingFormulas = true;
+    this.historiaClinicaService.getFormulas(this.pacienteId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.formulas = res.data;
+          this.loadingFormulas = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingFormulas = false;
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  addFormulaMedicamento(): void {
+    this.formulaMedicamentos = [...this.formulaMedicamentos, { medicamento: '', dosis: '', frecuencia: '', duracion: '' }];
+  }
+
+  removeFormulaMedicamento(index: number): void {
+    if (this.formulaMedicamentos.length > 1) {
+      this.formulaMedicamentos = this.formulaMedicamentos.filter((_, i) => i !== index);
+    }
+  }
+
+  guardarFormula(): void {
+    const validos = this.formulaMedicamentos.filter(m => m.medicamento.trim());
+    if (validos.length === 0) {
+      this.formulaError = 'Debe incluir al menos un medicamento con nombre.';
+      return;
+    }
+    this.formulaError = '';
+    this.guardandoFormula = true;
+
+    this.historiaClinicaService.crearFormula({
+      pacienteId: this.pacienteId,
+      diagnostico: this.formulaDiagnostico,
+      medicamentos: validos,
+      instrucciones: this.formulaInstrucciones,
+    }).pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.formulas = [res.data, ...this.formulas];
+          this.formulaFormVisible = false;
+          this.formulaDiagnostico = '';
+          this.formulaInstrucciones = '';
+          this.formulaMedicamentos = [{ medicamento: '', dosis: '', frecuencia: '', duracion: '' }];
+          this.guardandoFormula = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.formulaError = err?.error?.message || 'No se pudo guardar la fórmula.';
+          this.guardandoFormula = false;
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  eliminarFormula(id: number): void {
+    this.historiaClinicaService.eliminarFormula(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.formulas = this.formulas.filter(f => f.id !== id);
+          this.confirmandoEliminarFormula = null;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.confirmandoEliminarFormula = null;
+          this.cdr.detectChanges();
+        },
+      });
   }
 }

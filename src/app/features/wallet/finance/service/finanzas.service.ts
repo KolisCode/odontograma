@@ -45,6 +45,13 @@ export interface MovimientoRow {
   createdAt: string;
 }
 
+export interface PaginaMeta {
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export interface MovimientoFilters {
   tipo?: string;
   estado?: string;
@@ -52,6 +59,8 @@ export interface MovimientoFilters {
   fechaHasta?: string;
   pacienteId?: number;
   sinPaciente?: boolean;
+  page?: number;
+  pageSize?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -60,15 +69,17 @@ export class FinanzasService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(filters?: MovimientoFilters): Observable<{ ok: boolean; data: MovimientoRow[] }> {
+  getAll(filters?: MovimientoFilters): Observable<{ ok: boolean; data: MovimientoRow[]; meta?: PaginaMeta }> {
     let params = new HttpParams();
-    if (filters?.tipo) params = params.set('tipo', filters.tipo);
-    if (filters?.estado) params = params.set('estado', filters.estado);
-    if (filters?.fechaDesde) params = params.set('fechaDesde', filters.fechaDesde);
-    if (filters?.fechaHasta) params = params.set('fechaHasta', filters.fechaHasta);
-    if (filters?.pacienteId) params = params.set('pacienteId', filters.pacienteId.toString());
+    if (filters?.tipo)        params = params.set('tipo', filters.tipo);
+    if (filters?.estado)      params = params.set('estado', filters.estado);
+    if (filters?.fechaDesde)  params = params.set('fechaDesde', filters.fechaDesde);
+    if (filters?.fechaHasta)  params = params.set('fechaHasta', filters.fechaHasta);
+    if (filters?.pacienteId)  params = params.set('pacienteId', filters.pacienteId.toString());
     if (filters?.sinPaciente) params = params.set('sinPaciente', 'true');
-    return this.http.get<{ ok: boolean; data: MovimientoRow[] }>(this.api, { params });
+    if (filters?.page)        params = params.set('page', filters.page.toString());
+    if (filters?.pageSize)    params = params.set('pageSize', filters.pageSize.toString());
+    return this.http.get<{ ok: boolean; data: MovimientoRow[]; meta?: PaginaMeta }>(this.api, { params });
   }
 
   create(payload: MovimientoPayload): Observable<{ ok: boolean; data: MovimientoRow }> {
@@ -82,6 +93,15 @@ export class FinanzasService {
   getByOdontograma(odontogramaId: number): Observable<{ ok: boolean; data: MovimientoRow[] }> {
     return this.http.get<{ ok: boolean; data: MovimientoRow[] }>(
       `${this.api}/odontograma/${odontogramaId}`,
+    );
+  }
+
+  getStats(pacienteId?: number): Observable<{ ok: boolean; data: { ingresosMes: number; egresosMes: number } }> {
+    let params = new HttpParams();
+    if (pacienteId) params = params.set('pacienteId', pacienteId.toString());
+    return this.http.get<{ ok: boolean; data: { ingresosMes: number; egresosMes: number } }>(
+      `${this.api}/stats`,
+      { params },
     );
   }
 

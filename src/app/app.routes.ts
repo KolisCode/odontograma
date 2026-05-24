@@ -9,6 +9,7 @@ import { HistoriaClinica } from './features/historia-clinica/historia-clinica';
 import { ResumenHistoria } from './features/historia-clinica/resumen/resumen';
 import { Tratamientos } from './features/tratamientos/tratamientos';
 import { Admin } from './features/admin/admin';
+import { Perfil } from './features/perfil/perfil';
 import { authGuard } from './features/authentication/service/auth-guard/auth-guard';
 import { adminGuard } from './features/authentication/service/auth-guard/admin-guard';
 import { guestGuard } from './features/authentication/service/auth-guard/guest-guard';
@@ -21,6 +22,7 @@ export const routes: Routes = [
   { path: 'patients', component: List, canActivate: [authGuard] },
   { path: 'appointments', component: Appointment, canActivate: [authGuard] },
   { path: 'admin', component: Admin, canActivate: [adminGuard] },
+  { path: 'perfil', component: Perfil, canActivate: [authGuard] },
   { path: 'odontogram/:id', component: OdontogramComponent, canActivate: [authGuard] },
   { path: 'history/:id', component: HistoriaClinica, canActivate: [authGuard] },
   { path: 'resumen/:id', component: ResumenHistoria, canActivate: [authGuard] },

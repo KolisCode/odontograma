@@ -66,7 +66,7 @@
     <!-- ── Campana de notificaciones ───────────────────────────────────────── -->
     <div class="notif-wrapper">
       <button class="notif-bell" type="button" (click)="toggleNotifPanel()">
-        Avisos
+        <img src="/iconos/notificacion.png" alt="Notificaciones" class="notif-bell__icon" />
         <span class="notif-badge" *ngIf="totalNoLeidas > 0">{{ totalNoLeidas }}</span>
       </button>
 
@@ -149,6 +149,7 @@
               </span>
             </div>
           </ng-container>
+          <div class="notif-field-error" *ngIf="notifCrearError">{{ notifCrearError }}</div>
           <div class="notif-form-row notif-form-row--end">
             <button class="notif-submit" type="submit">Guardar</button>
           </div>
@@ -253,6 +254,9 @@
       </div>
     </div>
 
+    <button class="btn-header-action" type="button" (click)="goToPerfil()">
+      Mi perfil
+    </button>
     <button class="btn-header-action" type="button" (click)="logout()">
       Salir
     </button>

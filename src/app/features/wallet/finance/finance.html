@@ -7,7 +7,7 @@
     <span class="finance-patient-bar__label">Filtrando por:</span>
     <select class="finance-patient-select" (change)="selectPatient($event)">
       <option value="">Todos los pacientes</option>
-      <option *ngFor="let p of patients" [value]="p.id">{{ p.nombreCompleto }}</option>
+      <option *ngFor="let p of patients; trackBy: trackById" [value]="p.id">{{ p.nombreCompleto }}</option>
     </select>
     <button class="finance-filter-chip" type="button" (click)="filtrarSinPaciente()">
       Sin paciente
@@ -54,6 +54,7 @@
 
   <div *ngIf="errorMessage" class="finance-alert finance-alert--error">{{ errorMessage }}</div>
   <div *ngIf="successMessage" class="finance-alert finance-alert--success">{{ successMessage }}</div>
+  <div *ngIf="warnMessage" class="finance-alert finance-alert--warn">{{ warnMessage }}</div>
 
   <div class="finance-stats">
     <article class="stat-card">
@@ -155,7 +156,7 @@
           <label>Paciente <span class="form-label-hint">(opcional)</span></label>
           <select formControlName="pacienteId">
             <option [ngValue]="null">Sin paciente asociado</option>
-            <option *ngFor="let p of patients" [value]="p.id">{{ p.nombreCompleto }}</option>
+            <option *ngFor="let p of patients; trackBy: trackById" [value]="p.id">{{ p.nombreCompleto }}</option>
           </select>
         </div>
 
@@ -193,7 +194,7 @@
         </div>
 
         <div class="movement-list" *ngIf="!loading && recentMovimientos.length > 0">
-          <div class="movement-item" *ngFor="let m of recentMovimientos">
+          <div class="movement-item" *ngFor="let m of recentMovimientos; trackBy: trackById">
             <div>
               <strong>{{ m.concepto }}</strong>
               <p>{{ formatFecha(m.fecha) }} · {{ m.metodoPago ?? '—' }}</p>
@@ -278,6 +279,7 @@
           <input class="filter-date-input" type="date" [value]="filtroFechaHasta"
             (change)="filtroFechaHasta = $any($event.target).value; loadMovimientos()" />
         </div>
+        <span class="filter-date-error" *ngIf="fechaRangoError">{{ fechaRangoError }}</span>
       </div>
 
       <button class="filter-clear-btn" *ngIf="filtrosActivos > 0" type="button" (click)="limpiarFiltros()">
@@ -305,7 +307,7 @@
           </tr>
         </thead>
         <tbody>
-          <ng-container *ngFor="let m of movimientos">
+          <ng-container *ngFor="let m of movimientos; trackBy: trackById">
             <tr [class.row--editing]="m.id === editingId" [class.row--expanded]="m.id === expandedPagosId">
               <td>{{ formatFecha(m.fecha) }}</td>
               <td><span class="status-badge" [ngClass]="getTipoClass(m.tipo)">{{ getTipoLabel(m.tipo) }}</span></td>
@@ -368,7 +370,7 @@
                       <span>Monto</span>
                       <span></span>
                     </div>
-                    <div class="abono-item" *ngFor="let pago of m.pagos">
+                    <div class="abono-item" *ngFor="let pago of m.pagos; trackBy: trackById">
                       <span>{{ formatFecha(pago.fecha) }}</span>
                       <span>{{ pago.metodoPago ?? '—' }}</span>
                       <span class="money--in">{{ pago.monto | currency:'COP ':'symbol':'1.0-0' }}</span>
@@ -425,6 +427,12 @@
           </ng-container>
         </tbody>
       </table>
+
+      <div class="pagination" *ngIf="paginaMeta && paginaMeta.totalPages > 1">
+        <button class="pagination__btn" (click)="prevPage()" [disabled]="currentPage === 1">← Anterior</button>
+        <span class="pagination__info">Página {{ currentPage }} de {{ paginaMeta.totalPages }} &nbsp;·&nbsp; {{ paginaMeta.total }} movimientos</span>
+        <button class="pagination__btn" (click)="nextPage()" [disabled]="currentPage === paginaMeta.totalPages">Siguiente →</button>
+      </div>
     </div>
   </section>
 </section>

@@ -71,4 +71,8 @@ export class AuthService {
   isAdmin(): boolean {
     return this.getUserRole() === 'ADMIN';
   }
+
+  changeOwnPassword(currentPassword: string, newPassword: string): Observable<any> {
+    return this.http.patch(`${this.api}/me/password`, { currentPassword, newPassword });
+  }
 }

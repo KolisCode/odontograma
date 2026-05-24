@@ -196,7 +196,7 @@
         </div>
 
         <div class="mini-list" *ngIf="recentPatients.length > 0; else noRecentPatients">
-          <div class="mini-item" *ngFor="let patient of recentPatients">
+          <div class="mini-item" *ngFor="let patient of recentPatients; trackBy: trackById">
             <strong>{{ patient.nombreCompleto }}</strong>
             <span>CC {{ patient.documento }} · {{ patient.telefono }}</span>
           </div>
@@ -246,9 +246,10 @@
           type="text"
           placeholder="Buscar por nombre, documento o teléfono..."
           [(ngModel)]="searchTerm"
+          (ngModelChange)="recomputeFilter()"
         />
         <label class="toggle-inactivos">
-          <input type="checkbox" [(ngModel)]="mostrarInactivos" />
+          <input type="checkbox" [(ngModel)]="mostrarInactivos" (ngModelChange)="onFiltroInactivosChange()" />
           Mostrar inactivos
         </label>
       </div>
@@ -273,7 +274,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let patient of filteredPatients" [class.patient-row--inactive]="!patient.activo">
+          <tr *ngFor="let patient of filteredPatients; trackBy: trackById" [class.patient-row--inactive]="!patient.activo">
             <td>{{ patient.nombreCompleto }}</td>
             <td>{{ patient.documento }}</td>
             <td>{{ calcularEdad(patient.fechaNacimiento) !== null ? (calcularEdad(patient.fechaNacimiento) + ' años') : '—' }}</td>
@@ -290,21 +291,12 @@
                 <button class="btn-table btn-table-edit" type="button" (click)="editPatient(patient.id)">
                   Editar
                 </button>
-                <button class="btn-table btn-table-secondary" type="button" (click)="goToHistory(patient.id)">
-                  Historia
+
+                <button class="btn-table btn-table-secondary" type="button"
+                  (click)="toggleDropdown(patient.id, $event)">
+                  Módulos ▾
                 </button>
-                <button class="btn-table btn-table-primary" type="button" (click)="goToOdontogram(patient.id)">
-                  Odontograma
-                </button>
-                <button class="btn-table btn-table-secondary" type="button" (click)="goToResumen(patient.id)">
-                  Resumen
-                </button>
-                <button class="btn-table btn-table-secondary" type="button" (click)="goToFinance(patient.id)">
-                  Finanzas
-                </button>
-                <button class="btn-table btn-table-secondary" type="button" (click)="goToTratamientos(patient.id)">
-                  Tratamientos
-                </button>
+
                 <button
                   class="btn-table"
                   [class.btn-table-danger]="patient.activo"
@@ -325,9 +317,28 @@
           </tr>
         </tbody>
       </table>
+
+      <div class="pagination" *ngIf="paginaMeta && paginaMeta.totalPages > 1">
+        <button class="pagination__btn" (click)="prevPage()" [disabled]="currentPage === 1">← Anterior</button>
+        <span class="pagination__info">Página {{ currentPage }} de {{ paginaMeta.totalPages }} &nbsp;·&nbsp; {{ paginaMeta.total }} pacientes</span>
+        <button class="pagination__btn" (click)="nextPage()" [disabled]="currentPage === paginaMeta.totalPages">Siguiente →</button>
+      </div>
     </div>
   </section>
 </section>
+
+<!-- Portal: dropdown de módulos (fuera del table-wrapper para evitar overflow clipping) -->
+<div class="row-dropdown__panel-fixed"
+     *ngIf="openDropdownId !== null"
+     [style.top.px]="dropdownTop"
+     [style.left.px]="dropdownLeft"
+     (click)="$event.stopPropagation()">
+  <button class="row-dropdown__item" type="button" (click)="goToHistory(openDropdownId!); openDropdownId = null">Historia</button>
+  <button class="row-dropdown__item" type="button" (click)="goToOdontogram(openDropdownId!); openDropdownId = null">Odontograma</button>
+  <button class="row-dropdown__item" type="button" (click)="goToTratamientos(openDropdownId!); openDropdownId = null">Tratamientos</button>
+  <button class="row-dropdown__item" type="button" (click)="goToResumen(openDropdownId!); openDropdownId = null">Resumen</button>
+  <button class="row-dropdown__item" type="button" (click)="goToFinance(openDropdownId!); openDropdownId = null">Finanzas</button>
+</div>
 
 <!-- Modal: Advertencia desactivar paciente -->
 <div class="import-modal-backdrop" *ngIf="toggleActivoTarget && toggleActivoPendientes">
@@ -388,7 +399,6 @@
           [accept]="importParser.acceptedExtensions"
           (change)="onImportFileSelected($event)" />
         <label for="importFile" class="import-dropzone__label">
-          <span class="import-dropzone__icon">📂</span>
           <span *ngIf="!importLoading">Haz clic para seleccionar el archivo</span>
           <span *ngIf="importLoading">Leyendo archivo...</span>
         </label>
@@ -409,7 +419,7 @@
       <div class="import-mapping">
         <div class="import-mapping__title">Mapeo de columnas detectado</div>
         <div class="import-mapping__grid">
-          <div *ngFor="let entry of importMappingEntries" class="import-mapping__row"
+          <div *ngFor="let entry of importMappingEntries; trackBy: trackByField" class="import-mapping__row"
             [class.import-mapping__row--ok]="entry.header"
             [class.import-mapping__row--missing]="!entry.header">
             <span class="import-mapping__field">{{ importFieldLabel(entry.field) }}</span>
@@ -430,12 +440,12 @@
         <table class="import-table">
           <thead>
             <tr>
-              <th *ngFor="let h of importPreviewHeaders">{{ h }}</th>
+              <th *ngFor="let h of importPreviewHeaders; trackBy: trackByIndex">{{ h }}</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let row of importPreviewRows">
-              <td *ngFor="let h of importPreviewHeaders">{{ row[h] }}</td>
+            <tr *ngFor="let row of importPreviewRows; trackBy: trackByIndex">
+              <td *ngFor="let h of importPreviewHeaders; trackBy: trackByIndex">{{ row[h] }}</td>
             </tr>
           </tbody>
         </table>
@@ -472,7 +482,7 @@
 
       <div *ngIf="importResult.errores.length > 0" class="import-errors-list">
         <div class="import-errors-list__title">Filas con error</div>
-        <div *ngFor="let e of importResult.errores" class="import-errors-list__row">
+        <div *ngFor="let e of importResult.errores; trackBy: trackByIndex" class="import-errors-list__row">
           <span>Fila {{ e.fila }}</span>
           <span *ngIf="e.documento !== '—'">· Doc. {{ e.documento }}</span>
           <span>— {{ e.motivo }}</span>
