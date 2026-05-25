@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -44,13 +44,16 @@ export class Tratamientos implements OnInit, OnDestroy {
     private tratamientosService: TratamientosService,
     private patientsService: PatientsService,
   ) {
-    this.form = this.fb.group({
-      descripcion: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
-      estado: ['ACTIVO'],
-      monto: [null],
-      fechaInicio: [null],
-      fechaFin: [null],
-    });
+    this.form = this.fb.group(
+      {
+        descripcion: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
+        estado: ['ACTIVO'],
+        monto: [null, [Validators.min(0)]],
+        fechaInicio: [null],
+        fechaFin: [null],
+      },
+      { validators: this.fechaOrdenValidator },
+    );
   }
 
   ngOnDestroy(): void {
@@ -244,6 +247,13 @@ export class Tratamientos implements OnInit, OnDestroy {
   hasError(field: string): boolean {
     const c = this.form.get(field);
     return !!(c && c.invalid && c.touched);
+  }
+
+  private fechaOrdenValidator(group: AbstractControl): ValidationErrors | null {
+    const inicio = group.get('fechaInicio')?.value;
+    const fin    = group.get('fechaFin')?.value;
+    if (inicio && fin && fin < inicio) return { fechaOrden: true };
+    return null;
   }
 
   private setSuccess(msg: string): void {

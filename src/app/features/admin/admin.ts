@@ -41,8 +41,18 @@ export class Admin implements OnInit, OnDestroy {
   usersError    = '';
   savingRoleId:   number | null = null;
   savingStatusId: number | null = null;
+  filtroEstadoUsuario: 'todos' | 'activos' | 'inactivos' = 'todos';
   /** id del usuario actualmente autenticado — no puede modificarse a sí mismo */
   currentUserId: number | null = null;
+
+  get filteredUsers(): UserRow[] {
+    if (this.filtroEstadoUsuario === 'activos')   return this.users.filter(u => u.activo);
+    if (this.filtroEstadoUsuario === 'inactivos') return this.users.filter(u => !u.activo);
+    return this.users;
+  }
+
+  get countActivos():   number { return this.users.filter(u =>  u.activo).length; }
+  get countInactivos(): number { return this.users.filter(u => !u.activo).length; }
 
   readonly ROLES = ['ADMIN', 'ODONTOLOGO', 'AUXILIAR', 'RECEPCION'] as const;
   readonly ROLE_LABELS: Record<string, string> = {
@@ -103,14 +113,14 @@ export class Admin implements OnInit, OnDestroy {
     };
 
     this.newUserForm = this.fb.group({
-      nombre:            ['', [Validators.required, Validators.minLength(2)]],
-      apellido:          ['', [Validators.required, Validators.minLength(2)]],
+      nombre:            ['', [Validators.required, Validators.minLength(2), Validators.maxLength(60), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/)]],
+      apellido:          ['', [Validators.required, Validators.minLength(2), Validators.maxLength(60), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/)]],
       correo:            ['', [Validators.required, Validators.email]],
       password:          ['', [Validators.required, Validators.minLength(8)]],
       confirmarPassword: ['', Validators.required],
       rol:               ['RECEPCION', Validators.required],
-      telefono:          [''],
-      documento:         [''],
+      telefono:          ['', [Validators.pattern(/^[0-9]+$/), Validators.minLength(7), Validators.maxLength(15)]],
+      documento:         ['', [Validators.pattern(/^[0-9]+$/), Validators.minLength(6), Validators.maxLength(15)]],
     }, { validators: passwordMatch });
   }
 

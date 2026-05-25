@@ -184,28 +184,34 @@
           <div class="form-field">
             <label>Nombre *</label>
             <input type="text" formControlName="nombre" placeholder="Nombre" />
-            <small *ngIf="newUserForm.get('nombre')?.touched && newUserForm.get('nombre')?.invalid">Obligatorio (mín. 2 caracteres)</small>
+            <small *ngIf="newUserForm.get('nombre')?.touched && newUserForm.get('nombre')?.hasError('required')">El nombre es obligatorio.</small>
+            <small *ngIf="newUserForm.get('nombre')?.touched && newUserForm.get('nombre')?.hasError('minlength')">Mínimo 2 caracteres.</small>
+            <small *ngIf="newUserForm.get('nombre')?.touched && newUserForm.get('nombre')?.hasError('maxlength')">Máximo 60 caracteres.</small>
+            <small *ngIf="newUserForm.get('nombre')?.touched && newUserForm.get('nombre')?.hasError('pattern')">Solo se permiten letras y espacios.</small>
           </div>
           <div class="form-field">
             <label>Apellido *</label>
             <input type="text" formControlName="apellido" placeholder="Apellido" />
-            <small *ngIf="newUserForm.get('apellido')?.touched && newUserForm.get('apellido')?.invalid">Obligatorio (mín. 2 caracteres)</small>
+            <small *ngIf="newUserForm.get('apellido')?.touched && newUserForm.get('apellido')?.hasError('required')">El apellido es obligatorio.</small>
+            <small *ngIf="newUserForm.get('apellido')?.touched && newUserForm.get('apellido')?.hasError('minlength')">Mínimo 2 caracteres.</small>
+            <small *ngIf="newUserForm.get('apellido')?.touched && newUserForm.get('apellido')?.hasError('maxlength')">Máximo 60 caracteres.</small>
+            <small *ngIf="newUserForm.get('apellido')?.touched && newUserForm.get('apellido')?.hasError('pattern')">Solo se permiten letras y espacios.</small>
           </div>
           <div class="form-field">
             <label>Correo *</label>
             <input type="email" formControlName="correo" placeholder="correo@ejemplo.com" />
-            <small *ngIf="newUserForm.get('correo')?.touched && newUserForm.get('correo')?.invalid">Correo inválido</small>
+            <small *ngIf="newUserForm.get('correo')?.touched && newUserForm.get('correo')?.invalid">Ingresa un correo válido.</small>
           </div>
           <div class="form-field">
             <label>Contraseña *</label>
             <input type="password" formControlName="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
-            <small *ngIf="newUserForm.get('password')?.touched && newUserForm.get('password')?.invalid">Mínimo 8 caracteres</small>
+            <small *ngIf="newUserForm.get('password')?.touched && newUserForm.get('password')?.invalid">Mínimo 8 caracteres.</small>
           </div>
           <div class="form-field">
             <label>Confirmar contraseña *</label>
             <input type="password" formControlName="confirmarPassword" placeholder="Repite la contraseña" autocomplete="new-password" />
             <small *ngIf="newUserForm.get('confirmarPassword')?.touched && newUserForm.errors?.['passwordMismatch']">
-              Las contraseñas no coinciden
+              Las contraseñas no coinciden.
             </small>
           </div>
           <div class="form-field">
@@ -216,11 +222,15 @@
           </div>
           <div class="form-field">
             <label>Teléfono</label>
-            <input type="text" formControlName="telefono" placeholder="Opcional" />
+            <input type="text" formControlName="telefono" placeholder="Solo números (opcional)" />
+            <small *ngIf="newUserForm.get('telefono')?.touched && newUserForm.get('telefono')?.hasError('pattern')">Solo se permiten números.</small>
+            <small *ngIf="newUserForm.get('telefono')?.touched && (newUserForm.get('telefono')?.hasError('minlength') || newUserForm.get('telefono')?.hasError('maxlength'))">El teléfono debe tener entre 7 y 15 dígitos.</small>
           </div>
           <div class="form-field">
             <label>Documento</label>
-            <input type="text" formControlName="documento" placeholder="Opcional" />
+            <input type="text" formControlName="documento" placeholder="Solo números (opcional)" />
+            <small *ngIf="newUserForm.get('documento')?.touched && newUserForm.get('documento')?.hasError('pattern')">Solo se permiten números.</small>
+            <small *ngIf="newUserForm.get('documento')?.touched && (newUserForm.get('documento')?.hasError('minlength') || newUserForm.get('documento')?.hasError('maxlength'))">El documento debe tener entre 6 y 15 dígitos.</small>
           </div>
         </div>
         <div *ngIf="newUserError"   class="admin-alert admin-alert--error">{{ newUserError }}</div>
@@ -235,6 +245,12 @@
 
       <div *ngIf="usersError" class="admin-alert admin-alert--error">{{ usersError }}</div>
 
+      <div *ngIf="!usersLoading || users.length" class="users-filter">
+        <button type="button" class="users-filter__btn" [class.users-filter__btn--active]="filtroEstadoUsuario === 'todos'"     (click)="filtroEstadoUsuario = 'todos'">Todos ({{ users.length }})</button>
+        <button type="button" class="users-filter__btn" [class.users-filter__btn--active]="filtroEstadoUsuario === 'activos'"   (click)="filtroEstadoUsuario = 'activos'">Activos ({{ countActivos }})</button>
+        <button type="button" class="users-filter__btn" [class.users-filter__btn--active]="filtroEstadoUsuario === 'inactivos'" (click)="filtroEstadoUsuario = 'inactivos'">Inactivos ({{ countInactivos }})</button>
+      </div>
+
       <div *ngIf="usersLoading && !users.length" class="admin-card__desc">Cargando usuarios…</div>
 
       <table *ngIf="!usersLoading || users.length" class="users-table">
@@ -248,7 +264,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let user of users" [class.users-table__row--self]="user.id === currentUserId">
+          <tr *ngFor="let user of filteredUsers" [class.users-table__row--self]="user.id === currentUserId">
             <td>
               <span class="user-fullname">{{ user.nombre }} {{ user.apellido }}</span>
               <span *ngIf="user.id === currentUserId" class="user-self-badge">Tú</span>
@@ -264,15 +280,19 @@
               </select>
               <span *ngIf="savingRoleId === user.id" class="saving-indicator">Guardando…</span>
             </td>
-            <td>
+            <td class="user-status-cell">
+              <span class="user-estado-badge" [class.user-estado-badge--activo]="user.activo" [class.user-estado-badge--inactivo]="!user.activo">
+                {{ user.activo ? 'Activo' : 'Inactivo' }}
+              </span>
               <button
+                *ngIf="user.id !== currentUserId"
                 type="button"
-                class="btn-status"
-                [class.btn-status--active]="user.activo"
-                [class.btn-status--inactive]="!user.activo"
-                [disabled]="user.id === currentUserId || savingStatusId === user.id"
+                class="btn-toggle-estado"
+                [class.btn-toggle-estado--inactivar]="user.activo"
+                [class.btn-toggle-estado--activar]="!user.activo"
+                [disabled]="savingStatusId === user.id"
                 (click)="toggleStatus(user)">
-                {{ savingStatusId === user.id ? '…' : (user.activo ? 'Activo' : 'Inactivo') }}
+                {{ savingStatusId === user.id ? '…' : (user.activo ? 'Inactivar' : 'Activar') }}
               </button>
             </td>
             <td>

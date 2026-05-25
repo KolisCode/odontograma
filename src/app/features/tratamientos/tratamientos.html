@@ -42,7 +42,9 @@
 
         <div class="form-group">
           <label>Monto ($)</label>
-          <input type="number" formControlName="monto" placeholder="0.00" min="0" step="0.01" />
+          <input type="number" formControlName="monto" placeholder="0.00" min="0" step="0.01"
+            [class.input-error]="hasError('monto')" />
+          <span *ngIf="hasError('monto')" class="error-text">El monto no puede ser negativo.</span>
         </div>
       </div>
 
@@ -54,7 +56,11 @@
 
         <div class="form-group">
           <label>Fecha fin estimada</label>
-          <input type="date" formControlName="fechaFin" />
+          <input type="date" formControlName="fechaFin"
+            [class.input-error]="form.errors?.['fechaOrden'] && form.get('fechaFin')?.touched" />
+          <span *ngIf="form.errors?.['fechaOrden'] && form.get('fechaFin')?.touched" class="error-text">
+            La fecha de fin no puede ser anterior a la de inicio.
+          </span>
         </div>
       </div>
 
@@ -92,7 +98,7 @@
               {{ getEstadoLabel(t.estado) }}
             </span>
           </td>
-          <td>{{ t.monto !== null ? ('$' + t.monto.toLocaleString()) : '—' }}</td>
+          <td>{{ t.monto !== null ? ('$' + t.monto.toLocaleString('es-CO')) : '—' }}</td>
           <td>{{ t.fechaInicio ? (t.fechaInicio | date:'dd/MM/yyyy') : '—' }}</td>
           <td>{{ t.fechaFin ? (t.fechaFin | date:'dd/MM/yyyy') : '—' }}</td>
           <td class="trat-actions">

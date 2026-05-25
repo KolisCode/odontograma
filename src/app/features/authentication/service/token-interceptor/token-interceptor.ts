@@ -25,6 +25,17 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
         } catch { /* storage unavailable */ }
         router.navigate(['/login']);
       }
+      if (error.status === 403) {
+        const msg = error.error?.message || 'No tienes permiso para realizar esta acción';
+        const friendly = new HttpErrorResponse({
+          error: { ok: false, message: msg },
+          headers: error.headers,
+          status: 403,
+          statusText: error.statusText,
+          url: error.url ?? undefined,
+        });
+        return throwError(() => friendly);
+      }
       return throwError(() => error);
     })
   );

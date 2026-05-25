@@ -238,7 +238,7 @@
     <div class="patients-card__header">
       <div>
         <h3>Listado de pacientes</h3>
-        <span>{{ filteredPatients.length }} de {{ patients.length }} registros</span>
+        <span>{{ filteredPatients.length }} de {{ paginaMeta?.total ?? filteredPatients.length }} registros</span>
       </div>
       <div class="patients-search-wrapper">
         <input

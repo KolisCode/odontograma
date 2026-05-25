@@ -24,6 +24,7 @@ export class Finance implements OnInit, OnDestroy {
   editingId: number | null = null;
   confirmDeleteId: number | null = null;
   loading = false;
+  submitting = false;
   errorMessage = '';
   successMessage = '';
   warnMessage = '';
@@ -183,7 +184,7 @@ export class Finance implements OnInit, OnDestroy {
   }
 
   loadPatients(): void {
-    this.patientsService.getPatients(true).pipe(takeUntil(this.destroy$)).subscribe({
+    this.patientsService.getPatients({ soloActivos: true }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.patients = res.data;
         this.cdr.detectChanges();
@@ -278,6 +279,7 @@ export class Finance implements OnInit, OnDestroy {
         this.egresosMes  = res.data.egresosMes;
         this.cdr.detectChanges();
       },
+      error: () => { this.cdr.detectChanges(); },
     });
   }
 
@@ -299,7 +301,7 @@ export class Finance implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.submitting) {
       this.form.markAllAsTouched();
       return;
     }
@@ -319,9 +321,12 @@ export class Finance implements OnInit, OnDestroy {
       pacienteId: resolvedPacienteId,
     };
 
+    this.submitting = true;
+
     if (this.editingId !== null) {
       this.finanzasService.update(this.editingId, payload).pipe(takeUntil(this.destroy$)).subscribe({
         next: (res) => {
+          this.submitting = false;
           this.setSuccess('Movimiento actualizado correctamente');
           this.errorMessage = '';
           const totalPagado = (res.data.pagos ?? []).reduce((acc: number, p: any) => acc + p.monto, 0);
@@ -335,6 +340,7 @@ export class Finance implements OnInit, OnDestroy {
           this.loadMovimientos();
         },
         error: (err: any) => {
+          this.submitting = false;
           this.errorMessage = err?.error?.message || 'No se pudo actualizar el movimiento';
           this.cdr.detectChanges();
         },
@@ -344,6 +350,7 @@ export class Finance implements OnInit, OnDestroy {
 
     this.finanzasService.create(payload).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
+        this.submitting = false;
         this.setSuccess('Movimiento registrado correctamente');
         this.errorMessage = '';
         this.formVisible = false;
@@ -352,6 +359,7 @@ export class Finance implements OnInit, OnDestroy {
         this.loadMovimientos();
       },
       error: (err: any) => {
+        this.submitting = false;
         this.errorMessage = err?.error?.message || 'No se pudo registrar el movimiento';
         this.cdr.detectChanges();
       },

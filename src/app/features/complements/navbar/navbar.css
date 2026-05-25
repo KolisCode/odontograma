@@ -163,36 +163,70 @@
   left: 0;
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(18, 38, 63, 0.13);
   border: 1px solid #e2e8f0;
-  padding: 14px;
-  min-width: 240px;
+  min-width: 260px;
   z-index: 500;
+  overflow: hidden;
 }
 
-.nav-historia-label {
-  margin: 0 0 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.nav-historia-search-wrap {
+  padding: 10px 10px 0;
 }
 
-.nav-historia-select {
+.nav-historia-input {
   width: 100%;
-  padding: 8px 10px;
+  box-sizing: border-box;
+  padding: 8px 12px;
   border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  border-radius: 7px;
+  font-size: 0.88rem;
   color: #1e293b;
   background: #f8fafc;
   outline: none;
-  cursor: pointer;
 }
 
-.nav-historia-select:focus {
-  border-color: #2f7d57;
+.nav-historia-input:focus {
+  border-color: #2f73d9;
+  background: #fff;
+}
+
+.nav-historia-results {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 4px 0;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.nav-historia-result {
+  padding: 9px 14px;
+  font-size: 0.87rem;
+  color: #27445c;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-historia-result:hover {
+  background: #eff6ff;
+  color: #2f73d9;
+}
+
+.nav-historia-empty {
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.nav-historia-hint {
+  margin: 0;
+  padding: 6px 14px 8px;
+  font-size: 0.76rem;
+  color: #9ca3af;
+  border-top: 1px solid #f1f5f9;
 }
 
 /* ── Notificaciones ───────────────────────────────────────────────────────── */

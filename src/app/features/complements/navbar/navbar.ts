@@ -24,6 +24,15 @@ export class Navbar implements OnInit, OnDestroy {
 
   patients: PatientRow[] = [];
   historiaDropdownOpen = false;
+  historiaSearch = '';
+
+  get filteredHistoriaPatients(): PatientRow[] {
+    const term = this.historiaSearch.trim().toLowerCase();
+    const base = term
+      ? this.patients.filter(p => p.nombreCompleto.toLowerCase().includes(term))
+      : this.patients;
+    return base.slice(0, 8);
+  }
 
   // ── Notificaciones ─────────────────────────────────────────────────────────
   notifPanelOpen = false;
@@ -77,7 +86,7 @@ export class Navbar implements OnInit, OnDestroy {
       this.avatarLetter = (user.nombre?.charAt(0) || 'U').toUpperCase();
     }
 
-    this.patientsService.getPatients(true).pipe(takeUntil(this.destroy$)).subscribe({
+    this.patientsService.getPatients({ soloActivos: true }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => { this.patients = res.data; this.cdr.detectChanges(); },
       error: () => {},
     });
@@ -223,15 +232,16 @@ export class Navbar implements OnInit, OnDestroy {
 
   toggleHistoriaDropdown(): void {
     this.historiaDropdownOpen = !this.historiaDropdownOpen;
-    if (this.historiaDropdownOpen) this.notifPanelOpen = false;
+    if (this.historiaDropdownOpen) {
+      this.notifPanelOpen = false;
+      this.historiaSearch = '';
+    }
   }
 
-  selectHistoriaPaciente(event: Event): void {
-    const id = (event.target as HTMLSelectElement).value;
-    if (id) {
-      this.historiaDropdownOpen = false;
-      this.router.navigate(['/history', id]);
-    }
+  navigateToHistoria(pacienteId: number): void {
+    this.historiaDropdownOpen = false;
+    this.historiaSearch = '';
+    this.router.navigate(['/history', pacienteId]);
   }
 
   @HostListener('document:click', ['$event'])

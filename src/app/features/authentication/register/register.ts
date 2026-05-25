@@ -41,8 +41,8 @@ export class Register implements OnDestroy {
   ) {
     this.registerForm = this.fb.group(
       {
-        nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-        apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+        nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(60), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/)]],
+        apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(60), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/)]],
         correo: ['', [Validators.required, Validators.email]],
         rol: ['', [Validators.required, Validators.pattern(/^(ADMIN|ODONTOLOGO|AUXILIAR|RECEPCION)$/)]],
         password: ['', [Validators.required, Validators.minLength(8)]],
