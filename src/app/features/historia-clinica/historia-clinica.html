@@ -906,7 +906,7 @@
         </div>
         <div class="summary-declaracion">
           <label class="declaracion-label">
-            <input type="checkbox" formControlName="declaracionAceptada" />
+            <input type="checkbox" [formControl]="$any(historiaForm.get('declaracionAceptada'))" />
             <span>El paciente declara que la información suministrada es verídica</span>
           </label>
         </div>
