@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, of, tap, catchError, finalize } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 
 @Injectable({
@@ -40,6 +40,13 @@ export class AuthService {
       localStorage.removeItem('biodont_last_export');
       localStorage.removeItem('biodont_last_backup');
     } catch { /* storage unavailable */ }
+  }
+
+  logoutFromServer(): Observable<void> {
+    return this.http.post<void>(`${this.api}/logout`, {}).pipe(
+      catchError(() => of(undefined as unknown as void)),
+      finalize(() => this.logout()),
+    );
   }
 
   getToken(): string | null {

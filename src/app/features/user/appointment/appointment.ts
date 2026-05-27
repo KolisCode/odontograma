@@ -230,6 +230,7 @@ export class Appointment implements OnInit, OnDestroy {
   filtroDocumento = '';
   filtroPacienteId: number | null = null;
   private documentoFiltroTimer: ReturnType<typeof setTimeout> | null = null;
+  private _successTimer: ReturnType<typeof setTimeout> | null = null;
   private destroy$ = new Subject<void>();
 
   get filtrosActivos(): number {
@@ -265,14 +266,14 @@ export class Appointment implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.adminService.getConfig().pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => { this.indicativoPais = res.data.indicativoPais || '57'; },
+      error: () => { this.indicativoPais = '57'; },
     });
     this.loadAppointmentsModuleData();
   }
 
   ngOnDestroy(): void {
-    if (this.documentoFiltroTimer) {
-      clearTimeout(this.documentoFiltroTimer);
-    }
+    if (this.documentoFiltroTimer) clearTimeout(this.documentoFiltroTimer);
+    if (this._successTimer) clearTimeout(this._successTimer);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -456,7 +457,7 @@ export class Appointment implements OnInit, OnDestroy {
         const phone = String(patient?.telefono ?? '').replace(/\D/g, '');
         if (phone.length >= 7) {
           const nombre = String(patient?.nombreCompleto ?? 'Paciente').split(' ')[0];
-          const fechaLabel = new Date(`${fecha}T00:00:00`).toLocaleDateString('es-CO', {
+          const fechaLabel = new Date(`${fecha}T00:00:00-05:00`).toLocaleDateString('es-CO', {
             weekday: 'long', day: 'numeric', month: 'long',
           });
           const msg = `Hola ${nombre}, le recordamos su cita en Biodont el ${fechaLabel} a las ${hora}. Motivo: ${motivo}. Por favor confirmar su asistencia.`;
@@ -624,8 +625,9 @@ export class Appointment implements OnInit, OnDestroy {
   trackByIndex(index: number): number { return index; }
 
   private setSuccess(msg: string): void {
+    if (this._successTimer) clearTimeout(this._successTimer);
     this.successMessage = msg;
-    setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
+    this._successTimer = setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
   }
 
   private resetForm(): void {
@@ -654,7 +656,7 @@ export class Appointment implements OnInit, OnDestroy {
         return null;
       }
 
-      const inputDate = new Date(`${control.value}T00:00:00`);
+      const inputDate = new Date(`${control.value}T00:00:00-05:00`);
 
       if (isNaN(inputDate.getTime())) {
         return { invalidDate: true };

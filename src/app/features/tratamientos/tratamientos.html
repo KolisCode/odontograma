@@ -4,21 +4,76 @@
 
   <div class="trat-header">
     <div>
+      <div class="trat-nav-back">
+        <button class="btn-back" type="button" (click)="irAPacientes()" title="Volver al listado de pacientes">&#8592; Pacientes</button>
+        <span class="trat-nav-sep" *ngIf="patientName">/</span>
+        <button class="btn-back" type="button" *ngIf="patientName" (click)="irAHistoria()" title="Ver historia clínica del paciente">Historia clínica</button>
+      </div>
       <h1>Tratamientos</h1>
       <p *ngIf="patientName">{{ patientName }}</p>
     </div>
     <div class="trat-header-actions">
-      <button class="btn btn-secondary" type="button" (click)="verPlanOdontograma()">Ver plan en odontograma</button>
-      <button class="btn btn-primary" type="button" (click)="showForm()">+ Nuevo tratamiento</button>
+      <button class="btn btn-secondary" type="button" (click)="irAResumen()" title="Ver resumen clínico del paciente">Resumen</button>
+      <button class="btn btn-secondary" type="button" (click)="verPlanOdontograma()" title="Ver los tratamientos planificados en el odontograma">Ver plan en odontograma</button>
+      <button class="btn btn-primary" type="button" (click)="showForm()" title="Registrar un nuevo tratamiento para este paciente">+ Nuevo tratamiento</button>
     </div>
   </div>
 
   <div *ngIf="errorMessage" class="alert alert--error">{{ errorMessage }}</div>
   <div *ngIf="successMessage" class="alert alert--success">{{ successMessage }}</div>
 
+  <!-- Plan de odontograma -->
+  <div class="plan-card" *ngIf="!planLoading">
+    <div class="plan-card__header">
+      <div>
+        <h2 class="plan-card__title">Plan de odontograma</h2>
+        <p class="plan-card__sub" *ngIf="plan">Versión {{ plan.version }} · {{ (plan.fecha || '').substring(0, 10) | date:'dd/MM/yyyy' }}</p>
+        <p class="plan-card__sub" *ngIf="!plan">Sin plan registrado</p>
+      </div>
+      <button class="btn btn-secondary" type="button"
+        (click)="verPlanOdontograma()"
+        title="Ver el plan completo en el odontograma">
+        Ver en odontograma
+      </button>
+    </div>
+
+    <div *ngIf="!plan" class="plan-card__empty">
+      No hay plan de tratamiento en el odontograma de este paciente. Puedes crearlo desde el botón "Ver en odontograma".
+    </div>
+
+    <div *ngIf="plan && planProcedimientos.length === 0 && planPiezas.length === 0" class="plan-card__empty">
+      El plan existe pero aún no tiene procedimientos registrados.
+    </div>
+
+    <ng-container *ngIf="plan && (planProcedimientos.length > 0 || planPiezas.length > 0)">
+      <div class="plan-proc-list">
+        <div class="plan-proc-item" *ngFor="let p of planProcedimientos">
+          <span class="plan-proc-label">{{ p.label }}</span>
+          <span class="plan-proc-dientes">D.{{ p.dientes.join(' · D.') }}</span>
+        </div>
+        <div class="plan-proc-item" *ngFor="let p of planPiezas">
+          <span class="plan-proc-label plan-proc-label--pieza">{{ p.label }}</span>
+          <span class="plan-proc-dientes">D.{{ p.dientes.join(' · D.') }}</span>
+        </div>
+      </div>
+      <div class="plan-card__actions">
+        <button class="btn btn-plan" type="button"
+          (click)="crearDesdePlan()"
+          title="Abrir el formulario con los procedimientos del plan pre-completados">
+          + Crear tratamiento desde plan
+        </button>
+      </div>
+    </ng-container>
+  </div>
+  <div *ngIf="planLoading" class="plan-card plan-card--loading">Cargando plan de odontograma...</div>
+
   <!-- Formulario -->
   <div *ngIf="formVisible" class="trat-form-card">
     <h2>{{ editingId ? 'Editar tratamiento' : 'Nuevo tratamiento' }}</h2>
+
+    <div *ngIf="odontogramaIdParaCrear" class="plan-linked-hint">
+      Vinculado al plan de odontograma (v{{ plan?.version }})
+    </div>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="form-group">
@@ -87,6 +142,7 @@
           <th>Monto</th>
           <th>Inicio</th>
           <th>Fin estimado</th>
+          <th>Plan odo.</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -101,6 +157,15 @@
           <td>{{ t.monto !== null ? ('$' + t.monto.toLocaleString('es-CO')) : '—' }}</td>
           <td>{{ t.fechaInicio ? (t.fechaInicio | date:'dd/MM/yyyy') : '—' }}</td>
           <td>{{ t.fechaFin ? (t.fechaFin | date:'dd/MM/yyyy') : '—' }}</td>
+          <td>
+            <a *ngIf="t.odontograma" class="badge-plan"
+              [routerLink]="['/odontogram', encodedId]"
+              [queryParams]="{ tab: 'plan' }"
+              [title]="'Ver plan v' + t.odontograma.version + ' en odontograma'">
+              Plan v{{ t.odontograma.version }}
+            </a>
+            <span *ngIf="!t.odontograma" class="badge-plan--none">—</span>
+          </td>
           <td class="trat-actions">
             <select
               *ngIf="t.estado !== 'FINALIZADO'"
@@ -110,8 +175,8 @@
             >
               <option *ngFor="let e of estados" [value]="e">{{ getEstadoLabel(e) }}</option>
             </select>
-            <button class="btn-icon btn-edit" (click)="editTratamiento(t)">Editar</button>
-            <button class="btn-icon btn-delete" (click)="eliminar(t.id)">Eliminar</button>
+            <button class="btn-icon btn-edit" title="Editar tratamiento" (click)="editTratamiento(t)">Editar</button>
+            <button class="btn-icon btn-delete" title="Eliminar tratamiento" (click)="eliminar(t.id)">Eliminar</button>
           </td>
         </tr>
       </tbody>
@@ -133,7 +198,7 @@
 </div>
 
 <!-- Documentos del paciente -->
-<section *ngIf="pacienteId">
+<section class="trat-documentos" *ngIf="pacienteId">
   <app-documentos [pacienteId]="pacienteId"></app-documentos>
 </section>
 

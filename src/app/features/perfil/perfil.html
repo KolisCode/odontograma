@@ -45,7 +45,7 @@
     <div class="perfil-card">
       <div class="perfil-card__title">
         <h2>Cambiar contraseña</h2>
-        <span>La nueva contraseña debe tener al menos 8 caracteres</span>
+        <span>Mínimo 8 caracteres, una letra y un número</span>
       </div>
 
       <form [formGroup]="passwordForm" (ngSubmit)="onSubmit()" class="perfil-form" novalidate>
@@ -62,10 +62,11 @@
         <div class="form-group">
           <label>Nueva contraseña</label>
           <input type="password" formControlName="newPassword"
-            placeholder="Mínimo 8 caracteres"
-            [class.input--error]="hasError('newPassword', 'required') || hasError('newPassword', 'minlength')" />
+            placeholder="Mínimo 8 caracteres, una letra y un número"
+            [class.input--error]="hasError('newPassword', 'required') || hasError('newPassword', 'minlength') || hasError('newPassword', 'pattern')" />
           <span class="field-error" *ngIf="hasError('newPassword', 'required')">Campo requerido</span>
           <span class="field-error" *ngIf="hasError('newPassword', 'minlength')">Mínimo 8 caracteres</span>
+          <span class="field-error" *ngIf="hasError('newPassword', 'pattern')">Debe contener al menos una letra y un número</span>
         </div>
 
         <div class="form-group">

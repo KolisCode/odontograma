@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { decodeId, encodeId } from '../../../shared/ids';
 import { ChangeDetectorRef, Component, signal, computed, OnInit, AfterViewInit, OnDestroy, effect, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, finalize } from 'rxjs';
@@ -108,6 +109,8 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedDiagnosis = null;
     this.selectedPiece = null;
     this.activeTab = 'diagnoses';
+    this.closeCobroForm();
+    this.loadCobros();
   }
 
   // ── Modo del odontograma ──────────────────────────────────────────────────
@@ -132,6 +135,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
   setOdontogramMode(tipo: 'ADULTO' | 'PEDIATRICO' | 'MIXTO'): void {
     this.odontogramTipo = tipo;
     this.showPediatricModal = false;
+    this.cdr.detectChanges();
   }
 
   // ── Selección activa ──────────────────────────────────────────────────────
@@ -294,6 +298,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
       metodoPago: 'Efectivo',
     });
     this.cobroFormVisible = true;
+    this.cdr.detectChanges();
   }
 
   closeCobroForm(): void {
@@ -302,6 +307,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cobroDuplicadoAdvertencia = false;
     this.cobroGuardando = false;
     this.cobroGuardado = false;
+    this.cdr.detectChanges();
   }
 
   submitCobro(): void {
@@ -310,7 +316,15 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    if (!this.cobroTarget || !this.originalOdontogram) return;
+    const activeOd = this.odontogramTab() === 'plan' ? this.originalPlan : this.originalOdontogram;
+    if (!this.cobroTarget) return;
+    if (!activeOd) {
+      this.cobroMensaje = this.odontogramTab() === 'plan'
+        ? 'Guarda el plan de tratamiento antes de generar cobros'
+        : 'No hay odontograma disponible';
+      this.cobroMensajeTipo = 'error';
+      return;
+    }
 
     this.cobroGuardando = true;
     const raw = this.cobroForm.getRawValue();
@@ -324,7 +338,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
       metodoPago: raw.metodoPago || null,
       diagnosticoRef: this.cobroTarget.ref,
       pacienteId: this.patientId,
-      odontogramaId: this.originalOdontogram.id!,
+      odontogramaId: activeOd.id!,
     };
 
     this.finanzasService.create(payload).pipe(takeUntil(this.destroy$)).subscribe({
@@ -345,8 +359,9 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadCobros(): void {
-    if (!this.originalOdontogram?.id) return;
-    this.finanzasService.getByOdontograma(this.originalOdontogram.id).pipe(takeUntil(this.destroy$)).subscribe({
+    const activeOd = this.odontogramTab() === 'plan' ? this.originalPlan : this.originalOdontogram;
+    if (!activeOd?.id) { this.cobros.set([]); return; }
+    this.finanzasService.getByOdontograma(activeOd.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => { this.cobros.set(res.data); this.cdr.detectChanges(); },
       error: () => { this.cobros.set([]); this.cdr.detectChanges(); },
     });
@@ -386,6 +401,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.originalOdontogram) return;
     if (this.patientAge !== null && this.patientAge >= 5 && this.patientAge <= 15) {
       this.showPediatricModal = true;
+      this.cdr.detectChanges();
     }
   }
 
@@ -420,8 +436,8 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (!this.selectedDiagnosis) return;
 
-    const signal = this.odontogramTab() === 'plan' ? this.planDiagnoses : this.diagnoses;
-    signal.update((current) => {
+    const targetSignal = this.odontogramTab() === 'plan' ? this.planDiagnoses : this.diagnoses;
+    targetSignal.update((current) => {
       const diagnosisType = this.selectedDiagnosis!;
       const existingIndex = current.findIndex(
         (d) => d.type === diagnosisType && d.teeth.length === 1 && d.teeth[0] === event.tooth,
@@ -487,6 +503,52 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
       map.get(p.tooth)!.push(p.type);
     }
     return map;
+  });
+
+  // Contexto de diagnóstico visible como capa fantasma en el tab Plan
+  diagContextFaceMap = computed(() => {
+    if (this.odontogramTab() !== 'plan') return new Map<number, SurfaceDiagnosis[]>();
+    const map = new Map<number, SurfaceDiagnosis[]>();
+    for (const diagnosis of this.diagnoses()) {
+      for (const tooth of diagnosis.teeth) {
+        if (!map.has(tooth)) map.set(tooth, []);
+        const surfaces = map.get(tooth)!;
+        for (const face of diagnosis.faces) {
+          const existing = surfaces.find(s => s.surface === face);
+          if (existing) {
+            if (!existing.diagnoses.includes(diagnosis.type))
+              existing.diagnoses = [...existing.diagnoses, diagnosis.type];
+          } else {
+            surfaces.push({ surface: face, diagnoses: [diagnosis.type] });
+          }
+        }
+      }
+    }
+    return map;
+  });
+
+  diagContextPiecesMap = computed(() => {
+    if (this.odontogramTab() !== 'plan') return new Map<number, PieceType[]>();
+    const map = new Map<number, PieceType[]>();
+    for (const p of this.pieces()) {
+      if (!map.has(p.tooth)) map.set(p.tooth, []);
+      map.get(p.tooth)!.push(p.type);
+    }
+    return map;
+  });
+
+  // Dientes con diagnóstico que aún no tienen ningún procedimiento planificado
+  dientesSinPlanificar = computed(() => {
+    if (this.odontogramTab() !== 'plan') return 0;
+    const diagTeeth = new Set<number>();
+    for (const d of this.diagnoses()) d.teeth.forEach(t => diagTeeth.add(t));
+    for (const p of this.pieces()) diagTeeth.add(p.tooth);
+    const planTeeth = new Set<number>();
+    for (const d of this.planDiagnoses()) d.teeth.forEach(t => planTeeth.add(t));
+    for (const p of this.planPieces()) planTeeth.add(p.tooth);
+    let count = 0;
+    diagTeeth.forEach(t => { if (!planTeeth.has(t)) count++; });
+    return count;
   });
 
   toothFaceMap = computed(() => {
@@ -638,7 +700,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
       this.autoSaveTimer = setTimeout(() => {
-        if (!this.originalOdontogram?.id || this.isSaving) return;
+        if (!this.originalOdontogram?.id || this.isSaving || this.destroy$.closed) return;
         const payload = this.buildVersioningPayload();
         this.odontogramService.patch(this.originalOdontogram.id, payload)
           .pipe(takeUntil(this.destroy$))
@@ -664,18 +726,14 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const id = params.get('id');
+      const parsed = id ? decodeId(id) : null;
 
-      if (!id) {
-        this.showSaveMessage('error', 'No se recibió el paciente para el odontograma.', true, 4000);
-        return;
-      }
-
-      this.patientId = Number(id);
-
-      if (isNaN(this.patientId)) {
+      if (parsed === null) {
         this.showSaveMessage('error', 'El identificador del paciente no es válido.', true, 4000);
         return;
       }
+
+      this.patientId = parsed;
 
       this.loadPatientInfo();
       this.loadOdontogram();
@@ -715,7 +773,9 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!historia) return;
         this.alertasClinicas = this.parseAlertas(historia);
       },
-      error: () => {},
+      error: () => {
+        this.showSaveMessage('error', 'No se pudieron cargar las alertas clínicas del paciente.', true, 6000);
+      },
     });
   }
 
@@ -828,6 +888,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
         const { diagnoses, pieces } = this.buildDiagnosesFromBackend(data);
         this.planDiagnoses.set(diagnoses);
         this.planPieces.set(pieces);
+        if (this.odontogramTab() === 'plan') this.loadCobros();
       },
       error: () => {
         this.originalPlan = null;
@@ -1140,11 +1201,13 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
     this.versionTipo = this.odontogramTipo;
     this.movimientosPendientes = this.cobros().filter(m => m.estado === 'PENDIENTE');
     this.showVersionModal = true;
+    this.cdr.detectChanges();
   }
 
   cancelarNuevaVersion(): void {
     this.showVersionModal = false;
     this.movimientosPendientes = [];
+    this.cdr.detectChanges();
   }
 
   /** Crea una nueva versión, archivando la actual */
@@ -1156,6 +1219,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isSaving = true;
     this.showVersionModal = false;
     this.showSaveMessage('info', 'Creando nueva versión...', false);
+    this.cdr.detectChanges();
 
     this.odontogramService.update(this.originalOdontogram.id, payload)
       .pipe(finalize(() => { this.isSaving = false; }), takeUntil(this.destroy$))
@@ -1239,11 +1303,19 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // ── Navegación ────────────────────────────────────────────────────────────
   goToHistoria(): void {
-    this.router.navigate(['/history', this.patientId]);
+    this.router.navigate(['/history', encodeId(this.patientId)]);
   }
 
   goToFinance(): void {
-    this.router.navigate(['/finance'], { queryParams: { pacienteId: this.patientId } });
+    this.router.navigate(['/finance'], { queryParams: { pacienteId: encodeId(this.patientId) } });
+  }
+
+  goToResumen(): void {
+    this.router.navigate(['/resumen', encodeId(this.patientId)]);
+  }
+
+  goToTratamientos(): void {
+    this.router.navigate(['/tratamientos', encodeId(this.patientId)]);
   }
 
   // ── Mensajes ──────────────────────────────────────────────────────────────
@@ -1273,9 +1345,11 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
 
   openToothGuideModal(): void {
     this.showToothGuideModal = true;
+    this.cdr.detectChanges();
   }
 
   closeToothGuideModal(): void {
     this.showToothGuideModal = false;
+    this.cdr.detectChanges();
   }
 }

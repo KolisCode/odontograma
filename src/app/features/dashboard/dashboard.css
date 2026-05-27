@@ -22,6 +22,31 @@
   color: #6b7b8c;
 }
 
+.page-header__actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-secondary {
+  border: 1px solid #c8d6e3;
+  background: #ffffff;
+  color: #334155;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #f1f5f9;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .btn-primary {
   border: none;
   background: #2f73d9;

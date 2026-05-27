@@ -38,7 +38,7 @@ export class Perfil implements OnInit, OnDestroy {
     this.passwordForm = this.fb.group(
       {
         currentPassword: ['', Validators.required],
-        newPassword: ['', [Validators.required, Validators.minLength(8)]],
+        newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-zA-Z])(?=.*\d).+$/)]],
         confirmPassword: ['', Validators.required],
       },
       { validators: passwordMatchValidator },
@@ -59,14 +59,18 @@ export class Perfil implements OnInit, OnDestroy {
       });
   }
 
+  private _successTimer: ReturnType<typeof setTimeout> | null = null;
+
   ngOnDestroy(): void {
+    if (this._successTimer) clearTimeout(this._successTimer);
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   private setSuccess(msg: string): void {
+    if (this._successTimer) clearTimeout(this._successTimer);
     this.successMessage = msg;
-    setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
+    this._successTimer = setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
   }
 
   get rolLabel(): string {
@@ -81,7 +85,7 @@ export class Perfil implements OnInit, OnDestroy {
 
   formatDate(value: string): string {
     if (!value) return '';
-    return new Date(value).toLocaleDateString('es-CO', { dateStyle: 'long' });
+    return new Date(value).toLocaleDateString('es-CO', { dateStyle: 'long', timeZone: 'America/Bogota' });
   }
 
   onSubmit(): void {

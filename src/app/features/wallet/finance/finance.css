@@ -16,21 +16,75 @@
   white-space: nowrap;
 }
 
-.finance-patient-select {
+.finance-patient-search-wrap {
+  position: relative;
+  min-width: 260px;
+}
+
+.finance-patient-search-input {
+  width: 100%;
   padding: 7px 12px;
   border: 1.5px solid #e2e8f0;
   border-radius: 8px;
   font-size: 14px;
   color: #1e293b;
   background: #f8fafc;
-  cursor: pointer;
   outline: none;
-  min-width: 240px;
+  box-sizing: border-box;
   transition: border-color 0.15s;
+  font-family: inherit;
 }
 
-.finance-patient-select:focus {
-  border-color: #2f7d57;
+.finance-patient-search-input:focus {
+  border-color: #2f73d9;
+  background: #fff;
+}
+
+.finance-patient-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(18,38,63,0.10);
+  z-index: 200;
+  overflow: hidden;
+}
+
+.finance-patient-results {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.finance-patient-result {
+  padding: 9px 14px;
+  font-size: 14px;
+  color: #1e293b;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.finance-patient-result:hover {
+  background: #eff6ff;
+}
+
+.finance-patient-empty {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.finance-patient-hint {
+  padding: 6px 14px;
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+  border-top: 1px solid #f1f5f9;
 }
 
 .finance-patient-context {
@@ -65,6 +119,30 @@
   background: #f1f5f9;
   padding: 3px 8px;
   border-radius: 6px;
+}
+
+.finance-patient-context__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.finance-patient-context__link {
+  background: none;
+  border: none;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: #2f73d9;
+  cursor: pointer;
+  font-family: inherit;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.finance-patient-context__link:hover {
+  background: #eff6ff;
+  text-decoration: underline;
 }
 
 .finance-patient-context__clear {

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -17,7 +17,7 @@ interface TipoOption {
   templateUrl: './documentos.html',
   styleUrl: './documentos.css',
 })
-export class DocumentosComponent implements OnInit, OnDestroy {
+export class DocumentosComponent implements OnInit, OnChanges, OnDestroy {
   @Input() pacienteId!: number;
 
   private destroy$ = new Subject<void>();
@@ -40,6 +40,12 @@ export class DocumentosComponent implements OnInit, OnDestroy {
   // Preview
   previewUrl: string | null = null;
   previewNombre = '';
+  previewIndex: number | null = null;
+  previewLoading = false;
+
+  get imagenesDocumentos(): Documento[] {
+    return this.documentos.filter(d => d.mimetype.startsWith('image/'));
+  }
 
   tiposDocumento: TipoOption[] = [
     { value: 'RADIOGRAFIA', label: 'Radiografía' },
@@ -56,6 +62,18 @@ export class DocumentosComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadDocumentos();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['pacienteId'] && !changes['pacienteId'].firstChange) {
+      this.documentos = [];
+      this.errorMessage = '';
+      this.formVisible = false;
+      this.resetForm();
+      this.confirmDeleteId = null;
+      this.cerrarPreview();
+      this.loadDocumentos();
+    }
   }
 
   ngOnDestroy(): void {
@@ -145,22 +163,47 @@ export class DocumentosComponent implements OnInit, OnDestroy {
       this.abrirEnNuevaTab(doc);
       return;
     }
-    this.documentosService.getArchivoBlob(doc.id).pipe(takeUntil(this.destroy$)).subscribe({
+    const idx = this.imagenesDocumentos.findIndex(d => d.id === doc.id);
+    this.cargarPreviewEnIndice(idx);
+  }
+
+  private cargarPreviewEnIndice(idx: number): void {
+    const imagenes = this.imagenesDocumentos;
+    if (idx < 0 || idx >= imagenes.length) return;
+    const doc = imagenes[idx];
+    this.previewLoading = true;
+    this.previewIndex = idx;
+    this.previewNombre = doc.nombre;
+    this.cdr.detectChanges();
+    this.documentosService.getArchivoBlob(doc.id, this.pacienteId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (blob) => {
         if (this.previewUrl) URL.revokeObjectURL(this.previewUrl);
         this.previewUrl = URL.createObjectURL(blob);
-        this.previewNombre = doc.nombre;
+        this.previewLoading = false;
         this.cdr.detectChanges();
       },
       error: () => {
         this.errorMessage = 'No se pudo cargar la previsualización';
+        this.previewLoading = false;
         this.cdr.detectChanges();
       },
     });
   }
 
+  anteriorImagen(): void {
+    if (this.previewIndex === null) return;
+    const siguiente = (this.previewIndex - 1 + this.imagenesDocumentos.length) % this.imagenesDocumentos.length;
+    this.cargarPreviewEnIndice(siguiente);
+  }
+
+  siguienteImagen(): void {
+    if (this.previewIndex === null) return;
+    const siguiente = (this.previewIndex + 1) % this.imagenesDocumentos.length;
+    this.cargarPreviewEnIndice(siguiente);
+  }
+
   abrirEnNuevaTab(doc: Documento): void {
-    this.documentosService.getArchivoBlob(doc.id).pipe(takeUntil(this.destroy$)).subscribe({
+    this.documentosService.getArchivoBlob(doc.id, this.pacienteId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
@@ -174,7 +217,7 @@ export class DocumentosComponent implements OnInit, OnDestroy {
   }
 
   descargarDocumento(doc: Documento): void {
-    this.documentosService.getArchivoBlob(doc.id).pipe(takeUntil(this.destroy$)).subscribe({
+    this.documentosService.getArchivoBlob(doc.id, this.pacienteId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -194,14 +237,19 @@ export class DocumentosComponent implements OnInit, OnDestroy {
     if (this.previewUrl) URL.revokeObjectURL(this.previewUrl);
     this.previewUrl = null;
     this.previewNombre = '';
+    this.previewIndex = null;
+    this.previewLoading = false;
+    this.cdr.detectChanges();
   }
 
   solicitarEliminar(id: number): void {
     this.confirmDeleteId = id;
+    this.cdr.detectChanges();
   }
 
   cancelarEliminar(): void {
     this.confirmDeleteId = null;
+    this.cdr.detectChanges();
   }
 
   confirmarEliminar(): void {
@@ -209,10 +257,14 @@ export class DocumentosComponent implements OnInit, OnDestroy {
     const id = this.confirmDeleteId;
     this.confirmDeleteId = null;
 
-    this.documentosService.delete(id).pipe(takeUntil(this.destroy$)).subscribe({
+    this.documentosService.delete(id, this.pacienteId).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.documentos = this.documentos.filter(d => d.id !== id);
-        this.cdr.detectChanges();
+        if (this.previewIndex !== null) {
+          this.cerrarPreview();
+        } else {
+          this.cdr.detectChanges();
+        }
       },
       error: () => {
         this.errorMessage = 'No se pudo eliminar el documento';

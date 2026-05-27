@@ -39,11 +39,16 @@ export class DocumentosService {
     return this.http.post<{ data: Documento }>(this.baseUrl, formData);
   }
 
-  getArchivoBlob(id: number): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/${id}/archivo`, { responseType: 'blob' });
+  getArchivoBlob(id: number, pacienteId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${id}/archivo`, {
+      responseType: 'blob',
+      params: { pacienteId: String(pacienteId) },
+    });
   }
 
-  delete(id: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.baseUrl}/${id}`);
+  delete(id: number, pacienteId: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.baseUrl}/${id}`, {
+      params: { pacienteId: String(pacienteId) },
+    });
   }
 }

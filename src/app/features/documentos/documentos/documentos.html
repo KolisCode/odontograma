@@ -102,13 +102,42 @@
   </div>
 
   <!-- Modal previsualización de imagen -->
-  <div class="modal-overlay" *ngIf="previewUrl" (click)="cerrarPreview()">
+  <div class="modal-overlay" *ngIf="previewIndex !== null" (click)="cerrarPreview()">
     <div class="preview-modal" (click)="$event.stopPropagation()">
       <div class="preview-modal__header">
         <span class="preview-modal__nombre">{{ previewNombre }}</span>
-        <button class="preview-modal__close" type="button" (click)="cerrarPreview()">✕</button>
+        <div class="preview-modal__header-right">
+          <span class="preview-modal__counter" *ngIf="imagenesDocumentos.length > 1">
+            {{ previewIndex! + 1 }} / {{ imagenesDocumentos.length }}
+          </span>
+          <button class="preview-modal__close" type="button" (click)="cerrarPreview()">✕</button>
+        </div>
       </div>
-      <img class="preview-modal__img" [src]="previewUrl" [alt]="previewNombre" />
+
+      <div class="preview-modal__body">
+        <button
+          class="preview-modal__nav preview-modal__nav--prev"
+          type="button"
+          *ngIf="imagenesDocumentos.length > 1"
+          [disabled]="previewLoading"
+          (click)="anteriorImagen()">&#8249;</button>
+
+        <div class="preview-modal__img-wrap">
+          <div class="preview-modal__spinner" *ngIf="previewLoading">Cargando…</div>
+          <img
+            *ngIf="previewUrl && !previewLoading"
+            class="preview-modal__img"
+            [src]="previewUrl"
+            [alt]="previewNombre" />
+        </div>
+
+        <button
+          class="preview-modal__nav preview-modal__nav--next"
+          type="button"
+          *ngIf="imagenesDocumentos.length > 1"
+          [disabled]="previewLoading"
+          (click)="siguienteImagen()">&#8250;</button>
+      </div>
     </div>
   </div>
 

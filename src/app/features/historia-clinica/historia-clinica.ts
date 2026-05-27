@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { decodeId, encodeId } from '../../shared/ids';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import {
   AbstractControl,
@@ -51,6 +52,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
   confirmandoEliminarFormula: number | null = null;
 
   private destroy$ = new Subject<void>();
+  private _successTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -170,20 +172,21 @@ export class HistoriaClinica implements OnInit, OnDestroy {
 
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const idParam = params.get('id');
-      this.pacienteId = Number(idParam);
-
-      if (this.pacienteId) {
-        this.loadHistoria();
-        this.loadEvoluciones();
-        this.loadFormulas();
-      } else {
+      const parsed = idParam ? decodeId(idParam) : null;
+      if (parsed === null) {
         this.errorMessage = 'No se recibió un paciente válido';
         this.loadingData = false;
+        return;
       }
+      this.pacienteId = parsed;
+      this.loadHistoria();
+      this.loadEvoluciones();
+      this.loadFormulas();
     });
   }
 
   ngOnDestroy(): void {
+    if (this._successTimer) clearTimeout(this._successTimer);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -215,8 +218,9 @@ export class HistoriaClinica implements OnInit, OnDestroy {
   }
 
   private setSuccess(msg: string): void {
+    if (this._successTimer) clearTimeout(this._successTimer);
     this.successMessage = msg;
-    setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
+    this._successTimer = setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
   }
 
   scrollToSection(sectionId: string): void {
@@ -307,7 +311,10 @@ export class HistoriaClinica implements OnInit, OnDestroy {
     const habitos = this.parseJson(historia.habitos);
     const odonto = this.parseJson(historia.antecedentesOdontologicos);
     const enfermedadesOdontol = this.parseJson(historia.enfermedadesOdontologicas);
-    const medicamentos = Array.isArray(historia.medicacionActual) ? historia.medicacionActual : [];
+    const medicamentos = (() => {
+      if (Array.isArray(historia.medicacionActual)) return historia.medicacionActual;
+      try { return JSON.parse(historia.medicacionActual) ?? []; } catch { return []; }
+    })();
 
     this.historiaForm.patchValue(
       {
@@ -428,6 +435,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
   }
 
   onSave(): void {
+    if (this.loading) return;
     this.loading = true;
     this.errorMessage = '';
     this.successMessage = '';
@@ -553,16 +561,24 @@ export class HistoriaClinica implements OnInit, OnDestroy {
       });
   }
 
+  goToPatients(): void {
+    this.router.navigate(['/patients']);
+  }
+
   goToResumen(): void {
-    this.router.navigate(['/resumen', this.pacienteId]);
+    this.router.navigate(['/resumen', encodeId(this.pacienteId)]);
   }
 
   goToOdontogram(): void {
-    this.router.navigate(['/odontogram', this.pacienteId]);
+    this.router.navigate(['/odontogram', encodeId(this.pacienteId)]);
   }
 
   goToFinance(): void {
-    this.router.navigate(['/finance'], { queryParams: { pacienteId: this.pacienteId } });
+    this.router.navigate(['/finance'], { queryParams: { pacienteId: encodeId(this.pacienteId) } });
+  }
+
+  goToTratamientos(): void {
+    this.router.navigate(['/tratamientos', encodeId(this.pacienteId)]);
   }
 
   formatDateTime(value: any): string {
@@ -575,6 +591,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
     return date.toLocaleString('es-CO', {
       dateStyle: 'short',
       timeStyle: 'short',
+      timeZone: 'America/Bogota',
     });
   }
 

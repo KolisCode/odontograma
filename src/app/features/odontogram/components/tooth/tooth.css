@@ -125,6 +125,18 @@
   pointer-events: none;
 }
 
+/* Capa de diagnóstico: visible como referencia en el tab Plan */
+.surface--context {
+  opacity: 0.3;
+  pointer-events: none;
+  stroke: none !important;
+}
+
+.piece-overlay--context {
+  opacity: 0.28;
+  pointer-events: none;
+}
+
 /* Incisivos (más delgados) */
 .tooth-svg.incisor {
   transform: scaleX(0.85);

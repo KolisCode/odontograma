@@ -65,7 +65,8 @@ export class ImportParserService {
                 const cell = (row as any[])[i];
                 // Fechas: XLSX puede devolver Date objects
                 if (cell instanceof Date) {
-                  obj[h] = cell.toISOString().substring(0, 10);
+                  const _pad = (n: number) => String(n).padStart(2, '0');
+                  obj[h] = `${cell.getUTCFullYear()}-${_pad(cell.getUTCMonth() + 1)}-${_pad(cell.getUTCDate())}`;
                 } else {
                   obj[h] = String(cell ?? '').trim();
                 }

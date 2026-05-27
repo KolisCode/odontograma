@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { encodeId } from '../../../shared/ids';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -53,7 +54,8 @@ export class List implements OnInit, OnDestroy {
   paginaMeta: PaginaMeta | null = null;
   currentPage = 1;
   readonly PAGE_SIZE = 25;
-  private _searchDebounce: any = null;
+  private _searchDebounce: ReturnType<typeof setTimeout> | null = null;
+  private _successTimer: ReturnType<typeof setTimeout> | null = null;
   private destroy$ = new Subject<void>();
 
   // ── Dropdown de módulos por fila ──────────────────────────────────────────
@@ -206,6 +208,8 @@ export class List implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this._searchDebounce) clearTimeout(this._searchDebounce);
+    if (this._successTimer) clearTimeout(this._successTimer);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -283,11 +287,11 @@ export class List implements OnInit, OnDestroy {
   }
 
   editPatient(id: number): void {
-    this.formVisible = true;
     this.patientsService.getPatientById(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res: any) => {
         const p = res.data;
         this.editingId = id;
+        this.formVisible = true;
         this.errorMessage = '';
         this.successMessage = '';
         this.patientForm.patchValue({
@@ -440,23 +444,23 @@ export class List implements OnInit, OnDestroy {
   }
 
   goToHistory(patientId: number): void {
-    this.router.navigate(['/history', patientId]);
+    this.router.navigate(['/history', encodeId(patientId)]);
   }
 
   goToOdontogram(patientId: number): void {
-    this.router.navigate(['/odontogram', patientId]);
+    this.router.navigate(['/odontogram', encodeId(patientId)]);
   }
 
   goToResumen(patientId: number): void {
-    this.router.navigate(['/resumen', patientId]);
+    this.router.navigate(['/resumen', encodeId(patientId)]);
   }
 
   goToFinance(patientId: number): void {
-    this.router.navigate(['/finance'], { queryParams: { pacienteId: patientId } });
+    this.router.navigate(['/finance'], { queryParams: { pacienteId: encodeId(patientId) } });
   }
 
   goToTratamientos(patientId: number): void {
-    this.router.navigate(['/tratamientos', patientId]);
+    this.router.navigate(['/tratamientos', encodeId(patientId)]);
   }
 
   getControl(controlName: string): AbstractControl | null {
@@ -511,7 +515,7 @@ export class List implements OnInit, OnDestroy {
     const birthDate = this.patientForm.get('fechaNacimiento')?.value;
     if (!birthDate) return null;
 
-    const date = new Date(`${birthDate}T00:00:00`);
+    const date = new Date(`${birthDate}T00:00:00-05:00`);
     if (isNaN(date.getTime())) return null;
 
     const today = new Date();
@@ -535,10 +539,12 @@ export class List implements OnInit, OnDestroy {
     this.importPreviewHeaders = [];
     this.importResult = null;
     this.importLoading = false;
+    this.cdr.detectChanges();
   }
 
   closeImportModal(): void {
     this.importModalVisible = false;
+    this.cdr.detectChanges();
   }
 
   async onImportFileSelected(event: Event): Promise<void> {
@@ -633,8 +639,9 @@ export class List implements OnInit, OnDestroy {
   }
 
   private setSuccess(msg: string): void {
+    if (this._successTimer) clearTimeout(this._successTimer);
     this.successMessage = msg;
-    setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
+    this._successTimer = setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
   }
 
   private cleanRequiredText(value: string | null | undefined): string {
@@ -667,7 +674,7 @@ export class List implements OnInit, OnDestroy {
         return null;
       }
 
-      const inputDate = new Date(`${control.value}T00:00:00`);
+      const inputDate = new Date(`${control.value}T00:00:00-05:00`);
 
       if (isNaN(inputDate.getTime())) {
         return { invalidDate: true };
@@ -690,7 +697,7 @@ export class List implements OnInit, OnDestroy {
         return null;
       }
 
-      const birthDate = new Date(`${control.value}T00:00:00`);
+      const birthDate = new Date(`${control.value}T00:00:00-05:00`);
 
       if (isNaN(birthDate.getTime())) {
         return { invalidDate: true };

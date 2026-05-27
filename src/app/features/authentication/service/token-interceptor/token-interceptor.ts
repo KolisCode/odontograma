@@ -2,9 +2,11 @@ import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
+import { AuthService } from '../auth-service/auth.service';
 
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
+  const authService = inject(AuthService);
   let token: string | null = null;
   try { token = localStorage.getItem('token'); } catch { /* storage unavailable */ }
 
@@ -19,10 +21,7 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 && router.url !== '/login') {
-        try {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-        } catch { /* storage unavailable */ }
+        authService.logout();
         router.navigate(['/login']);
       }
       if (error.status === 403) {

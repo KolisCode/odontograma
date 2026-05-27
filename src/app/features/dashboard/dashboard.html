@@ -6,9 +6,14 @@
       <h1>Inicio</h1>
       <p>Resumen general del consultorio</p>
     </div>
-    <button class="btn-primary" type="button" (click)="goToNewPatient()">
-      Nuevo paciente
-    </button>
+    <div class="page-header__actions">
+      <button class="btn-secondary" type="button" title="Recargar estadísticas" (click)="loadDashboard()" [disabled]="loading">
+        {{ loading ? 'Cargando...' : 'Actualizar' }}
+      </button>
+      <button class="btn-primary" type="button" (click)="goToNewPatient()">
+        Nuevo paciente
+      </button>
+    </div>
   </div>
 
   <div *ngIf="errorMessage" class="dashboard-alert">
@@ -80,7 +85,7 @@
       <div class="quick-actions">
         <button type="button" (click)="goToNewPatient()">Registrar paciente</button>
         <button type="button" (click)="goToAppointments()">Crear cita</button>
-        <button type="button" (click)="goToOdontogram()">Abrir odontograma</button>
+        <button type="button" (click)="goToOdontogram()">Ir a pacientes</button>
         <button type="button" (click)="goToFinance()">Registrar ingreso</button>
       </div>
     </div>

@@ -103,6 +103,8 @@
               [mirrorMesialDistal]="true"
               [filledFaces]="toothFaceMap().get(tooth) || []"
               [pieces]="piecesMap().get(tooth) ?? []"
+              [contextFaces]="diagContextFaceMap().get(tooth) || []"
+              [contextPieces]="diagContextPiecesMap().get(tooth) ?? []"
               (surfaceClick)="applyDiagnosis($event)">
             </app-tooth>
           </div>
@@ -113,6 +115,8 @@
               [isPrimary]="false"
               [filledFaces]="toothFaceMap().get(tooth) || []"
               [pieces]="piecesMap().get(tooth) ?? []"
+              [contextFaces]="diagContextFaceMap().get(tooth) || []"
+              [contextPieces]="diagContextPiecesMap().get(tooth) ?? []"
               (surfaceClick)="applyDiagnosis($event)">
             </app-tooth>
           </div>
@@ -128,6 +132,8 @@
               [mirrorMesialDistal]="true"
               [filledFaces]="toothFaceMap().get(tooth) || []"
               [pieces]="piecesMap().get(tooth) ?? []"
+              [contextFaces]="diagContextFaceMap().get(tooth) || []"
+              [contextPieces]="diagContextPiecesMap().get(tooth) ?? []"
               (surfaceClick)="applyDiagnosis($event)">
             </app-tooth>
           </div>
@@ -139,6 +145,8 @@
               [lowerArch]="true"
               [filledFaces]="toothFaceMap().get(tooth) || []"
               [pieces]="piecesMap().get(tooth) ?? []"
+              [contextFaces]="diagContextFaceMap().get(tooth) || []"
+              [contextPieces]="diagContextPiecesMap().get(tooth) ?? []"
               (surfaceClick)="applyDiagnosis($event)">
             </app-tooth>
           </div>
@@ -156,6 +164,8 @@
               [mirrorMesialDistal]="true"
               [filledFaces]="toothFaceMap().get(tooth) || []"
               [pieces]="piecesMap().get(tooth) ?? []"
+              [contextFaces]="diagContextFaceMap().get(tooth) || []"
+              [contextPieces]="diagContextPiecesMap().get(tooth) ?? []"
               (surfaceClick)="applyDiagnosis($event)">
             </app-tooth>
           </div>
@@ -166,6 +176,8 @@
               [isPrimary]="isPrimaryTooth(tooth)"
               [filledFaces]="toothFaceMap().get(tooth) || []"
               [pieces]="piecesMap().get(tooth) ?? []"
+              [contextFaces]="diagContextFaceMap().get(tooth) || []"
+              [contextPieces]="diagContextPiecesMap().get(tooth) ?? []"
               (surfaceClick)="applyDiagnosis($event)">
             </app-tooth>
           </div>
@@ -181,6 +193,8 @@
               [mirrorMesialDistal]="true"
               [filledFaces]="toothFaceMap().get(tooth) || []"
               [pieces]="piecesMap().get(tooth) ?? []"
+              [contextFaces]="diagContextFaceMap().get(tooth) || []"
+              [contextPieces]="diagContextPiecesMap().get(tooth) ?? []"
               (surfaceClick)="applyDiagnosis($event)">
             </app-tooth>
           </div>
@@ -192,6 +206,8 @@
               [lowerArch]="true"
               [filledFaces]="toothFaceMap().get(tooth) || []"
               [pieces]="piecesMap().get(tooth) ?? []"
+              [contextFaces]="diagContextFaceMap().get(tooth) || []"
+              [contextPieces]="diagContextPiecesMap().get(tooth) ?? []"
               (surfaceClick)="applyDiagnosis($event)">
             </app-tooth>
           </div>
@@ -209,6 +225,8 @@
               [mirrorMesialDistal]="true"
               [filledFaces]="toothFaceMap().get(tooth) || []"
               [pieces]="piecesMap().get(tooth) ?? []"
+              [contextFaces]="diagContextFaceMap().get(tooth) || []"
+              [contextPieces]="diagContextPiecesMap().get(tooth) ?? []"
               (surfaceClick)="applyDiagnosis($event)">
             </app-tooth>
           </div>
@@ -219,6 +237,8 @@
               [isPrimary]="true"
               [filledFaces]="toothFaceMap().get(tooth) || []"
               [pieces]="piecesMap().get(tooth) ?? []"
+              [contextFaces]="diagContextFaceMap().get(tooth) || []"
+              [contextPieces]="diagContextPiecesMap().get(tooth) ?? []"
               (surfaceClick)="applyDiagnosis($event)">
             </app-tooth>
           </div>
@@ -234,6 +254,8 @@
               [mirrorMesialDistal]="true"
               [filledFaces]="toothFaceMap().get(tooth) || []"
               [pieces]="piecesMap().get(tooth) ?? []"
+              [contextFaces]="diagContextFaceMap().get(tooth) || []"
+              [contextPieces]="diagContextPiecesMap().get(tooth) ?? []"
               (surfaceClick)="applyDiagnosis($event)">
             </app-tooth>
           </div>
@@ -245,6 +267,8 @@
               [lowerArch]="true"
               [filledFaces]="toothFaceMap().get(tooth) || []"
               [pieces]="piecesMap().get(tooth) ?? []"
+              [contextFaces]="diagContextFaceMap().get(tooth) || []"
+              [contextPieces]="diagContextPiecesMap().get(tooth) ?? []"
               (surfaceClick)="applyDiagnosis($event)">
             </app-tooth>
           </div>
@@ -273,7 +297,7 @@
           <div class="piece-tag" *ngFor="let p of activePieces()" [ngClass]="'piece-tag--' + p.type.toLowerCase()">
             <span class="piece-tag__tooth">#{{ p.tooth }}</span>
             <span class="piece-tag__label">{{ getPieceLabel(p.type) }}</span>
-            <ng-container *ngIf="odontogramTab() === 'diagnostico' && originalOdontogram">
+            <ng-container *ngIf="odontogramTab() === 'plan' && originalPlan">
               <span *ngIf="hasCobro(buildPieceRef(p.tooth, p.type))" class="cobro-badge">Cobrado</span>
               <button
                 *ngIf="!hasCobro(buildPieceRef(p.tooth, p.type))"
@@ -295,7 +319,7 @@
               <th>Cara</th>
               <th>{{ odontogramTab() === 'plan' ? 'Procedimiento(s)' : 'Diagnóstico(s)' }}</th>
               <th>Fecha</th>
-              <th *ngIf="odontogramTab() === 'diagnostico'">Cobro</th>
+              <th *ngIf="odontogramTab() === 'plan'">Cobro</th>
               <th></th>
             </tr>
           </thead>
@@ -318,8 +342,8 @@
                 <td *ngIf="first" [attr.rowspan]="record.surfaces.length" class="record-cell-date">
                   {{ record.date | date: 'dd/MM/yy' }}
                 </td>
-                <td *ngIf="first && odontogramTab() === 'diagnostico'" [attr.rowspan]="record.surfaces.length" class="record-cell-cobro">
-                  <ng-container *ngIf="originalOdontogram">
+                <td *ngIf="first && odontogramTab() === 'plan'" [attr.rowspan]="record.surfaces.length" class="record-cell-cobro">
+                  <ng-container *ngIf="originalPlan">
                     <ng-container *ngFor="let diagType of getUniqueDiagnoses(record)">
                       <span *ngIf="hasCobro(buildDiagnosticoRef(record.tooth, diagType))" class="cobro-badge">
                         {{ getDiagnosisLabel(diagType) }}
@@ -493,7 +517,7 @@
       <!-- Guardar — diagnóstico -->
       <div class="save-section" *ngIf="odontogramTab() === 'diagnostico'">
         <div class="save-actions">
-          <button type="button" class="save-btn" (click)="save()" [disabled]="isSaving">
+          <button type="button" class="save-btn" (click)="save()" [disabled]="isSaving" title="Guardar el estado actual del odontograma">
             {{ isSaving ? 'Guardando...' : 'Actualizar' }}
           </button>
           <button
@@ -501,13 +525,16 @@
             type="button"
             class="btn btn-version"
             (click)="prepararNuevaVersion()"
-            [disabled]="isSaving">
+            [disabled]="isSaving"
+            title="Crear una nueva versión del odontograma conservando el historial anterior">
             Nueva versión
           </button>
         </div>
         <div class="save-nav-btns">
-          <button class="btn btn-secondary" type="button" (click)="goToHistoria()">Historia clínica</button>
-          <button class="btn btn-secondary" type="button" (click)="goToFinance()">Ver movimientos</button>
+          <button class="btn btn-secondary" type="button" (click)="goToResumen()" title="Ver el resumen clínico del paciente">Resumen</button>
+          <button class="btn btn-secondary" type="button" (click)="goToHistoria()" title="Ir a la historia clínica del paciente">Historia clínica</button>
+          <button class="btn btn-secondary" type="button" (click)="goToFinance()" title="Ver los movimientos financieros del paciente">Ver movimientos</button>
+          <button class="btn btn-secondary" type="button" (click)="goToTratamientos()" title="Ver los tratamientos del paciente">Tratamientos</button>
         </div>
         <div *ngIf="saveMessage" class="save-message" [ngClass]="{
           'save-success': saveMessageType === 'success',
@@ -518,6 +545,13 @@
 
       <!-- Guardar — plan de tratamiento -->
       <div class="save-section" *ngIf="odontogramTab() === 'plan'">
+        <div class="plan-pendientes" *ngIf="dientesSinPlanificar() > 0">
+          <span class="plan-pendientes__num">{{ dientesSinPlanificar() }}</span>
+          diente{{ dientesSinPlanificar() > 1 ? 's' : '' }} con diagnóstico sin planificar
+        </div>
+        <p class="plan-context-hint" *ngIf="diagnoses().length > 0">
+          Las superficies en color tenue tienen hallazgos del diagnóstico.
+        </p>
         <div class="save-actions">
           <button type="button" class="save-btn save-btn--plan" (click)="savePlan()" [disabled]="planSaving">
             {{ planSaving ? 'Guardando...' : (originalPlan ? 'Guardar plan' : 'Crear plan') }}
@@ -528,9 +562,12 @@
           'save-error': planMessageType === 'error',
           'save-info': planMessageType === 'info'
         }">{{ planMessage }}</div>
-        <a class="plan-tratamientos-link" [routerLink]="['/tratamientos', patientId]">
-          Ver lista de tratamientos
-        </a>
+        <div class="save-nav-btns">
+          <button class="btn btn-secondary" type="button" (click)="goToResumen()" title="Ver el resumen clínico del paciente">Resumen</button>
+          <button class="btn btn-secondary" type="button" (click)="goToHistoria()" title="Ir a la historia clínica del paciente">Historia clínica</button>
+          <button class="btn btn-secondary" type="button" (click)="goToFinance()" title="Ver los movimientos financieros del paciente">Ver movimientos</button>
+          <button class="btn btn-secondary" type="button" (click)="goToTratamientos()" title="Ver los tratamientos del paciente">Tratamientos</button>
+        </div>
       </div>
 
       <!-- Guía de caras -->
@@ -600,7 +637,7 @@
         <h3>Guía de caras del diente</h3>
         <p>Referencia visual para identificar cada superficie</p>
       </div>
-      <button type="button" class="tooth-guide-close" (click)="closeToothGuideModal()">✕</button>
+      <button type="button" class="tooth-guide-close" title="Cerrar" (click)="closeToothGuideModal()">✕</button>
     </div>
     <div class="tooth-guide-modal-body">
       <div class="tooth-guide-large">

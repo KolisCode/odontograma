@@ -8,8 +8,10 @@
     </div>
 
     <div class="clinical-header__actions">
-      <button class="btn btn-secondary" type="button" (click)="goToResumen()">Vista previa</button>
-      <button class="btn btn-primary" type="button" (click)="onSave()" [disabled]="loading">
+      <button class="btn btn-secondary" type="button" (click)="goToPatients()" title="Volver al listado de pacientes">← Pacientes</button>
+      <button class="btn btn-secondary" type="button" (click)="goToResumen()" title="Ver resumen clínico del paciente">Vista previa</button>
+      <button class="btn btn-secondary" type="button" (click)="goToTratamientos()" title="Ver los tratamientos del paciente">Tratamientos</button>
+      <button class="btn btn-primary" type="button" (click)="onSave()" [disabled]="loading" title="Guardar todos los cambios de la historia clínica">
         {{ loading ? 'Guardando...' : 'Guardar historia' }}
       </button>
     </div>

@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { decodeId, encodeId } from '../../../shared/ids';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -33,6 +34,14 @@ export class Finance implements OnInit, OnDestroy {
   patients: PatientRow[] = [];
   selectedPatient: PatientRow | null = null;
   soloSinPaciente = false;
+  patientSearch = '';
+  patientDropdownOpen = false;
+
+  get filteredPatients(): PatientRow[] {
+    const term = this.patientSearch.trim().toLowerCase();
+    const base = term ? this.patients.filter(p => p.nombreCompleto.toLowerCase().includes(term)) : this.patients;
+    return base.slice(0, 8);
+  }
 
   // ── Filtros ────────────────────────────────────────────────────────────────
   filtrosVisible = false;
@@ -75,11 +84,13 @@ export class Finance implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   private movimientosRequest$ = new Subject<MovimientoFilters>();
+  private _successTimer: ReturnType<typeof setTimeout> | null = null;
 
   // ── Abonos / pagos parciales ───────────────────────────────────────────────
   expandedPagosId: number | null = null;
   pagoForm: FormGroup;
   pagoErrorMessage = '';
+  submittingPago = false;
   confirmDeletePago: { movimiento: MovimientoRow; pagoId: number } | null = null;
 
   constructor(
@@ -108,6 +119,7 @@ export class Finance implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this._successTimer) clearTimeout(this._successTimer);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -143,8 +155,8 @@ export class Finance implements OnInit, OnDestroy {
 
     this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const id = params.get('pacienteId');
-      if (id && !isNaN(Number(id))) {
-        const numId = Number(id);
+      const numId = id ? decodeId(id) : null;
+      if (numId !== null) {
         // Lista ya cargada: resolución síncrona
         if (this.patients.length) {
           this.selectedPatient = this.patients.find((p) => p.id === numId) ?? null;
@@ -195,18 +207,52 @@ export class Finance implements OnInit, OnDestroy {
     });
   }
 
-  selectPatient(event: Event): void {
-    const id = Number((event.target as HTMLSelectElement).value);
-    if (!id) {
-      this.router.navigate([], { queryParams: {} });
-    } else {
-      this.router.navigate([], { queryParams: { pacienteId: id } });
-    }
+  openPatientSearch(): void {
+    this.patientDropdownOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  onPatientSearchInput(event: Event): void {
+    this.patientSearch = (event.target as HTMLInputElement).value;
+    this.patientDropdownOpen = true;
+  }
+
+  closePatientSearch(): void {
+    setTimeout(() => {
+      this.patientDropdownOpen = false;
+      this.cdr.detectChanges();
+    }, 150);
+  }
+
+  selectPatientFromSearch(patient: PatientRow): void {
+    this.patientSearch = '';
+    this.patientDropdownOpen = false;
+    this.router.navigate([], { queryParams: { pacienteId: encodeId(patient.id) } });
   }
 
   clearPatient(): void {
     this.soloSinPaciente = false;
     this.router.navigate([], { queryParams: {} });
+  }
+
+  goToResumenPaciente(): void {
+    if (!this.selectedPatient) return;
+    this.router.navigate(['/resumen', encodeId(this.selectedPatient.id)]);
+  }
+
+  goToOdontogramaPaciente(): void {
+    if (!this.selectedPatient) return;
+    this.router.navigate(['/odontogram', encodeId(this.selectedPatient.id)]);
+  }
+
+  goToHistoriaPaciente(): void {
+    if (!this.selectedPatient) return;
+    this.router.navigate(['/history', encodeId(this.selectedPatient.id)]);
+  }
+
+  goToTratamientosPaciente(): void {
+    if (!this.selectedPatient) return;
+    this.router.navigate(['/tratamientos', encodeId(this.selectedPatient.id)]);
   }
 
   filtrarSinPaciente(): void {
@@ -268,8 +314,9 @@ export class Finance implements OnInit, OnDestroy {
   trackByIndex(index: number): number { return index; }
 
   private setSuccess(msg: string): void {
+    if (this._successTimer) clearTimeout(this._successTimer);
     this.successMessage = msg;
-    setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
+    this._successTimer = setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
   }
 
   private loadStats(): void {
@@ -292,7 +339,7 @@ export class Finance implements OnInit, OnDestroy {
       tipo: m.tipo,
       monto: m.monto,
       concepto: m.concepto,
-      fecha: new Date(m.fecha).toISOString().substring(0, 10),
+      fecha: m.fecha.substring(0, 10),
       metodoPago: m.metodoPago ?? 'Efectivo',
       estado: m.estado,
       pacienteId: m.paciente?.id ?? null,
@@ -376,6 +423,7 @@ export class Finance implements OnInit, OnDestroy {
 
   eliminar(id: number): void {
     this.confirmDeleteId = id;
+    this.cdr.detectChanges();
   }
 
   confirmarEliminar(): void {
@@ -398,6 +446,7 @@ export class Finance implements OnInit, OnDestroy {
 
   cancelarEliminar(): void {
     this.confirmDeleteId = null;
+    this.cdr.detectChanges();
   }
 
   // ── Abonos ────────────────────────────────────────────────────────────────
@@ -423,24 +472,28 @@ export class Finance implements OnInit, OnDestroy {
   }
 
   agregarPago(movimiento: MovimientoRow): void {
+    if (this.submittingPago) return;
     if (this.pagoForm.invalid) {
       this.pagoForm.markAllAsTouched();
       return;
     }
     const raw = this.pagoForm.getRawValue();
+    this.submittingPago = true;
     this.finanzasService.createPago(movimiento.id, {
       monto: Number(raw.monto),
       fecha: raw.fecha,
       metodoPago: raw.metodoPago || null,
     }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
+        this.submittingPago = false;
         this.movimientos = this.movimientos.map(m => m.id === movimiento.id ? res.data : m);
-        this.pagoForm.reset({ monto: null, fecha: '', metodoPago: 'Efectivo' });
+        this.pagoForm.reset({ monto: null, fecha: formatDateForInput(new Date()), metodoPago: 'Efectivo' });
         this.pagoErrorMessage = '';
         this.loadStats();
         this.cdr.detectChanges();
       },
       error: (err: any) => {
+        this.submittingPago = false;
         this.pagoErrorMessage = err?.error?.message || 'No se pudo registrar el abono';
         this.cdr.detectChanges();
       },
@@ -449,6 +502,7 @@ export class Finance implements OnInit, OnDestroy {
 
   pedirEliminarPago(movimiento: MovimientoRow, pagoId: number): void {
     this.confirmDeletePago = { movimiento, pagoId };
+    this.cdr.detectChanges();
   }
 
   confirmarEliminarPago(): void {
@@ -470,6 +524,7 @@ export class Finance implements OnInit, OnDestroy {
 
   cancelarEliminarPago(): void {
     this.confirmDeletePago = null;
+    this.cdr.detectChanges();
   }
 
   hasPagoError(field: string): boolean {

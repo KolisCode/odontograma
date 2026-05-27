@@ -13,32 +13,37 @@
     <a
       routerLink="/dashboard"
       routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }">
+      [routerLinkActiveOptions]="{ exact: true }"
+      title="Ir al panel de inicio con resumen general del consultorio">
       Inicio
     </a>
 
     <a
       routerLink="/patients"
-      routerLinkActive="active">
+      routerLinkActive="active"
+      title="Gestionar el listado de pacientes registrados">
       Pacientes
     </a>
 
     <a
       routerLink="/appointments"
-      routerLinkActive="active">
+      routerLinkActive="active"
+      title="Ver y programar citas de la agenda clínica">
       Citas
     </a>
 
     <a
       routerLink="/finance"
-      routerLinkActive="active">
+      routerLinkActive="active"
+      title="Registrar y consultar ingresos y egresos del consultorio">
       Cartera
     </a>
 
     <a
       *ngIf="isAdmin"
       routerLink="/admin"
-      routerLinkActive="active">
+      routerLinkActive="active"
+      title="Administrar usuarios, copias de seguridad y exportación de datos">
       Administración
     </a>
 
@@ -47,7 +52,8 @@
         type="button"
         class="nav-historia-btn"
         [class.active]="historiaDropdownOpen"
-        (click)="toggleHistoriaDropdown()">
+        (click)="toggleHistoriaDropdown()"
+        title="Buscar un paciente para abrir su historia clínica">
         Historia clínica
         <span class="nav-historia-arrow">{{ historiaDropdownOpen ? '▲' : '▼' }}</span>
       </button>

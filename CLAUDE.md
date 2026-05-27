@@ -46,7 +46,7 @@ Biodont/
 - **Estado reactivo**: `signal()` y `computed()` de `@angular/core` en odontograma. En el resto, propiedades simples + `ChangeDetectorRef.detectChanges()`
 - **Control de flujo**: usar `*ngIf` / `*ngFor` (sintaxis clásica). No usar `@if` / `@for` (sintaxis nueva)
 - **Formularios colapsables**: patrón `formVisible = false` + `.form-trigger` div + `*ngIf="formVisible"` en ng-container. Ver `list.html`, `appointment.html`, `finance.html`
-- **HTTP**: `HttpClient` con interceptor JWT en `token-interceptor.ts`. El interceptor añade `Authorization: Bearer <token>` automáticamente
+- **HTTP**: `HttpClient` con interceptor JWT en `token-interceptor.ts`. El interceptor añade `Authorization: Bearer <token>` automáticamente. Maneja 401 (limpia storage + redirige a `/login`) y 403 (re-envuelve con mensaje amigable `"No tienes permiso para realizar esta acción"` — el componente recibe `err?.error?.message` legible en vez de JSON técnico).
 - **Rutas protegidas**: `authGuard` para usuarios autenticados, `guestGuard` para login/register
 
 ## Verificación de tipos
@@ -189,10 +189,8 @@ El sistema aplica un estilo clínico-institucional consistente en todos los mód
 
 ## Funcionalidades pendientes
 
-- **Módulos clínicos "Próximamente"** en historia clínica (`historia-clinica.html`): cuatro tiles con clase `module-tile--disabled` sin implementación de fondo:
-  - Fórmulas médicas
+- **Módulos clínicos "Próximamente"** en historia clínica (`historia-clinica.html`): tiles con clase `module-tile--disabled` pendientes:
   - Evolución de tratamiento
-  - Enfermedades odontológicas
   - Presupuesto
 
 - **Odontograma modo TRATAMIENTO — integración con módulo Tratamientos**
@@ -211,10 +209,14 @@ El sistema aplica un estilo clínico-institucional consistente en todos los mód
 ## Funcionalidades implementadas (antes marcadas como pendientes)
 
 - `list.html`: botón **"Importar"** — ✅ implementado con modal completo (CSV/Excel), `openImportModal()` en `list.ts`, endpoint `POST /pacientes/importar` en backend.
-- **Módulo de tratamientos** — ✅ implementado (formulario, tabla, cambio de estado, modal de confirmación en `tratamientos.html`/`tratamientos.ts`).
-- **Pagos parciales en movimientos** — ✅ implementado. Panel de abonos expandible por fila en `finance.html`, barra de progreso, `PagoMovimiento` en schema, servicios `pagoMovimiento.service.js` / `pagoMovimiento.controller.js` en backend.
-- **Odontograma modo MIXTO** — ✅ implementado. Arcadas mixtas definidas en `odontogram.ts` (`mixedUpperRight`, etc.), botón de selección en UI, soportado en historial modal.
-- **Notificaciones programadas y paginación** — ✅ implementado (2026-05-21). Campo `programadaPara` en `Notificacion`, sección "Próximas" en el panel, formulario con toggle General/Bajo fecha, validación inline, paginación de 5 en 5 con append.
+- **Módulo de tratamientos** — ✅ implementado con integración al plan de odontograma (2026-05-26). Formulario, tabla con columna "Plan odo.", botón "Crear desde plan", link al tab plan del odontograma.
+- **Pagos parciales en movimientos** — ✅ implementado. Panel de abonos expandible por fila en `finance.html`, barra de progreso, `PagoMovimiento` en schema.
+- **Odontograma modo MIXTO** — ✅ implementado. Arcadas mixtas en `odontogram.ts`, botón de selección en UI.
+- **Notificaciones programadas y paginación** — ✅ implementado (2026-05-21). Campo `programadaPara`, sección "Próximas", paginación de 5 en 5 con append.
+- **Enfermedades odontológicas** — ✅ implementado (2026-05-24). Campo `enfermedadesOdontologicas` en HistoriaClinica, tile activo en módulos clínicos.
+- **Fórmulas médicas** — ✅ implementado. Módulo `/formulas-medicas`, ruta en `app.js`, tile activo en historia clínica.
+- **Evoluciones** — ✅ implementado. Módulo `/evoluciones`, ruta en `app.js`, tile activo en historia clínica.
+- **Hardening de seguridad** — ✅ completado (2026-05-24/26). 4 rondas de auditoría + correcciones: magic bytes, timing attack, RBAC en documentos, restricción de rol en citas, state machines, overpayment guard, JWT placeholder check, race conditions, graceful shutdown.
 
 ## UX para uso local en consultorio
 
@@ -240,6 +242,35 @@ El sistema corre en local en 1–2 computadores.
 - Superficies backend: `M`=Mesial, `D`=Distal, `V`/`C`=Centro, `L`=Lingual, `O`=Oclusal, `P`=Pieza protésica
 - Tabla de registros usa `rowspan` por diente; `record-row-last` marca la última fila de cada grupo para el separador entre dientes
 
+## Seguridad backend — patrones establecidos (no cambiar sin razón)
+
+- **Magic bytes en documentos**: `documentos.service.js` usa `detectMimeFromBuffer()` que lee los bytes reales del archivo para determinar el tipo (JPEG, PNG, WebP, PDF). WebP verifica bytes 0–3 (`RIFF`) Y bytes 8–11 (`WEBP`) para distinguir de WAV. El `mimetype` guardado en BD es el detectado, no el declarado.
+- **CORS wildcard**: `ALLOWED_ORIGIN: '*'` en `ecosystem.config.js` es **intencional** — decisión del cliente para acceso multi-equipo LAN. En producción (mismo origen), el wildcard no aplica a los requests reales. **No cambiar.**
+- **Timing attack**: `auth.service.js` siempre ejecuta `bcrypt.compare` con `DUMMY_HASH` aunque el usuario no exista.
+- **Restricción de roles en citas**: el profesional asignado (`usuarioId`) debe tener rol ODONTOLOGO o AUXILIAR — validado en `citas.service.js`. RECEPCION no puede ser asignado.
+- **RBAC documentos**: `POST /documentos` requiere ADMIN/ODONTOLOGO/AUXILIAR. `DELETE` requiere ADMIN/ODONTOLOGO. `GET /:id/archivo` requiere ADMIN/ODONTOLOGO/AUXILIAR.
+- **Pagos**: `round2 = (n) => Math.round(n * 100) / 100` + `FLOAT_TOL = 0.005` en `finanzas.service.js`. No sobrescribir con lógica propia.
+- **resolveDbPath**: en `admin.routes.js`, las rutas relativas de `DATABASE_URL` se resuelven desde `prisma/` (no desde `cwd`).
+- **Estado de máquinas**: `TRANSICIONES_VALIDAS` en tratamientos, citas y movimientos. No permitir transiciones arbitrarias.
+
+## Scripts npm (backend)
+
+```
+npm start          → node src/server.js (producción)
+npm run dev        → nodemon src/server.js (desarrollo)
+npm run seed       → node prisma/seed.js (datos base)
+npm run seed:demo  → node prisma/seed-demo.js (55 pacientes, datos demo para cliente)
+```
+
+`.env.example` disponible en `Biodont/.env.example` como plantilla para nuevas instalaciones.
+
+## Tratamientos — integración con odontograma plan (2026-05-26)
+
+- `tratamientos.html` muestra tarjeta "Plan de odontograma" leyendo el odontograma tipo `TRATAMIENTO` del paciente
+- Botón "Crear tratamiento desde plan" pre-completa el formulario con los procedimientos del plan
+- Columna "Plan odo." en la tabla muestra link a `/odontogram/{id}?tab=plan` si el tratamiento tiene `odontogramaId`
+- Montos en tabla usan `.toLocaleString('es-CO')` — siempre pasar el locale
+
 ## Qué NO hacer
 
 - No cambiar el schema de Prisma sin avisar — requiere migración de base de datos
@@ -249,3 +280,4 @@ El sistema corre en local en 1–2 computadores.
 - No crear archivos README ni documentación salvo que se pida explícitamente
 - No refactorizar código que no está en el alcance del cambio pedido
 - No usar `transform: translateY` ni `box-shadow` animado en hover de botones — rompe el estilo institucional
+- **No cambiar `ALLOWED_ORIGIN: '*'`** en `ecosystem.config.js` — decisión explícita del cliente

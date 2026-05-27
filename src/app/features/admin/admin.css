@@ -813,3 +813,84 @@
   font-size: 0.75rem;
   color: #7f8c8d;
 }
+
+/* ── Responsive tabla de usuarios ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .users-table thead {
+    display: none;
+  }
+
+  .users-table,
+  .users-table tbody,
+  .users-table tr,
+  .users-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .users-table tr {
+    border: 1px solid #e4eaf0;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 4px 0;
+    background: #fff;
+  }
+
+  .users-table__row--self td {
+    background: transparent;
+  }
+
+  .users-table__row--self {
+    background: #f8fbfe;
+  }
+
+  .users-table td {
+    border-bottom: 1px solid #f0f4f8;
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 0;
+  }
+
+  .users-table td:last-child {
+    border-bottom: none;
+  }
+
+  .users-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: #5a7080;
+    min-width: 68px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .users-table td[data-label=""]::before {
+    display: none;
+  }
+
+  .users-table td[data-label=""] {
+    justify-content: flex-end;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .role-select {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .user-status-cell {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .users-filter {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}

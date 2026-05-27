@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { decodeId, encodeId } from '../../../shared/ids';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -91,12 +92,13 @@ export class ResumenHistoria implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const id = params.get('id');
-      if (!id || isNaN(Number(id))) {
+      const parsed = id ? decodeId(id) : null;
+      if (parsed === null) {
         this.errorMessage = 'Paciente no válido';
         this.loading = false;
         return;
       }
-      this.pacienteId = Number(id);
+      this.pacienteId = parsed;
       this.loadData();
       this.loadHistorialOdonto();
     });
@@ -274,11 +276,19 @@ export class ResumenHistoria implements OnInit, OnDestroy {
   }
 
   goToHistoria(): void {
-    this.router.navigate(['/history', this.pacienteId]);
+    this.router.navigate(['/history', encodeId(this.pacienteId)]);
   }
 
   goToOdontogram(): void {
-    this.router.navigate(['/odontogram', this.pacienteId]);
+    this.router.navigate(['/odontogram', encodeId(this.pacienteId)]);
+  }
+
+  goToTratamientos(): void {
+    this.router.navigate(['/tratamientos', encodeId(this.pacienteId)]);
+  }
+
+  goToCitas(): void {
+    this.router.navigate(['/appointments']);
   }
 
   private loadHistorialOdonto(): void {

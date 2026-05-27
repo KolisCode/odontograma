@@ -15,8 +15,10 @@ export class Tooth {
   @Input() number!: number;
 
   @Input() filledFaces: SurfaceDiagnosis[] = [];
+  @Input() contextFaces: SurfaceDiagnosis[] = [];
 
   @Input() pieces: PieceType[] = [];
+  @Input() contextPieces: PieceType[] = [];
 
   @Input() isPrimary = false;
 
@@ -47,6 +49,17 @@ export class Tooth {
 
   hasPiece(type: PieceType): boolean {
     return this.pieces.includes(type);
+  }
+
+  hasContextPiece(type: PieceType): boolean {
+    return this.contextPieces.includes(type);
+  }
+
+  getContextFaceClass(surface: ToothSurface): string {
+    const effective = this.effectiveSurface(surface);
+    const face = this.contextFaces.find(f => f.surface === effective);
+    if (!face || face.diagnoses.length === 0) return '';
+    return this.diagnosisClassMap[face.diagnoses[face.diagnoses.length - 1]] || '';
   }
 
   @Output() surfaceClick = new EventEmitter<{

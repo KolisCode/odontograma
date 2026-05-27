@@ -116,7 +116,7 @@ export class Admin implements OnInit, OnDestroy {
       nombre:            ['', [Validators.required, Validators.minLength(2), Validators.maxLength(60), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/)]],
       apellido:          ['', [Validators.required, Validators.minLength(2), Validators.maxLength(60), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/)]],
       correo:            ['', [Validators.required, Validators.email]],
-      password:          ['', [Validators.required, Validators.minLength(8)]],
+      password:          ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72), Validators.pattern(/^(?=.*[a-zA-Z])(?=.*\d).+$/)]],
       confirmarPassword: ['', Validators.required],
       rol:               ['RECEPCION', Validators.required],
       telefono:          ['', [Validators.pattern(/^[0-9]+$/), Validators.minLength(7), Validators.maxLength(15)]],
@@ -214,7 +214,7 @@ export class Admin implements OnInit, OnDestroy {
         this.exportSuccess = total > 0
           ? `Archivo generado con ${total} registro(s) en ${res.data.hojas.length} hoja(s).`
           : `Archivo generado — ningún registro coincide con los filtros aplicados.`;
-        this.lastExportDate = new Date().toLocaleString('es-CO');
+        this.lastExportDate = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
         try { localStorage.setItem('biodont_last_export', this.lastExportDate!); } catch { /* storage unavailable */ }
         this.exportLoading = false;
         this.cdr.detectChanges();
@@ -339,14 +339,25 @@ export class Admin implements OnInit, OnDestroy {
     this.pwdSuccess   = '';
     this.pwdShow      = false;
     this.pwdLoading   = false;
+    this.cdr.detectChanges();
   }
 
   cerrarCambioPassword(): void {
     this.pwdModalUser = null;
+    this.cdr.detectChanges();
   }
 
+  private readonly PWD_REGEX = /^(?=.*[a-zA-Z])(?=.*\d).+$/;
+
   get pwdValida(): boolean {
-    return this.pwdNueva.length >= 8 && this.pwdNueva === this.pwdConfirm;
+    return this.pwdNueva.length >= 8 &&
+           this.pwdNueva.length <= 72 &&
+           this.PWD_REGEX.test(this.pwdNueva) &&
+           this.pwdNueva === this.pwdConfirm;
+  }
+
+  get pwdFormatoInvalido(): boolean {
+    return this.pwdNueva.length >= 8 && !this.PWD_REGEX.test(this.pwdNueva);
   }
 
   guardarPassword(): void {
@@ -391,6 +402,13 @@ export class Admin implements OnInit, OnDestroy {
     });
   }
 
+  filtrarSoloDigitos(event: Event, campo: 'configIndicativo' | 'configWhatsapp'): void {
+    const input = event.target as HTMLInputElement;
+    const soloDigitos = input.value.replace(/\D/g, '');
+    input.value = soloDigitos;
+    this[campo] = soloDigitos;
+  }
+
   guardarConfig(): void {
     const indicativo = this.configIndicativo.trim();
     if (!/^\d{1,4}$/.test(indicativo)) {
@@ -432,14 +450,16 @@ export class Admin implements OnInit, OnDestroy {
 
     this.adminService.downloadBackup().pipe(takeUntil(this.destroy$)).subscribe({
       next: (blob) => {
-        const fecha = new Date().toISOString().substring(0, 10);
+        const d = new Date();
+        const pad = (n: number) => String(n).padStart(2, '0');
+        const fecha = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
         const url = URL.createObjectURL(blob);
         const a   = document.createElement('a');
         a.href     = url;
         a.download = `biodont_backup_${fecha}.zip`;
         a.click();
         URL.revokeObjectURL(url);
-        this.lastBackupDate = new Date().toLocaleString('es-CO');
+        this.lastBackupDate = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
         try { localStorage.setItem('biodont_last_backup', this.lastBackupDate!); } catch { /* storage unavailable */ }
         this.backupLoading = false;
         this.cdr.detectChanges();

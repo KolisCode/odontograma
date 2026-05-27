@@ -204,8 +204,10 @@
           </div>
           <div class="form-field">
             <label>Contraseña *</label>
-            <input type="password" formControlName="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" />
-            <small *ngIf="newUserForm.get('password')?.touched && newUserForm.get('password')?.invalid">Mínimo 8 caracteres.</small>
+            <input type="password" formControlName="password" placeholder="Mínimo 8 caracteres, una letra y un número" autocomplete="new-password" />
+            <small *ngIf="newUserForm.get('password')?.touched && newUserForm.get('password')?.hasError('required')">La contraseña es obligatoria.</small>
+            <small *ngIf="newUserForm.get('password')?.touched && newUserForm.get('password')?.hasError('minlength')">Mínimo 8 caracteres.</small>
+            <small *ngIf="newUserForm.get('password')?.touched && newUserForm.get('password')?.hasError('pattern')">Debe contener al menos una letra y un número.</small>
           </div>
           <div class="form-field">
             <label>Confirmar contraseña *</label>
@@ -265,12 +267,12 @@
         </thead>
         <tbody>
           <tr *ngFor="let user of filteredUsers" [class.users-table__row--self]="user.id === currentUserId">
-            <td>
+            <td data-label="Nombre">
               <span class="user-fullname">{{ user.nombre }} {{ user.apellido }}</span>
               <span *ngIf="user.id === currentUserId" class="user-self-badge">Tú</span>
             </td>
-            <td class="user-email">{{ user.correo }}</td>
-            <td>
+            <td data-label="Correo" class="user-email">{{ user.correo }}</td>
+            <td data-label="Rol">
               <select
                 class="role-select"
                 [ngModel]="user.rol"
@@ -280,7 +282,7 @@
               </select>
               <span *ngIf="savingRoleId === user.id" class="saving-indicator">Guardando…</span>
             </td>
-            <td class="user-status-cell">
+            <td data-label="Estado" class="user-status-cell">
               <span class="user-estado-badge" [class.user-estado-badge--activo]="user.activo" [class.user-estado-badge--inactivo]="!user.activo">
                 {{ user.activo ? 'Activo' : 'Inactivo' }}
               </span>
@@ -295,7 +297,7 @@
                 {{ savingStatusId === user.id ? '…' : (user.activo ? 'Inactivar' : 'Activar') }}
               </button>
             </td>
-            <td>
+            <td data-label="">
               <button type="button" class="btn-pwd" (click)="abrirCambioPassword(user)">
                 Contraseña
               </button>
@@ -389,11 +391,13 @@
           <div class="config-input-row">
             <span class="config-prefix">+</span>
             <input
-              type="text"
+              type="tel"
+              inputmode="numeric"
               class="config-input"
               [(ngModel)]="configIndicativo"
               placeholder="57"
-              maxlength="4" />
+              maxlength="4"
+              (input)="filtrarSoloDigitos($event, 'configIndicativo')" />
           </div>
           <small class="config-hint">Prefijo numérico del país, sin el signo +. Ej: 57 para Colombia, 1 para EE.UU.</small>
         </div>
@@ -401,10 +405,12 @@
         <div class="config-field">
           <label class="config-label">WhatsApp de la clínica (opcional)</label>
           <input
-            type="text"
+            type="tel"
+            inputmode="numeric"
             class="config-input"
             [(ngModel)]="configWhatsapp"
-            placeholder="Número de contacto de la clínica" />
+            placeholder="Número de contacto de la clínica"
+            (input)="filtrarSoloDigitos($event, 'configWhatsapp')" />
           <small class="config-hint">Si se completa, se mostrará en los mensajes de confirmación de cita.</small>
         </div>
 
@@ -439,13 +445,16 @@
       <input
         [type]="pwdShow ? 'text' : 'password'"
         [(ngModel)]="pwdNueva"
-        placeholder="Mínimo 8 caracteres"
+        placeholder="Mínimo 8 caracteres, una letra y un número"
         class="pwd-input"
         autocomplete="new-password" />
       <button type="button" class="pwd-eye" (click)="pwdShow = !pwdShow">
         {{ pwdShow ? 'Ocultar' : 'Ver' }}
       </button>
     </div>
+    <small *ngIf="pwdFormatoInvalido" class="pwd-mismatch">
+      Debe contener al menos una letra y un número.
+    </small>
   </div>
 
   <div class="pwd-modal__field">

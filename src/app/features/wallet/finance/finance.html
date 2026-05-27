@@ -2,13 +2,34 @@
 
 <!-- Selector / contexto de paciente -->
 <div class="finance-patient-bar">
-  <!-- Sin filtro activo: selector + botón "sin paciente" -->
+  <!-- Sin filtro activo: buscador + botón "sin paciente" -->
   <ng-container *ngIf="!selectedPatient && !soloSinPaciente">
-    <span class="finance-patient-bar__label">Filtrando por:</span>
-    <select class="finance-patient-select" (change)="selectPatient($event)">
-      <option value="">Todos los pacientes</option>
-      <option *ngFor="let p of patients; trackBy: trackById" [value]="p.id">{{ p.nombreCompleto }}</option>
-    </select>
+    <span class="finance-patient-bar__label">Filtrar por:</span>
+    <div class="finance-patient-search-wrap">
+      <input
+        type="text"
+        class="finance-patient-search-input"
+        placeholder="Buscar paciente por nombre…"
+        autocomplete="off"
+        [value]="patientSearch"
+        (input)="onPatientSearchInput($event)"
+        (focus)="openPatientSearch()"
+        (blur)="closePatientSearch()" />
+      <div class="finance-patient-dropdown" *ngIf="patientDropdownOpen">
+        <ul class="finance-patient-results">
+          <li *ngIf="filteredPatients.length === 0" class="finance-patient-empty">Sin resultados</li>
+          <li
+            *ngFor="let p of filteredPatients"
+            class="finance-patient-result"
+            (mousedown)="selectPatientFromSearch(p)">
+            {{ p.nombreCompleto }}
+          </li>
+        </ul>
+        <p class="finance-patient-hint" *ngIf="patients.length > 8 && !patientSearch.trim()">
+          {{ patients.length }} pacientes — escribe para filtrar
+        </p>
+      </div>
+    </div>
     <button class="finance-filter-chip" type="button" (click)="filtrarSinPaciente()">
       Sin paciente
     </button>
@@ -22,9 +43,13 @@
         <strong class="finance-patient-context__name">{{ selectedPatient.nombreCompleto }}</strong>
         <span class="finance-patient-context__doc">CC {{ selectedPatient.documento }}</span>
       </div>
-      <button class="finance-patient-context__clear" type="button" (click)="clearPatient()">
-        Ver todos
-      </button>
+      <div class="finance-patient-context__actions">
+        <button class="finance-patient-context__link" type="button" (click)="goToResumenPaciente()" title="Ver resumen clínico del paciente">Resumen</button>
+        <button class="finance-patient-context__link" type="button" (click)="goToHistoriaPaciente()" title="Abrir la historia clínica del paciente">Historia clínica</button>
+        <button class="finance-patient-context__link" type="button" (click)="goToTratamientosPaciente()" title="Ver los tratamientos del paciente">Tratamientos</button>
+        <button class="finance-patient-context__link" type="button" (click)="goToOdontogramaPaciente()" title="Abrir el odontograma del paciente">Odontograma</button>
+        <button class="finance-patient-context__clear" type="button" (click)="clearPatient()">Ver todos</button>
+      </div>
     </div>
   </ng-container>
 
@@ -108,7 +133,7 @@
 
         <div class="form-group">
           <label>Monto</label>
-          <input type="number" formControlName="monto" placeholder="Ej. 150000" min="0" />
+          <input type="number" formControlName="monto" placeholder="Ej. 150000" min="0.01" step="0.01" />
           <span *ngIf="hasError('monto')" class="field-error">El monto es obligatorio y debe ser mayor a 0.</span>
         </div>
 
@@ -164,7 +189,7 @@
           <button class="btn btn-secondary" type="button" (click)="limpiar()">
             {{ editingId ? 'Cancelar edición' : 'Cancelar' }}
           </button>
-          <button class="btn btn-primary" type="submit" [disabled]="loading">
+          <button class="btn btn-primary" type="submit" [disabled]="submitting">
             {{ editingId ? 'Actualizar movimiento' : 'Guardar movimiento' }}
           </button>
         </div>
@@ -327,8 +352,8 @@
                   [class.btn-abonos--active]="m.id === expandedPagosId">
                   Abonos<span *ngIf="m.pagos.length"> ({{ m.pagos.length }})</span>
                 </button>
-                <button class="btn-edit" type="button" (click)="editarMovimiento(m)">Editar</button>
-                <button class="btn-delete" type="button" (click)="eliminar(m.id)">Eliminar</button>
+                <button class="btn-edit" type="button" title="Editar movimiento" (click)="editarMovimiento(m)">Editar</button>
+                <button class="btn-delete" type="button" title="Eliminar movimiento" (click)="eliminar(m.id)">Eliminar</button>
               </td>
             </tr>
 
@@ -374,7 +399,7 @@
                       <span>{{ formatFecha(pago.fecha) }}</span>
                       <span>{{ pago.metodoPago ?? '—' }}</span>
                       <span class="money--in">{{ pago.monto | currency:'COP ':'symbol':'1.0-0' }}</span>
-                      <button class="btn-delete" type="button" (click)="pedirEliminarPago(m, pago.id)">Eliminar</button>
+                      <button class="btn-delete" type="button" title="Eliminar abono" (click)="pedirEliminarPago(m, pago.id)">Eliminar</button>
                     </div>
                   </div>
 

@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { encodeId } from '../../../shared/ids';
 import { ChangeDetectorRef, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -88,7 +89,7 @@ export class Navbar implements OnInit, OnDestroy {
 
     this.patientsService.getPatients({ soloActivos: true }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => { this.patients = res.data; this.cdr.detectChanges(); },
-      error: () => {},
+      error: () => { /* lista de pacientes no disponible — búsqueda en navbar deshabilitada */ },
     });
 
     this.cargarNotificaciones();
@@ -173,14 +174,14 @@ export class Navbar implements OnInit, OnDestroy {
           this.cdr.detectChanges();
         }
       },
-      error: () => {},
+      error: () => { this.cargarNotificaciones(); },
     });
   }
 
   eliminarNotif(id: number): void {
     this.notifService.eliminar(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => { this.cargarNotificaciones(); },
-      error: () => {},
+      error: () => { this.cargarNotificaciones(); },
     });
   }
 
@@ -193,7 +194,7 @@ export class Navbar implements OnInit, OnDestroy {
           this.cdr.detectChanges();
         }
       },
-      error: () => {},
+      error: () => { this.cargarNotificaciones(); },
     });
   }
 
@@ -215,7 +216,7 @@ export class Navbar implements OnInit, OnDestroy {
       tipo: val.tipo,
     };
     if (this.tipoCreacion === 'programada' && val.programadaPara) {
-      payload.programadaPara = new Date(val.programadaPara).toISOString();
+      payload.programadaPara = new Date(val.programadaPara + ':00-05:00').toISOString();
     }
     this.notifService.create(payload)
       .pipe(takeUntil(this.destroy$)).subscribe({
@@ -241,7 +242,7 @@ export class Navbar implements OnInit, OnDestroy {
   navigateToHistoria(pacienteId: number): void {
     this.historiaDropdownOpen = false;
     this.historiaSearch = '';
-    this.router.navigate(['/history', pacienteId]);
+    this.router.navigate(['/history', encodeId(pacienteId)]);
   }
 
   @HostListener('document:click', ['$event'])
@@ -259,8 +260,12 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.authService.logoutFromServer()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        complete: () => { this.router.navigate(['/login']); },
+        error:    () => { this.router.navigate(['/login']); },
+      });
   }
 
   private formatRole(role: string): string {

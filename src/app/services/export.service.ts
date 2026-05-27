@@ -64,7 +64,9 @@ export class ExportService {
       XLSX.utils.book_append_sheet(wb, ws, hoja.nombre);
     }
 
-    const fecha = new Date().toISOString().substring(0, 10);
+    const _d = new Date();
+    const _pad = (n: number) => String(n).padStart(2, '0');
+    const fecha = `${_d.getFullYear()}-${_pad(_d.getMonth() + 1)}-${_pad(_d.getDate())}`;
     const filename = nombreArchivo ?? `biodont_export_${fecha}.xlsx`;
     XLSX.writeFile(wb, filename);
   }
@@ -73,6 +75,7 @@ export class ExportService {
     const fecha = new Date(data.generadoEn).toLocaleString('es-CO', {
       day: '2-digit', month: 'long', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
+      timeZone: 'America/Bogota',
     });
 
     const rows: any[][] = [

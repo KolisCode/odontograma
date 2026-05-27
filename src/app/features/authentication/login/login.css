@@ -143,11 +143,6 @@
   box-shadow: none;
 }
 
-.enlaces,
-#registro {
-  font-size: 0.9rem;
-}
-
 .enlace {
   color: #2f73d9;
   transition: 0.2s ease;

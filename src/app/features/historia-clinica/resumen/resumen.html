@@ -10,9 +10,11 @@
       <p *ngIf="patientDocument">CC {{ patientDocument }}<span *ngIf="numeroHistoria"> · {{ numeroHistoria }}</span></p>
     </div>
     <div class="resumen-header__actions">
-      <button class="btn btn-secondary" type="button" (click)="goToPatients()">← Pacientes</button>
-      <button class="btn btn-secondary" type="button" (click)="goToOdontogram()">Odontograma</button>
-      <button class="btn btn-primary" type="button" (click)="goToHistoria()">Ver historia completa</button>
+      <button class="btn btn-secondary" type="button" (click)="goToPatients()" title="Volver al listado de pacientes">← Pacientes</button>
+      <button class="btn btn-secondary" type="button" (click)="goToCitas()" title="Ver la agenda de citas">Citas</button>
+      <button class="btn btn-secondary" type="button" (click)="goToTratamientos()" title="Ver los tratamientos del paciente">Tratamientos</button>
+      <button class="btn btn-secondary" type="button" (click)="goToOdontogram()" title="Abrir el odontograma del paciente">Odontograma</button>
+      <button class="btn btn-primary" type="button" (click)="goToHistoria()" title="Abrir la historia clínica completa">Ver historia completa</button>
     </div>
   </div>
 
@@ -200,7 +202,7 @@
     <div *ngIf="historialLoading" class="resumen-historial-loading">Cargando historial...</div>
 
     <div *ngIf="!historialLoading && historialOdonto.length === 0" class="resumen-historial-empty">
-      No hay versiones archivadas. El odontograma activo es la única versión registrada.
+      Sin versiones archivadas. El historial aparece aquí cuando se crea una nueva versión desde el odontograma.
     </div>
 
     <div *ngIf="!historialLoading && historialOdonto.length > 0" class="resumen-historial-list">
