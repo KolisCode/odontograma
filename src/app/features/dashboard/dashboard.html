@@ -7,7 +7,7 @@
       <p>Resumen general del consultorio</p>
     </div>
     <div class="page-header__actions">
-      <button class="btn-secondary" type="button" title="Recargar estadísticas" (click)="loadDashboard()" [disabled]="loading">
+      <button class="btn-secondary" type="button" (click)="loadDashboard()" [disabled]="loading">
         {{ loading ? 'Cargando...' : 'Actualizar' }}
       </button>
       <button class="btn-primary" type="button" (click)="goToNewPatient()">
@@ -24,7 +24,14 @@
     <article class="stat-card">
       <span class="stat-label">Pacientes registrados</span>
       <h2>{{ stats.pacientesRegistrados }}</h2>
-      <p>+{{ stats.pacientesNuevosMes }} este mes</p>
+      <p>
+        +{{ stats.pacientesNuevosMes }} este mes
+        <span *ngIf="stats.deltaPacientes !== 0"
+              class="stat-delta"
+              [ngClass]="deltaClass(stats.deltaPacientes)">
+          {{ deltaLabel(stats.deltaPacientes) }} vs mes anterior
+        </span>
+      </p>
     </article>
 
     <article class="stat-card">
@@ -36,7 +43,10 @@
     <article class="stat-card">
       <span class="stat-label">Ingresos del día</span>
       <h2>{{ stats.ingresosDia | currency:'COP ':'symbol':'1.0-0' }}</h2>
-      <p>Actualizado hoy</p>
+      <p *ngIf="stats.ingresosAyer > 0">
+        Mañana proyectado: {{ stats.ingresosAyer | currency:'COP ':'symbol':'1.0-0' }}
+      </p>
+      <p *ngIf="stats.ingresosAyer === 0">Sin ingresos registrados mañana</p>
     </article>
 
     <article class="stat-card">
@@ -49,39 +59,63 @@
   <div class="dashboard-grid">
     <div class="panel-card">
       <div class="panel-header">
-        <h3>Agenda de hoy</h3>
+        <h3>Agenda</h3>
         <a routerLink="/appointments">Ver todas</a>
       </div>
 
-      <div *ngIf="loading" class="empty-state">
-        Cargando agenda...
-      </div>
+      <div *ngIf="loading" class="empty-state">Cargando agenda...</div>
 
-      <div *ngIf="!loading && agendaHoy.length === 0" class="empty-state">
-        No hay citas registradas para hoy.
-      </div>
-
-      <div *ngIf="!loading && agendaHoy.length > 0" class="agenda-list">
-        <div class="agenda-item" *ngFor="let item of agendaHoy">
-          <span class="time">{{ item.hora }}</span>
-
-          <div>
-            <strong>{{ item.pacienteNombre }}</strong>
-            <p>{{ item.motivo }}</p>
-          </div>
-
-          <span class="status" [ngClass]="getStatusClass(item.estado)">
-            {{ getStatusLabel(item.estado) }}
-          </span>
+      <ng-container *ngIf="!loading">
+        <!-- HOY -->
+        <div class="agenda-day-label">
+          <span class="agenda-day-label__text">Hoy — {{ todayLabel }}</span>
         </div>
-      </div>
+
+        <div *ngIf="agendaHoy.length === 0" class="empty-state agenda-empty-sub">
+          Sin citas para hoy.
+        </div>
+
+        <div class="agenda-list" *ngIf="agendaHoy.length > 0">
+          <div class="agenda-item" *ngFor="let item of agendaHoy">
+            <span class="time">{{ item.hora }}</span>
+            <div>
+              <strong>{{ item.pacienteNombre }}</strong>
+              <p>{{ item.motivo }}</p>
+            </div>
+            <span class="status" [ngClass]="getStatusClass(item.estado)">
+              {{ getStatusLabel(item.estado) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- MAÑANA -->
+        <div class="agenda-day-label agenda-day-label--tomorrow">
+          <span class="agenda-day-label__text">Mañana — {{ tomorrowLabel }}</span>
+        </div>
+
+        <div *ngIf="agendaManana.length === 0" class="empty-state agenda-empty-sub">
+          Sin citas para mañana.
+        </div>
+
+        <div class="agenda-list" *ngIf="agendaManana.length > 0">
+          <div class="agenda-item agenda-item--tomorrow" *ngFor="let item of agendaManana">
+            <span class="time">{{ item.hora }}</span>
+            <div>
+              <strong>{{ item.pacienteNombre }}</strong>
+              <p>{{ item.motivo }}</p>
+            </div>
+            <span class="status" [ngClass]="getStatusClass(item.estado)">
+              {{ getStatusLabel(item.estado) }}
+            </span>
+          </div>
+        </div>
+      </ng-container>
     </div>
 
     <div class="panel-card">
       <div class="panel-header">
         <h3>Accesos rápidos</h3>
       </div>
-
       <div class="quick-actions">
         <button type="button" (click)="goToNewPatient()">Registrar paciente</button>
         <button type="button" (click)="goToAppointments()">Crear cita</button>

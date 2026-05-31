@@ -8,6 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../authentication/service/auth-service/auth.service';
 import { PatientsService, PatientRow } from '../../user/service/pacientes.service';
 import { NotificacionesService, NotificacionesData } from '../../../services/notificaciones.service';
+import { fechaHoyCol } from '../../../utils/date.utils';
 
 @Component({
   selector: 'app-navbar',
@@ -24,15 +25,28 @@ export class Navbar implements OnInit, OnDestroy {
   avatarLetter: string = 'U';
 
   patients: PatientRow[] = [];
-  historiaDropdownOpen = false;
-  historiaSearch = '';
+  globalSearchOpen = false;
+  globalSearch = '';
+  expandedResultId: number | null = null;
 
-  get filteredHistoriaPatients(): PatientRow[] {
-    const term = this.historiaSearch.trim().toLowerCase();
-    const base = term
-      ? this.patients.filter(p => p.nombreCompleto.toLowerCase().includes(term))
-      : this.patients;
-    return base.slice(0, 8);
+  readonly SEARCH_LIMIT = 6;
+
+  get filteredGlobalPatients(): PatientRow[] {
+    const term = this.globalSearch.trim().toLowerCase();
+    if (!term) return [];
+    return this.patients.filter(p =>
+      p.nombreCompleto.toLowerCase().includes(term) ||
+      p.documento.includes(term)
+    ).slice(0, this.SEARCH_LIMIT);
+  }
+
+  get globalSearchTotal(): number {
+    const term = this.globalSearch.trim().toLowerCase();
+    if (!term) return 0;
+    return this.patients.filter(p =>
+      p.nombreCompleto.toLowerCase().includes(term) ||
+      p.documento.includes(term)
+    ).length;
   }
 
   // ── Notificaciones ─────────────────────────────────────────────────────────
@@ -69,9 +83,16 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   get minFechaPrograma(): string {
-    const d = new Date(Date.now() + 60000);
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    // Usa Colombia explícitamente para que el campo datetime-local muestre
+    // el mínimo correcto sin importar la zona horaria del navegador.
+    const ahora = new Date(Date.now() + 60_000);
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Bogota',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false,
+    }).formatToParts(ahora);
+    const p = Object.fromEntries(parts.map(x => [x.type, x.value]));
+    return `${p['year']}-${p['month']}-${p['day']}T${p['hour']}:${p['minute']}`;
   }
 
   get isAdmin(): boolean {
@@ -144,7 +165,7 @@ export class Navbar implements OnInit, OnDestroy {
   toggleNotifPanel(): void {
     this.notifPanelOpen = !this.notifPanelOpen;
     if (this.notifPanelOpen) {
-      this.historiaDropdownOpen = false;
+      this.closeGlobalSearch();
       this.cargarNotificaciones();
     } else {
       this.cerrarFormCrear();
@@ -231,24 +252,43 @@ export class Navbar implements OnInit, OnDestroy {
       });
   }
 
-  toggleHistoriaDropdown(): void {
-    this.historiaDropdownOpen = !this.historiaDropdownOpen;
-    if (this.historiaDropdownOpen) {
-      this.notifPanelOpen = false;
-      this.historiaSearch = '';
+  openGlobalSearch(): void {
+    this.globalSearchOpen = true;
+    this.notifPanelOpen = false;
+    this.expandedResultId = null;
+  }
+
+  closeGlobalSearch(): void {
+    this.globalSearchOpen = false;
+    this.globalSearch = '';
+    this.expandedResultId = null;
+  }
+
+  toggleResultMenu(id: number): void {
+    this.expandedResultId = this.expandedResultId === id ? null : id;
+  }
+
+  navigateGlobal(patient: PatientRow, dest: 'historia' | 'odontograma' | 'citas' | 'cartera'): void {
+    this.closeGlobalSearch();
+    const enc = encodeId(patient.id);
+    switch (dest) {
+      case 'historia':    this.router.navigate(['/history', enc]); break;
+      case 'odontograma': this.router.navigate(['/odontogram', enc]); break;
+      case 'citas':       this.router.navigate(['/appointments']); break;
+      case 'cartera':     this.router.navigate(['/finance'], { queryParams: { pacienteId: enc } }); break;
     }
   }
 
-  navigateToHistoria(pacienteId: number): void {
-    this.historiaDropdownOpen = false;
-    this.historiaSearch = '';
-    this.router.navigate(['/history', encodeId(pacienteId)]);
+  goToPatientSearch(): void {
+    const term = this.globalSearch.trim();
+    this.closeGlobalSearch();
+    this.router.navigate(['/patients'], { queryParams: term ? { search: term } : {} });
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    if (!target.closest('.nav-historia-wrapper')) this.historiaDropdownOpen = false;
+    if (!target.closest('.nav-search-wrapper')) this.closeGlobalSearch();
     if (!target.closest('.notif-wrapper')) {
       this.notifPanelOpen = false;
       this.cerrarFormCrear();

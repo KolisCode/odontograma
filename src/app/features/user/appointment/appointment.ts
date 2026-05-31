@@ -36,7 +36,7 @@ import {
   PaginaMeta,
 } from './appointment.service/appointment.service';
 import { PatientRow } from '../service/pacientes.service';
-import { formatDateForInput } from '../../../utils/date.utils';
+import { formatDateForInput, medianocheColUTC, fechaHoyCol } from '../../../utils/date.utils';
 
 @Component({
   selector: 'app-appointment',
@@ -54,6 +54,7 @@ export class Appointment implements OnInit, OnDestroy {
   whatsappLink: string | null = null;
   private indicativoPais = '57';
   tableLoading = false;
+  updatingEstadoId: number | null = null;
   errorMessage = '';
   successMessage = '';
 
@@ -79,8 +80,8 @@ export class Appointment implements OnInit, OnDestroy {
 
   // ── Calendario ────────────────────────────────────────────────────────────
   calendarView = false;
-  calendarYear = new Date().getFullYear();
-  calendarMonth = new Date().getMonth();
+  calendarYear  = parseInt(fechaHoyCol().split('-')[0], 10);
+  calendarMonth = parseInt(fechaHoyCol().split('-')[1], 10) - 1; // 0-indexed
   selectedCalendarDay: string | null = null;
   calendarAppointments: AppointmentRow[] = [];
   calendarLoading = false;
@@ -141,7 +142,7 @@ export class Appointment implements OnInit, OnDestroy {
   }
 
   get calendarDays(): CalendarDay[] {
-    const todayKey = this.toDateKey(new Date());
+    const todayKey = fechaHoyCol();
 
     const apptMap = new Map<string, AppointmentRow[]>();
     for (const a of this.calendarAppointments) {
@@ -185,7 +186,7 @@ export class Appointment implements OnInit, OnDestroy {
   formatCalendarDayLabel(dateKey: string | null): string {
     if (!dateKey) return '';
     const [y, m, d] = dateKey.split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
+    return new Date(y, m - 1, d).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Bogota' });
   }
 
   private getFechaISO(a: AppointmentRow): string {
@@ -238,7 +239,7 @@ export class Appointment implements OnInit, OnDestroy {
       .filter(v => !!v).length + (this.filtroPacienteId !== null ? 1 : 0);
   }
 
-  get minDate(): string { return this.formatDateForInput(new Date()); }
+  get minDate(): string { return fechaHoyCol(); }
 
   readonly validStatuses = ['PROGRAMADA', 'CONFIRMADA'];
   readonly validAttentionTypes = ['Valoración', 'Limpieza', 'Control', 'Urgencia'];
@@ -259,7 +260,7 @@ export class Appointment implements OnInit, OnDestroy {
         [Validators.required, this.allowedValuesValidator(this.validStatuses)],
       ],
       tipoAtencion: ['Valoración', [this.allowedValuesValidator(this.validAttentionTypes)]],
-      motivo: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(250)]],
+      motivo: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(500)]],
     });
   }
 
@@ -429,6 +430,7 @@ export class Appointment implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    if (this.loading) return;
     if (this.appointmentForm.invalid) {
       this.appointmentForm.markAllAsTouched();
       return;
@@ -458,7 +460,7 @@ export class Appointment implements OnInit, OnDestroy {
         if (phone.length >= 7) {
           const nombre = String(patient?.nombreCompleto ?? 'Paciente').split(' ')[0];
           const fechaLabel = new Date(`${fecha}T00:00:00-05:00`).toLocaleDateString('es-CO', {
-            weekday: 'long', day: 'numeric', month: 'long',
+            weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Bogota',
           });
           const msg = `Hola ${nombre}, le recordamos su cita en Biodont el ${fechaLabel} a las ${hora}. Motivo: ${motivo}. Por favor confirmar su asistencia.`;
           this.whatsappLink = `https://wa.me/${this.indicativoPais}${phone}?text=${encodeURIComponent(msg)}`;
@@ -511,11 +513,15 @@ export class Appointment implements OnInit, OnDestroy {
   }
 
   cambiarEstado(id: number, estado: string, cancelarMovimientos = false): void {
+    if (this.updatingEstadoId !== null) return;
+    this.updatingEstadoId = id;
     this.appointmentService.updateEstado(id, estado, cancelarMovimientos).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
+        this.updatingEstadoId = null;
         this.loadAppointmentsModuleData();
       },
       error: (err: any) => {
+        this.updatingEstadoId = null;
         this.errorMessage = err?.error?.message || 'No se pudo actualizar el estado';
         this.cdr.detectChanges();
       },
@@ -652,23 +658,12 @@ export class Appointment implements OnInit, OnDestroy {
 
   private noPastDateValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-      if (!control.value) {
-        return null;
-      }
-
+      if (!control.value) return null;
       const inputDate = new Date(`${control.value}T00:00:00-05:00`);
-
-      if (isNaN(inputDate.getTime())) {
-        return { invalidDate: true };
-      }
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      if (inputDate < today) {
-        return { pastDate: true };
-      }
-
+      if (isNaN(inputDate.getTime())) return { invalidDate: true };
+      // Medianoche Colombia de hoy como instante UTC — explícito, independiente
+      // de la zona horaria del navegador.
+      if (inputDate < medianocheColUTC(0)) return { pastDate: true };
       return null;
     };
   }

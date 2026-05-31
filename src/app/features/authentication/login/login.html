@@ -12,19 +12,14 @@
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
           <div class="mb-3">
             <label for="inputEmail" class="form-label fw-semibold">Usuario</label>
-            <div class="input-group">
-              <span class="input-group-text">
-                <i class="bi bi-person"></i>
-              </span>
-              <input
-                type="email"
-                class="form-control"
-                id="inputEmail"
-                placeholder="correo@ejemplo.com"
-                autocomplete="username"
-                formControlName="correo"
-              >
-            </div>
+            <input
+              type="email"
+              class="form-control"
+              id="inputEmail"
+              placeholder="correo@ejemplo.com"
+              autocomplete="username"
+              formControlName="correo"
+            >
 
             <small
               *ngIf="loginForm.get('correo')?.touched && loginForm.get('correo')?.invalid"
@@ -38,10 +33,7 @@
               <label for="inputPassword" class="form-label fw-semibold mb-0">Contraseña</label>
             </div>
 
-            <div class="input-group mt-2">
-              <span class="input-group-text">
-                <i class="bi bi-lock"></i>
-              </span>
+            <div class="login-pwd-wrap mt-2">
               <input
                 [type]="showPassword ? 'text' : 'password'"
                 class="form-control"
@@ -52,10 +44,10 @@
               >
               <button
                 type="button"
-                class="input-group-text btn-show-password"
+                class="btn-show-password"
                 (click)="showPassword = !showPassword"
                 [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
-                <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+                {{ showPassword ? 'Ocultar' : 'Ver' }}
               </button>
             </div>
 

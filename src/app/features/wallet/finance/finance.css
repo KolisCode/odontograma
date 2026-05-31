@@ -181,6 +181,29 @@
   color: #334155;
 }
 
+/* ── Balance resumen de paciente ────────────────────────────────────────── */
+.finance-patient-balance {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.fpc-stat {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.fpc-stat--in  { background: #f0fdf4; color: #15803d; }
+.fpc-stat--out { background: #fef2f2; color: #b91c1c; }
+.fpc-stat--pos { background: #f0fdf4; color: #15803d; }
+.fpc-stat--neg { background: #fef2f2; color: #b91c1c; }
+
 .finance-page {
   min-height: calc(100vh - 130px);
   padding: 24px;
@@ -659,6 +682,37 @@
   .info-box {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .pago-form__fields {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .finance-patient-context {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .finance-patient-context__actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 520px) {
+  .pago-form__fields {
+    grid-template-columns: 1fr;
+  }
+
+  .abonos-list__header,
+  .abono-item {
+    grid-template-columns: 1fr 1fr auto;
+  }
+
+  .abonos-list__header span:nth-child(2),
+  .abono-item span:nth-child(2) {
+    display: none;
   }
 }
 /* ── Formulario colapsable ────────────────────────────────────── */

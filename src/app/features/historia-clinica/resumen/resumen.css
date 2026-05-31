@@ -228,6 +228,11 @@
 }
 
 /* ── Tabla de medicación ─────────────────────────────────────────────────── */
+.resumen-table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .resumen-table {
   width: 100%;
   border-collapse: collapse;
@@ -350,6 +355,11 @@
 @media (max-width: 1100px) {
   .resumen-layout {
     grid-template-columns: 1fr;
+  }
+
+  .resumen-historial-odonto {
+    max-width: 100%;
+    overflow-x: auto;
   }
 }
 

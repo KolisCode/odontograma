@@ -47,41 +47,39 @@
       Administración
     </a>
 
-    <div class="nav-historia-wrapper">
-      <button
-        type="button"
-        class="nav-historia-btn"
-        [class.active]="historiaDropdownOpen"
-        (click)="toggleHistoriaDropdown()"
-        title="Buscar un paciente para abrir su historia clínica">
-        Historia clínica
-        <span class="nav-historia-arrow">{{ historiaDropdownOpen ? '▲' : '▼' }}</span>
-      </button>
+    <div class="nav-search-wrapper">
+      <div class="nav-search-box" [class.nav-search-box--open]="globalSearchOpen">
+        <input
+          class="nav-search-input"
+          type="text"
+          placeholder="Buscar paciente por nombre o documento…"
+          autocomplete="off"
+          [value]="globalSearch"
+          (focus)="openGlobalSearch()"
+          (input)="globalSearch = $any($event.target).value; openGlobalSearch()" />
+      </div>
 
-      <div class="nav-historia-dropdown" *ngIf="historiaDropdownOpen">
-        <div class="nav-historia-search-wrap">
-          <input
-            type="text"
-            class="nav-historia-input"
-            placeholder="Buscar por nombre…"
-            autocomplete="off"
-            [value]="historiaSearch"
-            (input)="historiaSearch = $any($event.target).value" />
+      <div class="nav-search-dropdown" *ngIf="globalSearchOpen && globalSearch.trim()">
+        <div *ngIf="filteredGlobalPatients.length === 0" class="nav-search-empty">
+          Sin resultados para "{{ globalSearch.trim() }}"
         </div>
-        <ul class="nav-historia-results">
-          <li *ngIf="filteredHistoriaPatients.length === 0" class="nav-historia-empty">
-            Sin resultados
-          </li>
-          <li
-            *ngFor="let p of filteredHistoriaPatients"
-            class="nav-historia-result"
-            (click)="navigateToHistoria(p.id)">
-            {{ p.nombreCompleto }}
-          </li>
-        </ul>
-        <p class="nav-historia-hint" *ngIf="patients.length > 8 && !historiaSearch.trim()">
-          {{ patients.length }} pacientes — escribe para filtrar
-        </p>
+
+        <div *ngFor="let p of filteredGlobalPatients" class="nav-search-result">
+          <div class="nav-search-result__header" (click)="toggleResultMenu(p.id)">
+            <span class="nav-search-result__name">{{ p.nombreCompleto }}</span>
+            <span class="nav-search-result__doc">{{ p.documento }}</span>
+          </div>
+          <div class="nav-search-result__actions" *ngIf="expandedResultId === p.id">
+            <button type="button" (click)="navigateGlobal(p, 'historia')">Historia</button>
+            <button type="button" (click)="navigateGlobal(p, 'odontograma')">Odontograma</button>
+            <button type="button" (click)="navigateGlobal(p, 'citas')">Citas</button>
+            <button type="button" (click)="navigateGlobal(p, 'cartera')">Cartera</button>
+          </div>
+        </div>
+
+        <div class="nav-search-footer" *ngIf="globalSearchTotal > SEARCH_LIMIT" (click)="goToPatientSearch()">
+          Ver {{ globalSearchTotal - SEARCH_LIMIT }} resultado{{ globalSearchTotal - SEARCH_LIMIT !== 1 ? 's' : '' }} más en lista de pacientes →
+        </div>
       </div>
     </div>
   </nav>
@@ -225,7 +223,7 @@
                 <span class="notif-item__meta">
                   {{ n.tipo === 'GLOBAL' ? 'Global' : 'Personal' }}
                   <ng-container *ngIf="n.creadorNombre"> · {{ n.creadorNombre }}</ng-container>
-                  <ng-container *ngIf="n.programadaPara"> · Prog. {{ n.programadaPara | date:'dd/MM HH:mm' }}</ng-container>
+                  <ng-container *ngIf="n.programadaPara"> · Prog. {{ n.programadaPara | date:'dd/MM HH:mm':'-0500' }}</ng-container>
                 </span>
               </div>
               <button
@@ -255,7 +253,7 @@
                 <span class="notif-item__mensaje">{{ p.mensaje }}</span>
                 <span class="notif-item__meta">
                   {{ p.tipo === 'GLOBAL' ? 'Global' : 'Personal' }}
-                  · {{ p.programadaPara | date:'dd/MM/yy HH:mm' }}
+                  · {{ p.programadaPara | date:'dd/MM/yy HH:mm':'-0500' }}
                 </span>
               </div>
               <button

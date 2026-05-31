@@ -8,6 +8,7 @@ import { Footer } from '../complements/footer/footer';
 import { AdminService, ExportConfig, HealthStatus, SystemConfig, UserRow } from './admin.service';
 import { ExportService } from '../../services/export.service';
 import { AuthService } from '../authentication/service/auth-service/auth.service';
+import { fechaHoyCol } from '../../utils/date.utils';
 
 @Component({
   selector: 'app-admin',
@@ -450,13 +451,10 @@ export class Admin implements OnInit, OnDestroy {
 
     this.adminService.downloadBackup().pipe(takeUntil(this.destroy$)).subscribe({
       next: (blob) => {
-        const d = new Date();
-        const pad = (n: number) => String(n).padStart(2, '0');
-        const fecha = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
         const url = URL.createObjectURL(blob);
         const a   = document.createElement('a');
         a.href     = url;
-        a.download = `biodont_backup_${fecha}.zip`;
+        a.download = `biodont_backup_${fechaHoyCol()}.zip`;
         a.click();
         URL.revokeObjectURL(url);
         this.lastBackupDate = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });

@@ -415,7 +415,7 @@
         <div class="status-meta">
           <div>
             <div class="status-meta-label">Fecha</div>
-            <div class="status-meta-value">{{ originalOdontogram.date | date: 'short' }}</div>
+            <div class="status-meta-value">{{ originalOdontogram.date | date: 'short' : '-0500' }}</div>
           </div>
           <div *ngIf="originalOdontogram.version">
             <div class="status-meta-label">Versión</div>

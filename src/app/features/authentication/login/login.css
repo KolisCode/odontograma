@@ -41,39 +41,51 @@
   color: #355066;
 }
 
-.input-group {
+.login-pwd-wrap {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #d0dbe4;
   border-radius: 12px;
+  background: #fbfdff;
+  overflow: hidden;
+  transition: border-color 0.2s;
 }
 
-.input-group-text {
-  background: #fbfdff;
-  border: 1px solid #d0dbe4;
-  border-right: none;
-  color: #5e7386;
-  border-radius: 12px 0 0 12px;
-  min-width: 46px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.login-pwd-wrap:focus-within {
+  border-color: #2f73d9;
+  box-shadow: 0 0 0 3px rgba(47, 115, 217, 0.14);
+}
+
+.login-pwd-wrap .form-control {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  flex: 1;
+  box-shadow: none !important;
 }
 
 .btn-show-password {
-  border-left: none;
-  border-radius: 0 12px 12px 0;
+  background: none;
+  border: none;
+  padding: 0 14px;
   cursor: pointer;
-  min-width: 42px;
+  color: #5e7386;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 0.2s;
+  flex-shrink: 0;
 }
 
 .btn-show-password:hover {
-  background: #f0f4f8;
-  color: #27445c;
+  color: #2f73d9;
 }
 
 .form-control {
   height: 46px;
   border: 1px solid #d0dbe4;
   background: #fbfdff;
-  border-radius: 0;
+  border-radius: 12px;
   padding: 0 14px;
   font-size: 0.95rem;
   color: #183247;
@@ -88,14 +100,6 @@
 .form-control:focus {
   border-color: #2f73d9;
   background: #ffffff;
-}
-
-.input-group:focus-within .input-group-text {
-  border-color: #2f73d9;
-  background: #ffffff;
-}
-
-.input-group:focus-within .form-control {
   box-shadow: 0 0 0 3px rgba(47, 115, 217, 0.14) !important;
 }
 

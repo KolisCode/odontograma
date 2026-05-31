@@ -354,6 +354,11 @@
 }
 
 /* ── Tabla de usuarios ────────────────────────────────────────────────── */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .users-table {
   width: 100%;
   border-collapse: collapse;

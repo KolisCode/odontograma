@@ -85,6 +85,7 @@ export class Finance implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private movimientosRequest$ = new Subject<MovimientoFilters>();
   private _successTimer: ReturnType<typeof setTimeout> | null = null;
+  private _dropdownCloseTimer: ReturnType<typeof setTimeout> | null = null;
 
   // ── Abonos / pagos parciales ───────────────────────────────────────────────
   expandedPagosId: number | null = null;
@@ -102,12 +103,12 @@ export class Finance implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
   ) {
     this.form = this.fb.group({
-      tipo: ['INGRESO', Validators.required],
-      monto: [null, [Validators.required, Validators.min(1)]],
-      concepto: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
+      tipo: ['INGRESO', [Validators.required, Validators.pattern(/^(INGRESO|EGRESO)$/)]],
+      monto: [null, [Validators.required, Validators.min(1), Validators.max(999_999_999)]],
+      concepto: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
       fecha: ['', [Validators.required, Validators.pattern(/^\d{4}-\d{2}-\d{2}$/)]],
       metodoPago: ['Efectivo'],
-      estado: ['PENDIENTE'],
+      estado: ['PENDIENTE', Validators.pattern(/^(PENDIENTE|PAGADO|CANCELADO)$/)],
       pacienteId: [null],
     });
 
@@ -120,6 +121,7 @@ export class Finance implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this._successTimer) clearTimeout(this._successTimer);
+    if (this._dropdownCloseTimer) clearTimeout(this._dropdownCloseTimer);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -181,9 +183,12 @@ export class Finance implements OnInit, OnDestroy {
               this.currentPage = 1;
               this.loadMovimientos();
             },
-            error: () => {
+            error: (err: any) => {
               this.selectedPatient = null;
               this.currentPage = 1;
+              if (err?.status === 404) {
+                this.errorMessage = 'El paciente especificado no existe.';
+              }
               this.loadMovimientos();
             },
           });
@@ -218,7 +223,9 @@ export class Finance implements OnInit, OnDestroy {
   }
 
   closePatientSearch(): void {
-    setTimeout(() => {
+    if (this._dropdownCloseTimer) clearTimeout(this._dropdownCloseTimer);
+    this._dropdownCloseTimer = setTimeout(() => {
+      this._dropdownCloseTimer = null;
       this.patientDropdownOpen = false;
       this.cdr.detectChanges();
     }, 150);
@@ -489,6 +496,7 @@ export class Finance implements OnInit, OnDestroy {
         this.movimientos = this.movimientos.map(m => m.id === movimiento.id ? res.data : m);
         this.pagoForm.reset({ monto: null, fecha: formatDateForInput(new Date()), metodoPago: 'Efectivo' });
         this.pagoErrorMessage = '';
+        this.setSuccess('Abono registrado correctamente');
         this.loadStats();
         this.cdr.detectChanges();
       },
@@ -512,6 +520,7 @@ export class Finance implements OnInit, OnDestroy {
     this.finanzasService.deletePago(movimiento.id, pagoId).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.movimientos = this.movimientos.map(m => m.id === movimiento.id ? res.data : m);
+        this.setSuccess('Abono eliminado correctamente');
         this.loadStats();
         this.cdr.detectChanges();
       },
@@ -553,9 +562,10 @@ export class Finance implements OnInit, OnDestroy {
 
   formatFecha(fecha: string): string {
     if (!fecha) return '';
-    const parts = fecha.substring(0, 10).split('-').map(Number);
-    if (parts.length < 3 || parts.some(isNaN)) return fecha;
-    return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const iso = fecha.substring(0, 10);
+    const d = new Date(`${iso}T00:00:00-05:00`);
+    if (isNaN(d.getTime())) return fecha;
+    return d.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Bogota' });
   }
 
   hasError(field: string): boolean {

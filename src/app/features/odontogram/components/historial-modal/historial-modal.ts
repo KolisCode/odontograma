@@ -159,8 +159,9 @@ export class OdontogramHistorialModal implements OnChanges {
 
   formatFecha(fecha: string): string {
     if (!fecha) return '';
-    const parts = fecha.substring(0, 10).split('-').map(Number);
-    if (parts.length < 3 || parts.some(isNaN)) return fecha;
-    return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' });
+    const iso = fecha.substring(0, 10);
+    const d = new Date(`${iso}T00:00:00-05:00`);
+    if (isNaN(d.getTime())) return fecha;
+    return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'America/Bogota' });
   }
 }

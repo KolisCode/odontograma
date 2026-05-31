@@ -278,6 +278,24 @@
   }
 }
 
+@media (max-width: 900px) {
+  .patients-search {
+    width: 100%;
+  }
+
+  .patients-search-wrapper {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .patients-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 @media (max-width: 768px) {
   .patients-page {
     padding: 16px;

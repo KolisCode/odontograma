@@ -199,3 +199,78 @@
   font-size: 0.92rem;
   text-align: center;
 }
+
+.agenda-empty-sub {
+  margin-bottom: 8px;
+  padding: 10px 14px;
+}
+
+/* ── Separadores de día ───────────────────────────────────────────────── */
+.agenda-day-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+}
+
+.agenda-day-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e3eaf1;
+}
+
+.agenda-day-label__text {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #2f7d57;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.agenda-day-label--tomorrow {
+  margin-top: 20px;
+}
+
+.agenda-day-label--tomorrow .agenda-day-label__text {
+  color: #64748b;
+}
+
+.agenda-item--tomorrow {
+  opacity: 0.8;
+}
+
+/* ── Deltas de estadísticas ───────────────────────────────────────────── */
+.stat-delta {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.stat-delta--up     { color: #15803d; }
+.stat-delta--down   { color: #b91c1c; }
+.stat-delta--neutral{ color: #64748b; }
+
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-shell {
+    padding: 16px;
+  }
+}

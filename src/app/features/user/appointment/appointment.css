@@ -290,8 +290,19 @@
 }
 
 @media (max-width: 1100px) {
-  .appointments-stats,
   .appointments-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .appointments-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .appointments-stats {
     grid-template-columns: 1fr;
   }
 }
@@ -535,9 +546,11 @@
   flex-direction: column;
   gap: 12px;
   padding: 16px;
-  min-width: 360px;
+  min-width: min(360px, 94vw);
   width: max-content;
-  max-width: 480px;
+  max-width: min(480px, 96vw);
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
   background: #fff;
   border: 1px solid #e2eaf1;
   border-radius: 14px;

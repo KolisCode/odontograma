@@ -21,7 +21,13 @@
     Cargando historia clínica...
   </div>
 
-  <div class="clinical-layout" *ngIf="!loadingData">
+  <div *ngIf="!loadingData && pacienteNoEncontrado" class="resumen-empty" style="margin:40px auto;max-width:480px;">
+    <h3>Paciente no encontrado</h3>
+    <p>Este paciente no existe o fue eliminado del sistema.</p>
+    <button class="btn btn-secondary" routerLink="/patients">Volver a pacientes</button>
+  </div>
+
+  <div class="clinical-layout" *ngIf="!loadingData && !pacienteNoEncontrado">
     <aside class="clinical-sidebar">
       <div class="sidebar-card">
         <h3>Secciones</h3>
@@ -39,10 +45,12 @@
             oral</button>
           <button type="button" class="section-nav__item" (click)="scrollToSection('enfermedades-odontologicas')">Enfermedades
             odontológicas</button>
-          <button type="button" class="section-nav__item" (click)="scrollToSection('formulas-medicas')">Fórmulas
-            médicas</button>
-          <button type="button" class="section-nav__item" (click)="scrollToSection('evolucion-tratamiento')">Evolución
-            de tratamiento</button>
+          <button type="button" class="section-nav__item" (click)="scrollToSection('formulas-medicas')">Fórmulas médicas
+            <span class="section-nav__badge" *ngIf="formulas.length > 0">{{ formulas.length }}</span>
+          </button>
+          <button type="button" class="section-nav__item" (click)="scrollToSection('evolucion-tratamiento')">Evolución de tratamiento
+            <span class="section-nav__badge" *ngIf="evoluciones.length > 0">{{ evoluciones.length }}</span>
+          </button>
           <button type="button" class="section-nav__item" (click)="scrollToSection('modulos')">Módulos
             clínicos</button>
         </nav>
@@ -56,8 +64,12 @@
             <h2>Encabezado de historia clínica</h2>
             <span>Datos de apertura y radicación del documento</span>
           </div>
+          <button class="section-toggle" type="button" (click)="toggleSection('encabezado')" [title]="isCollapsed('encabezado') ? 'Expandir' : 'Colapsar'">
+            {{ isCollapsed('encabezado') ? '+' : '−' }}
+          </button>
         </div>
 
+        <ng-container *ngIf="!isCollapsed('encabezado')">
         <div class="clinical-form-grid">
           <div class="form-group">
             <label>Fecha de apertura</label>
@@ -69,6 +81,7 @@
             <input type="text" formControlName="numeroHistoria" placeholder="Ej. HC-2026-0001" />
           </div>
         </div>
+        </ng-container>
       </section>
 
       <section class="clinical-card" id="datos-personales">
@@ -77,8 +90,12 @@
             <h2>Datos personales</h2>
             <span>Información complementaria del paciente</span>
           </div>
+          <button class="section-toggle" type="button" (click)="toggleSection('datos-personales')" [title]="isCollapsed('datos-personales') ? 'Expandir' : 'Colapsar'">
+            {{ isCollapsed('datos-personales') ? '+' : '−' }}
+          </button>
         </div>
 
+        <ng-container *ngIf="!isCollapsed('datos-personales')">
         <div class="clinical-form-grid">
           <div class="form-group">
             <label>Nombres completos</label>
@@ -137,6 +154,7 @@
             <input type="text" formControlName="acompananteParentesco" placeholder="Ej. Madre, padre, esposo(a)" />
           </div>
         </div>
+        </ng-container>
       </section>
 
       <section class="clinical-card" id="motivo-consulta">
@@ -145,8 +163,12 @@
             <h2>Motivo de consulta</h2>
             <span>Razón principal de la atención</span>
           </div>
+          <button class="section-toggle" type="button" (click)="toggleSection('motivo-consulta')" [title]="isCollapsed('motivo-consulta') ? 'Expandir' : 'Colapsar'">
+            {{ isCollapsed('motivo-consulta') ? '+' : '−' }}
+          </button>
         </div>
 
+        <ng-container *ngIf="!isCollapsed('motivo-consulta')">
         <div class="clinical-form-grid">
           <div class="form-group form-group--full">
             <label>Motivo de consulta</label>
@@ -154,6 +176,7 @@
               placeholder="Describe el motivo principal de consulta"></textarea>
           </div>
         </div>
+        </ng-container>
       </section>
 
       <section class="clinical-card" id="antecedentes">
@@ -162,8 +185,12 @@
             <h2>Antecedentes patológicos</h2>
             <span>Condiciones médicas y antecedentes relevantes</span>
           </div>
+          <button class="section-toggle" type="button" (click)="toggleSection('antecedentes')" [title]="isCollapsed('antecedentes') ? 'Expandir' : 'Colapsar'">
+            {{ isCollapsed('antecedentes') ? '+' : '−' }}
+          </button>
         </div>
 
+        <ng-container *ngIf="!isCollapsed('antecedentes')">
         <div class="subsection">
           <h3>1. Enfermedades sistémicas</h3>
           <p class="subsection-note">¿Ha sido diagnosticado con alguna enfermedad?</p>
@@ -228,7 +255,8 @@
             </div>
           </div>
 
-          <div class="mini-table" *ngIf="historiaForm.get('tomaMedicamentos')?.value === 'Sí'">
+          <div class="mini-table-scroll" *ngIf="historiaForm.get('tomaMedicamentos')?.value === 'Sí'">
+          <div class="mini-table">
             <div class="mini-table__head">
               <span>Medicamento</span>
               <span>Dosis</span>
@@ -256,6 +284,7 @@
               <button class="btn btn-secondary" type="button"
                 (click)="removeMedicamento(medicamentosArray.length - 1)">Quitar último</button>
             </div>
+          </div>
           </div>
         </div>
 
@@ -403,6 +432,7 @@
             </div>
           </div>
         </div>
+        </ng-container>
       </section>
 
       <section class="clinical-card" id="higiene-oral">
@@ -411,8 +441,12 @@
             <h2>Higiene oral</h2>
             <span>Hábitos, control odontológico y síntomas orales</span>
           </div>
+          <button class="section-toggle" type="button" (click)="toggleSection('higiene-oral')" [title]="isCollapsed('higiene-oral') ? 'Expandir' : 'Colapsar'">
+            {{ isCollapsed('higiene-oral') ? '+' : '−' }}
+          </button>
         </div>
 
+        <ng-container *ngIf="!isCollapsed('higiene-oral')">
         <div class="subsection">
           <h3>1. Higiene oral diaria</h3>
 
@@ -608,6 +642,7 @@
             </div>
           </div>
         </div>
+        </ng-container>
       </section>
 
       <section class="clinical-card" id="enfermedades-odontologicas">
@@ -616,8 +651,12 @@
             <h2>Enfermedades odontológicas</h2>
             <span>Condiciones dentales diagnosticadas en el paciente</span>
           </div>
+          <button class="section-toggle" type="button" (click)="toggleSection('enfermedades-odontologicas')" [title]="isCollapsed('enfermedades-odontologicas') ? 'Expandir' : 'Colapsar'">
+            {{ isCollapsed('enfermedades-odontologicas') ? '+' : '−' }}
+          </button>
         </div>
 
+        <ng-container *ngIf="!isCollapsed('enfermedades-odontologicas')">
         <div class="subsection">
           <p class="subsection-note">¿Ha sido diagnosticado con alguna de estas condiciones?</p>
 
@@ -639,6 +678,7 @@
               placeholder="Detalles adicionales sobre condiciones odontológicas"></textarea>
           </div>
         </div>
+        </ng-container>
       </section>
 
       <section class="clinical-card" id="formulas-medicas">
@@ -646,12 +686,19 @@
           <div>
             <h2>Fórmulas médicas</h2>
             <span>Recetas y prescripciones emitidas al paciente</span>
+            <span class="section-count" *ngIf="formulas.length > 0">{{ formulas.length }} {{ formulas.length === 1 ? 'fórmula' : 'fórmulas' }}</span>
           </div>
-          <button class="btn btn-primary" type="button" (click)="formulaFormVisible = !formulaFormVisible">
-            {{ formulaFormVisible ? 'Cancelar' : 'Nueva fórmula' }}
-          </button>
+          <div class="clinical-card__header-right">
+            <button class="btn btn-primary" type="button" (click)="formulaFormVisible = !formulaFormVisible">
+              {{ formulaFormVisible ? 'Cancelar' : 'Nueva fórmula' }}
+            </button>
+            <button class="section-toggle" type="button" (click)="toggleSection('formulas-medicas')" [title]="isCollapsed('formulas-medicas') ? 'Expandir' : 'Colapsar'">
+              {{ isCollapsed('formulas-medicas') ? '+' : '−' }}
+            </button>
+          </div>
         </div>
 
+        <ng-container *ngIf="!isCollapsed('formulas-medicas')">
         <div class="formula-form" *ngIf="formulaFormVisible">
           <div class="clinical-form-grid">
             <div class="form-group form-group--full">
@@ -665,6 +712,7 @@
 
           <div class="subsection">
             <h3>Medicamentos</h3>
+            <div class="mini-table-scroll">
             <div class="mini-table">
               <div class="mini-table__head formula-head">
                 <span>Medicamento</span>
@@ -705,6 +753,7 @@
                   (click)="removeFormulaMedicamento(formulaMedicamentos.length - 1)"
                   [disabled]="formulaMedicamentos.length <= 1">Quitar último</button>
               </div>
+            </div>
             </div>
           </div>
 
@@ -785,6 +834,7 @@
             </p>
           </div>
         </div>
+        </ng-container>
       </section>
 
       <section class="clinical-card" id="evolucion-tratamiento">
@@ -792,9 +842,14 @@
           <div>
             <h2>Evolución de tratamiento</h2>
             <span>Bitácora cronológica de sesiones clínicas</span>
+            <span class="section-count" *ngIf="evoluciones.length > 0">{{ evoluciones.length }} {{ evoluciones.length === 1 ? 'nota' : 'notas' }}</span>
           </div>
+          <button class="section-toggle" type="button" (click)="toggleSection('evolucion-tratamiento')" [title]="isCollapsed('evolucion-tratamiento') ? 'Expandir' : 'Colapsar'">
+            {{ isCollapsed('evolucion-tratamiento') ? '+' : '−' }}
+          </button>
         </div>
 
+        <ng-container *ngIf="!isCollapsed('evolucion-tratamiento')">
         <div class="evolucion-form">
           <div class="form-group form-group--full">
             <label>Nueva nota de evolución</label>
@@ -843,6 +898,7 @@
             </div>
           </div>
         </div>
+        </ng-container>
       </section>
 
       <section class="clinical-card" id="modulos">
@@ -851,8 +907,12 @@
             <h2>Módulos clínicos asociados</h2>
             <span>Elementos complementarios de la historia clínica</span>
           </div>
+          <button class="section-toggle" type="button" (click)="toggleSection('modulos')" [title]="isCollapsed('modulos') ? 'Expandir' : 'Colapsar'">
+            {{ isCollapsed('modulos') ? '+' : '−' }}
+          </button>
         </div>
 
+        <ng-container *ngIf="!isCollapsed('modulos')">
         <div class="modules-grid">
           <div class="module-tile" (click)="goToOdontogram()">
             <strong>Odontograma</strong>
@@ -885,6 +945,7 @@
             <span>Próximamente</span>
           </div>
         </div>
+        </ng-container>
       </section>
     </main>
 

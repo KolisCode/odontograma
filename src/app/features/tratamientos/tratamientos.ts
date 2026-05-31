@@ -13,6 +13,7 @@ import { PatientsService } from '../user/service/pacientes.service';
 import { DocumentosComponent } from '../documentos/documentos/documentos';
 import { OdontogramService } from '../../services/odontogram';
 import { BackendOdontogramResponse } from '../odontogram/interfaces/backend-odontogram-response';
+import { fechaHoyCol } from '../../utils/date.utils';
 
 interface ProcResumen {
   tipo: string;
@@ -61,6 +62,7 @@ export class Tratamientos implements OnInit, OnDestroy {
   };
 
   estados = ['ACTIVO', 'FINALIZADO', 'PAUSADO'];
+  updatingEstadoId: number | null = null;
   private destroy$ = new Subject<void>();
   private _successTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -77,7 +79,7 @@ export class Tratamientos implements OnInit, OnDestroy {
       {
         descripcion: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
         estado: ['ACTIVO'],
-        monto: [null, [Validators.min(0)]],
+        monto: [null, [Validators.min(0), Validators.max(999_999_999)]],
         fechaInicio: [null],
         fechaFin: [null],
       },
@@ -109,8 +111,12 @@ export class Tratamientos implements OnInit, OnDestroy {
         this.patientName = `${res.data.nombre} ${res.data.apellido}`.trim();
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.patientName = `Paciente #${this.pacienteId}`;
+      error: (err: any) => {
+        if (err?.status === 404) {
+          this.errorMessage = 'Este paciente no existe o fue eliminado.';
+        } else {
+          this.patientName = `Paciente #${this.pacienteId}`;
+        }
         this.cdr.detectChanges();
       },
     });
@@ -207,9 +213,7 @@ export class Tratamientos implements OnInit, OnDestroy {
     const base = `Plan v${this.plan.version} — ${lineas.join(' · ')}`;
     const descripcion = base.length > 297 ? base.substring(0, 297) + '...' : base;
 
-    const d = new Date();
-    const pad = (n: number) => String(n).padStart(2, '0');
-    const fechaHoy = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const fechaHoy = fechaHoyCol();
 
     this.odontogramaIdParaCrear = this.plan.id;
     this.editingId = null;
@@ -248,6 +252,8 @@ export class Tratamientos implements OnInit, OnDestroy {
     this.editingId = null;
     this.odontogramaIdParaCrear = null;
     this.form.reset({ estado: 'ACTIVO' });
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 
   onSubmit(): void {
@@ -311,10 +317,17 @@ export class Tratamientos implements OnInit, OnDestroy {
   }
 
   cambiarEstado(t: TratamientoRow, nuevoEstado: string): void {
+    if (this.updatingEstadoId === t.id) return;
+    this.updatingEstadoId = t.id;
     this.tratamientosService.update(t.id, { estado: nuevoEstado }).pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => this.loadTratamientos(),
-      error: () => {
-        this.errorMessage = 'No se pudo actualizar el estado';
+      next: () => {
+        this.updatingEstadoId = null;
+        this.setSuccess('Estado de tratamiento actualizado');
+        this.loadTratamientos();
+      },
+      error: (err: any) => {
+        this.updatingEstadoId = null;
+        this.errorMessage = err?.error?.message || 'No se pudo actualizar el estado';
         this.cdr.detectChanges();
       },
     });

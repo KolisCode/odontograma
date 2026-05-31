@@ -255,6 +255,7 @@
 
       <div *ngIf="usersLoading && !users.length" class="admin-card__desc">Cargando usuarios…</div>
 
+      <div class="table-wrapper">
       <table *ngIf="!usersLoading || users.length" class="users-table">
         <thead>
           <tr>
@@ -305,6 +306,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- ── Backup de base de datos ───────────────────────────────────────── -->

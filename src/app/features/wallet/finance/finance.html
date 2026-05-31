@@ -43,6 +43,13 @@
         <strong class="finance-patient-context__name">{{ selectedPatient.nombreCompleto }}</strong>
         <span class="finance-patient-context__doc">CC {{ selectedPatient.documento }}</span>
       </div>
+      <div class="finance-patient-balance">
+        <span class="fpc-stat fpc-stat--in">↑ {{ ingresosMes | currency:'COP ':'symbol':'1.0-0' }}</span>
+        <span class="fpc-stat fpc-stat--out">↓ {{ egresosMes | currency:'COP ':'symbol':'1.0-0' }}</span>
+        <span class="fpc-stat" [ngClass]="balance >= 0 ? 'fpc-stat--pos' : 'fpc-stat--neg'">
+          = {{ balance | currency:'COP ':'symbol':'1.0-0' }}
+        </span>
+      </div>
       <div class="finance-patient-context__actions">
         <button class="finance-patient-context__link" type="button" (click)="goToResumenPaciente()" title="Ver resumen clínico del paciente">Resumen</button>
         <button class="finance-patient-context__link" type="button" (click)="goToHistoriaPaciente()" title="Abrir la historia clínica del paciente">Historia clínica</button>
@@ -124,11 +131,12 @@
 
       <form class="finance-form" [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="form-group">
-          <label>Tipo de movimiento</label>
+          <label>Tipo de movimiento <span class="required">*</span></label>
           <select formControlName="tipo">
             <option value="INGRESO">Ingreso</option>
             <option value="EGRESO">Egreso</option>
           </select>
+          <span *ngIf="hasError('tipo')" class="field-error">El tipo de movimiento es obligatorio.</span>
         </div>
 
         <div class="form-group">
@@ -140,7 +148,9 @@
         <div class="form-group form-group--full">
           <label>Concepto</label>
           <input type="text" formControlName="concepto" placeholder="Describe el concepto del movimiento" />
-          <span *ngIf="hasError('concepto')" class="field-error">El concepto es obligatorio (mín. 3 caracteres).</span>
+          <span *ngIf="form.get('concepto')?.errors?.['required'] && form.get('concepto')?.touched" class="field-error">El concepto es obligatorio.</span>
+          <span *ngIf="form.get('concepto')?.errors?.['minlength'] && form.get('concepto')?.touched" class="field-error">Mínimo 3 caracteres.</span>
+          <span *ngIf="form.get('concepto')?.errors?.['maxlength'] && form.get('concepto')?.touched" class="field-error">Máximo 300 caracteres.</span>
         </div>
 
         <div class="form-group">
@@ -441,7 +451,7 @@
                     <div *ngIf="pagoErrorMessage" class="finance-alert finance-alert--error pago-error">
                       {{ pagoErrorMessage }}
                     </div>
-                    <button class="btn btn-primary pago-form__submit" type="submit">
+                    <button class="btn btn-primary pago-form__submit" type="submit" [disabled]="submittingPago">
                       Registrar abono
                     </button>
                   </form>

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { calcularEdad as calcEdad, formatDateForInput as fmtDate } from '../../../utils/date.utils';
+import { calcularEdad as calcEdad, formatDateForInput as fmtDate, medianocheColUTC, fechaHoyCol } from '../../../utils/date.utils';
 import { ImportParserService, ParsedRow } from '../../../services/import-parser.service';
 import { ImportResult } from '../service/pacientes.service';
 import {
@@ -123,11 +123,11 @@ export class List implements OnInit, OnDestroy {
     historiasPendientes: 0,
   };
 
-  maxBirthDate = this.formatDateForInput(new Date());
+  maxBirthDate = fechaHoyCol();
   minBirthDate = (() => {
     const d = new Date();
     d.setFullYear(d.getFullYear() - 120);
-    return this.formatDateForInput(d);
+    return fmtDate(d);
   })();
 
   // ── Importación masiva ────────────────────────────────────────────────────
@@ -186,7 +186,7 @@ export class List implements OnInit, OnDestroy {
         '',
         [
           Validators.required,
-          Validators.minLength(6),
+          Validators.minLength(4),
           Validators.maxLength(15),
           Validators.pattern(/^[0-9]+$/),
         ],
@@ -324,6 +324,7 @@ export class List implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    if (this.loading) return;
     if (this.patientForm.invalid) {
       this.patientForm.markAllAsTouched();
       return;
@@ -513,20 +514,7 @@ export class List implements OnInit, OnDestroy {
 
   getPatientAge(): number | null {
     const birthDate = this.patientForm.get('fechaNacimiento')?.value;
-    if (!birthDate) return null;
-
-    const date = new Date(`${birthDate}T00:00:00-05:00`);
-    if (isNaN(date.getTime())) return null;
-
-    const today = new Date();
-    let age = today.getFullYear() - date.getFullYear();
-    const monthDiff = today.getMonth() - date.getMonth();
-
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
-      age--;
-    }
-
-    return age;
+    return calcEdad(birthDate);
   }
 
   // ── Métodos de importación ────────────────────────────────────────────────
@@ -670,44 +658,27 @@ export class List implements OnInit, OnDestroy {
 
   private noFutureDateValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-      if (!control.value) {
-        return null;
-      }
-
+      if (!control.value) return null;
       const inputDate = new Date(`${control.value}T00:00:00-05:00`);
-
-      if (isNaN(inputDate.getTime())) {
-        return { invalidDate: true };
-      }
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      if (inputDate > today) {
-        return { futureDate: true };
-      }
-
+      if (isNaN(inputDate.getTime())) return { invalidDate: true };
+      // mañana Colombia como límite — cualquier fecha >= mañana es "futura"
+      if (inputDate >= medianocheColUTC(1)) return { futureDate: true };
       return null;
     };
   }
 
   private ageRangeValidator(minAge: number, maxAge: number): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-      if (!control.value) {
-        return null;
-      }
-
+      if (!control.value) return null;
       const birthDate = new Date(`${control.value}T00:00:00-05:00`);
-
-      if (isNaN(birthDate.getTime())) {
-        return { invalidDate: true };
-      }
-
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      if (isNaN(birthDate.getTime())) return { invalidDate: true };
+      // Comparar edad usando hoy en Colombia
+      // Usar getUTC* porque ambas fechas están ancladas a medianoche Colombia
+      // como instante UTC — getUTC* devuelve el valor Colombia correcto.
+      const todayCol = new Date(`${fechaHoyCol()}T00:00:00-05:00`);
+      let age = todayCol.getUTCFullYear() - birthDate.getUTCFullYear();
+      const monthDiff = todayCol.getUTCMonth() - birthDate.getUTCMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && todayCol.getUTCDate() < birthDate.getUTCDate())) {
         age--;
       }
 

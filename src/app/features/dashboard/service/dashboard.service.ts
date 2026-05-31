@@ -6,9 +6,11 @@ import { environment } from '../../../../environments/environment';
 export interface DashboardStats {
   pacientesRegistrados: number;
   pacientesNuevosMes: number;
+  deltaPacientes: number;
   citasHoy: number;
   citasPendientesHoy: number;
   ingresosDia: number;
+  ingresosAyer: number;
   tratamientosActivos: number;
 }
 
@@ -25,6 +27,7 @@ export interface DashboardSummaryResponse {
   data: {
     stats: DashboardStats;
     agendaHoy: AgendaItem[];
+    agendaManana: AgendaItem[];
   };
 }
 

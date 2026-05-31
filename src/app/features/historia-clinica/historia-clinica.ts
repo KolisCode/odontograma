@@ -15,6 +15,7 @@ import { Navbar } from '../complements/navbar/navbar';
 import { Footer } from '../complements/footer/footer';
 import { HistoriaClinicaService, EvolucionRow, FormulaMedicaRow, MedicamentoFormula } from './historia-clinica.service/historia-clinica.service';
 import { DocumentosComponent } from '../documentos/documentos/documentos';
+import { fechaHoyCol } from '../../utils/date.utils';
 
 @Component({
   selector: 'app-historia-clinica',
@@ -31,6 +32,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
   aperturaTexto = '';
   loading = false;
   loadingData = true;
+  pacienteNoEncontrado = false;
   successMessage = '';
   errorMessage = '';
 
@@ -50,6 +52,20 @@ export class HistoriaClinica implements OnInit, OnDestroy {
   guardandoFormula = false;
   formulaError = '';
   confirmandoEliminarFormula: number | null = null;
+
+  collapsedSections = new Set<string>();
+
+  toggleSection(id: string): void {
+    if (this.collapsedSections.has(id)) {
+      this.collapsedSections.delete(id);
+    } else {
+      this.collapsedSections.add(id);
+    }
+  }
+
+  isCollapsed(id: string): boolean {
+    return this.collapsedSections.has(id);
+  }
 
   private destroy$ = new Subject<void>();
   private _successTimer: ReturnType<typeof setTimeout> | null = null;
@@ -272,7 +288,11 @@ export class HistoriaClinica implements OnInit, OnDestroy {
           this.cdr.detectChanges();
         },
         error: (err) => {
-          this.errorMessage = err?.error?.message || 'No se pudo cargar la historia clínica';
+          if (err?.status === 404) {
+            this.pacienteNoEncontrado = true;
+          } else {
+            this.errorMessage = err?.error?.message || 'No se pudo cargar la historia clínica';
+          }
           this.loadingData = false;
           this.cdr.detectChanges();
         },
@@ -280,7 +300,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
   }
 
   setDefaultHistoriaNumber(): void {
-    const year = new Date().getFullYear();
+    const year = new Date(`${fechaHoyCol()}T00:00:00-05:00`).getUTCFullYear();
     const numero = `HC-${year}-${String(this.pacienteId).padStart(4, '0')}`;
     this.historiaForm.patchValue({ numeroHistoria: numero }, { emitEvent: false });
   }
@@ -630,6 +650,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
           this.evoluciones = [res.data, ...this.evoluciones];
           this.nuevaNota = '';
           this.guardandoNota = false;
+          this.setSuccess('Nota guardada correctamente');
           this.cdr.detectChanges();
         },
         error: (err) => {
@@ -649,8 +670,9 @@ export class HistoriaClinica implements OnInit, OnDestroy {
           this.confirmandoEliminarNota = null;
           this.cdr.detectChanges();
         },
-        error: () => {
+        error: (err: any) => {
           this.confirmandoEliminarNota = null;
+          this.errorMessage = err?.error?.message || 'No se pudo eliminar la evolución';
           this.cdr.detectChanges();
         },
       });
@@ -674,6 +696,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
   }
 
   addFormulaMedicamento(): void {
+    if (this.formulaMedicamentos.length >= 20) return;
     this.formulaMedicamentos = [...this.formulaMedicamentos, { medicamento: '', dosis: '', frecuencia: '', duracion: '' }];
   }
 
@@ -706,6 +729,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
           this.formulaInstrucciones = '';
           this.formulaMedicamentos = [{ medicamento: '', dosis: '', frecuencia: '', duracion: '' }];
           this.guardandoFormula = false;
+          this.setSuccess('Fórmula guardada correctamente');
           this.cdr.detectChanges();
         },
         error: (err) => {
@@ -725,8 +749,9 @@ export class HistoriaClinica implements OnInit, OnDestroy {
           this.confirmandoEliminarFormula = null;
           this.cdr.detectChanges();
         },
-        error: () => {
+        error: (err: any) => {
           this.confirmandoEliminarFormula = null;
+          this.formulaError = err?.error?.message || 'No se pudo eliminar la fórmula';
           this.cdr.detectChanges();
         },
       });

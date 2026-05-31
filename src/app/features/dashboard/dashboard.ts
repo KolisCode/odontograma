@@ -22,13 +22,16 @@ export class Dashboard implements OnInit, OnDestroy {
   stats: DashboardStats = {
     pacientesRegistrados: 0,
     pacientesNuevosMes: 0,
+    deltaPacientes: 0,
     citasHoy: 0,
     citasPendientesHoy: 0,
     ingresosDia: 0,
+    ingresosAyer: 0,
     tratamientosActivos: 0
   };
 
   agendaHoy: AgendaItem[] = [];
+  agendaManana: AgendaItem[] = [];
 
   constructor(
     private dashboardService: DashboardService,
@@ -51,8 +54,9 @@ export class Dashboard implements OnInit, OnDestroy {
 
     this.dashboardService.getSummary().pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
-        this.stats = response?.data?.stats;
+        this.stats = response?.data?.stats ?? this.stats;
         this.agendaHoy = response?.data?.agendaHoy ?? [];
+        this.agendaManana = response?.data?.agendaManana ?? [];
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -79,6 +83,24 @@ export class Dashboard implements OnInit, OnDestroy {
 
   goToOdontogram(): void {
     this.router.navigate(['/patients']);
+  }
+
+  get tomorrowLabel(): string {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Bogota' });
+  }
+
+  get todayLabel(): string {
+    return new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Bogota' });
+  }
+
+  deltaClass(delta: number): string {
+    return delta > 0 ? 'stat-delta--up' : delta < 0 ? 'stat-delta--down' : 'stat-delta--neutral';
+  }
+
+  deltaLabel(delta: number): string {
+    return delta > 0 ? `↑${delta}` : delta < 0 ? `↓${Math.abs(delta)}` : '=';
   }
 
   getStatusClass(estado: string): string {

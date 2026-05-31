@@ -23,7 +23,7 @@ import { Odontogram } from '../interfaces/odontogram';
 import { OdontogramPayload } from '../interfaces/odontogram-payload';
 import { BackendOdontogramResponse } from '../interfaces/backend-odontogram-response';
 import { Footer } from '../../complements/footer/footer';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { PatientsService } from '../../user/service/pacientes.service';
 import { calcularEdad as calcEdad } from '../../../utils/date.utils';
@@ -34,7 +34,7 @@ import { AlertaClinica } from '../../historia-clinica/resumen/resumen';
 @Component({
   selector: 'app-odontogram',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ToothComponent, Navbar, Footer, OdontogramHistorialModal, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, ToothComponent, Navbar, Footer, OdontogramHistorialModal],
   templateUrl: './odontogram.html',
   styleUrl: './odontogram.css',
 })
@@ -734,6 +734,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       this.patientId = parsed;
+      this.suppressNextAutoSave = false;
 
       this.loadPatientInfo();
       this.loadOdontogram();
@@ -1296,9 +1297,10 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
 
   formatFecha(fecha: string): string {
     if (!fecha) return '';
-    const parts = fecha.substring(0, 10).split('-').map(Number);
-    if (parts.length < 3 || parts.some(isNaN)) return fecha;
-    return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' });
+    const iso = fecha.substring(0, 10);
+    const d = new Date(`${iso}T00:00:00-05:00`);
+    if (isNaN(d.getTime())) return fecha;
+    return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'America/Bogota' });
   }
 
   // ── Navegación ────────────────────────────────────────────────────────────

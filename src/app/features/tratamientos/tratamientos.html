@@ -84,7 +84,9 @@
           placeholder="Describe el tratamiento a realizar..."
           [class.input-error]="hasError('descripcion')"
         ></textarea>
-        <span *ngIf="hasError('descripcion')" class="error-text">La descripción es obligatoria (mínimo 3 caracteres).</span>
+        <span *ngIf="form.get('descripcion')?.errors?.['required'] && form.get('descripcion')?.touched" class="error-text">La descripción es obligatoria.</span>
+        <span *ngIf="form.get('descripcion')?.errors?.['minlength'] && form.get('descripcion')?.touched" class="error-text">Mínimo 3 caracteres.</span>
+        <span *ngIf="form.get('descripcion')?.errors?.['maxlength'] && form.get('descripcion')?.touched" class="error-text">Máximo 300 caracteres.</span>
       </div>
 
       <div class="form-row">
@@ -134,6 +136,7 @@
       No hay tratamientos registrados para este paciente.
     </div>
 
+    <div class="trat-table-scroll">
     <table *ngIf="!loading && tratamientos.length > 0" class="trat-table">
       <thead>
         <tr>
@@ -171,6 +174,7 @@
               *ngIf="t.estado !== 'FINALIZADO'"
               class="estado-select"
               [value]="t.estado"
+              [disabled]="updatingEstadoId === t.id"
               (change)="cambiarEstado(t, $any($event.target).value)"
             >
               <option *ngFor="let e of estados" [value]="e">{{ getEstadoLabel(e) }}</option>
@@ -181,6 +185,7 @@
         </tr>
       </tbody>
     </table>
+    </div>
   </div>
 
 </section>
