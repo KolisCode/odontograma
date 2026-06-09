@@ -118,7 +118,7 @@
             </span>
             <span class="notif-field-error"
               *ngIf="notifForm.get('titulo')!.touched && notifForm.get('titulo')!.hasError('maxlength')">
-              Máximo 100 caracteres
+              Máximo 120 caracteres
             </span>
           </div>
           <div class="notif-field">
@@ -212,11 +212,11 @@
           <ng-container *ngIf="notificaciones.manuales.length > 0">
             <p class="notif-section-label">Mensajes</p>
             <div class="notif-item"
-                 [class.notif-item--unread]="!n.leida"
+                 [class.notif-item--unread]="!n.leida && n.tipo === 'PERSONAL'"
                  *ngFor="let n of notificaciones.manuales"
                  (click)="marcarLeida(n.id)">
               <div class="notif-item__dot"
-                   [class.notif-item__dot--unread]="!n.leida"></div>
+                   [class.notif-item__dot--unread]="!n.leida && n.tipo === 'PERSONAL'"></div>
               <div class="notif-item__content">
                 <span class="notif-item__titulo">{{ n.titulo }}</span>
                 <span class="notif-item__mensaje">{{ n.mensaje }}</span>

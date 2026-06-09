@@ -10,7 +10,7 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   let token: string | null = null;
   try { token = localStorage.getItem('token'); } catch { /* storage unavailable */ }
 
-  if (token) {
+  if (token && authService.isLoggedIn()) {
     req = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`

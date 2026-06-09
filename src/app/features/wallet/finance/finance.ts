@@ -162,6 +162,11 @@ export class Finance implements OnInit, OnDestroy {
         // Lista ya cargada: resolución síncrona
         if (this.patients.length) {
           this.selectedPatient = this.patients.find((p) => p.id === numId) ?? null;
+          this.filtroTipo = '';
+          this.filtroEstado = '';
+          this.filtroFechaDesde = '';
+          this.filtroFechaHasta = '';
+          this.fechaRangoError = '';
           this.currentPage = 1;
           this.loadMovimientos();
         } else {
@@ -444,8 +449,8 @@ export class Finance implements OnInit, OnDestroy {
         if (this.expandedPagosId === id) this.expandedPagosId = null;
         this.loadMovimientos();
       },
-      error: () => {
-        this.errorMessage = 'No se pudo eliminar el movimiento';
+      error: (err: any) => {
+        this.errorMessage = err?.error?.message || 'No se pudo eliminar el movimiento';
         this.cdr.detectChanges();
       },
     });

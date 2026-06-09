@@ -44,9 +44,9 @@
       <span class="stat-label">Ingresos del día</span>
       <h2>{{ stats.ingresosDia | currency:'COP ':'symbol':'1.0-0' }}</h2>
       <p *ngIf="stats.ingresosAyer > 0">
-        Mañana proyectado: {{ stats.ingresosAyer | currency:'COP ':'symbol':'1.0-0' }}
+        Ayer: {{ stats.ingresosAyer | currency:'COP ':'symbol':'1.0-0' }}
       </p>
-      <p *ngIf="stats.ingresosAyer === 0">Sin ingresos registrados mañana</p>
+      <p *ngIf="stats.ingresosAyer === 0">Sin ingresos ayer</p>
     </article>
 
     <article class="stat-card">

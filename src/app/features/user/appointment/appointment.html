@@ -378,10 +378,7 @@
                 [value]="item.estado"
                 (change)="solicitarCambioEstado(item, $any($event.target).value)"
               >
-                <option value="PROGRAMADA">Programada</option>
-                <option value="CONFIRMADA">Confirmada</option>
-                <option value="ATENDIDA">Atendida</option>
-                <option value="CANCELADA">Cancelada</option>
+                <option *ngFor="let s of getValidNextStates(item.estado)" [value]="s.value">{{ s.label }}</option>
               </select>
             </td>
           </tr>

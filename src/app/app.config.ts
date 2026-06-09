@@ -12,8 +12,11 @@ function initAuth(authService: AuthService): () => Promise<void> {
     if (!authService.getToken()) return;
     try {
       await firstValueFrom(authService.getProfile());
-    } catch {
-      authService.logout();
+    } catch (err: any) {
+      if (err?.status === 401 || err?.status === 403) {
+        authService.logout();
+      }
+      // Error de red (status 0): mantener la sesión, el backend rechazará con 401 cuando responda
     }
   };
 }

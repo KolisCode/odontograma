@@ -71,7 +71,7 @@ export class Navbar implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
   ) {
     this.notifForm = this.fb.group({
-      titulo: ['', [Validators.required, Validators.maxLength(100)]],
+      titulo: ['', [Validators.required, Validators.maxLength(120)]],
       mensaje: ['', [Validators.required, Validators.maxLength(500)]],
       tipo: ['GLOBAL', Validators.required],
       programadaPara: [null],
@@ -186,7 +186,7 @@ export class Navbar implements OnInit, OnDestroy {
 
   marcarLeida(id: number): void {
     const n = this.notificaciones?.manuales.find(m => m.id === id);
-    if (!n || n.leida) return;
+    if (!n || n.leida || n.tipo === 'GLOBAL') return;
     this.notifService.marcarLeida(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         if (this.notificaciones) {

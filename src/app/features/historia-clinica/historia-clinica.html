@@ -748,7 +748,7 @@
                 </div>
               </div>
               <div class="mini-table-actions">
-                <button class="btn btn-secondary" type="button" (click)="addFormulaMedicamento()">Agregar medicamento</button>
+                <button class="btn btn-secondary" type="button" (click)="addFormulaMedicamento()" [disabled]="formulaMedicamentos.length >= 20">Agregar medicamento</button>
                 <button class="btn btn-secondary" type="button"
                   (click)="removeFormulaMedicamento(formulaMedicamentos.length - 1)"
                   [disabled]="formulaMedicamentos.length <= 1">Quitar último</button>

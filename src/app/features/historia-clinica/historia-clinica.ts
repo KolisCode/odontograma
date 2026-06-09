@@ -230,6 +230,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
   }
 
   addMedicamento(): void {
+    if (this.medicamentosArray.length >= 20) return;
     this.medicamentosArray.push(this.createMedicamentoGroup());
   }
 

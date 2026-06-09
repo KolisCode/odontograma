@@ -269,6 +269,12 @@ export class Appointment implements OnInit, OnDestroy {
       next: (res) => { this.indicativoPais = res.data.indicativoPais || '57'; },
       error: () => { this.indicativoPais = '57'; },
     });
+    this.appointmentForm.get('pacienteId')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.appointmentForm.get('motivo')!.reset('');
+        this.appointmentForm.get('motivo')!.markAsUntouched();
+      });
     this.loadAppointmentsModuleData();
   }
 
@@ -496,6 +502,20 @@ export class Appointment implements OnInit, OnDestroy {
   }
 
   citaCancelando: { id: number; tienePendientes: boolean } | null = null;
+
+  private readonly VALID_TRANSITIONS: Record<string, string[]> = {
+    'PROGRAMADA': ['PROGRAMADA', 'CONFIRMADA', 'CANCELADA'],
+    'CONFIRMADA': ['CONFIRMADA', 'ATENDIDA', 'CANCELADA'],
+  };
+  private readonly ESTADO_LABELS: Record<string, string> = {
+    'PROGRAMADA': 'Programada', 'CONFIRMADA': 'Confirmada',
+    'ATENDIDA': 'Atendida', 'CANCELADA': 'Cancelada',
+  };
+
+  getValidNextStates(currentState: string): { value: string; label: string }[] {
+    return (this.VALID_TRANSITIONS[currentState] ?? [currentState])
+      .map(v => ({ value: v, label: this.ESTADO_LABELS[v] ?? v }));
+  }
 
   solicitarCambioEstado(item: AppointmentRow, nuevoEstado: string): void {
     if (nuevoEstado === 'CANCELADA' && item.tienePendientes) {
