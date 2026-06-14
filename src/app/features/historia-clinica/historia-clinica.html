@@ -280,7 +280,7 @@
             </ng-container>
 
             <div class="mini-table-actions">
-              <button class="btn btn-secondary" type="button" (click)="addMedicamento()">Agregar medicamento</button>
+              <button class="btn btn-secondary" type="button" (click)="addMedicamento()" [disabled]="medicamentosArray.length >= 20">Agregar medicamento</button>
               <button class="btn btn-secondary" type="button"
                 (click)="removeMedicamento(medicamentosArray.length - 1)">Quitar último</button>
             </div>
@@ -703,7 +703,7 @@
           <div class="clinical-form-grid">
             <div class="form-group form-group--full">
               <label>Diagnóstico / motivo</label>
-              <input type="text"
+              <input type="text" maxlength="2000"
                 [value]="formulaDiagnostico"
                 (input)="formulaDiagnostico = $any($event.target).value"
                 placeholder="Ej. Infección periapical, procedimiento postextracción" />
@@ -723,25 +723,25 @@
               <div class="mini-table__row formula-row"
                 *ngFor="let med of formulaMedicamentos; let i = index">
                 <div>
-                  <input type="text"
+                  <input type="text" maxlength="200"
                     [value]="med.medicamento"
                     (input)="med.medicamento = $any($event.target).value"
                     placeholder="Ej. Amoxicilina 500 mg" />
                 </div>
                 <div>
-                  <input type="text"
+                  <input type="text" maxlength="100"
                     [value]="med.dosis"
                     (input)="med.dosis = $any($event.target).value"
                     placeholder="Ej. 1 cápsula" />
                 </div>
                 <div>
-                  <input type="text"
+                  <input type="text" maxlength="100"
                     [value]="med.frecuencia"
                     (input)="med.frecuencia = $any($event.target).value"
                     placeholder="Ej. Cada 8 horas" />
                 </div>
                 <div>
-                  <input type="text"
+                  <input type="text" maxlength="100"
                     [value]="med.duracion"
                     (input)="med.duracion = $any($event.target).value"
                     placeholder="Ej. 7 días" />
@@ -760,7 +760,7 @@
           <div class="clinical-form-grid">
             <div class="form-group form-group--full">
               <label>Indicaciones generales</label>
-              <textarea rows="3"
+              <textarea rows="3" maxlength="2000"
                 [value]="formulaInstrucciones"
                 (input)="formulaInstrucciones = $any($event.target).value"
                 placeholder="Ej. Tomar con alimentos, evitar conducir, completar tratamiento"></textarea>

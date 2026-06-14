@@ -121,7 +121,7 @@ export class Admin implements OnInit, OnDestroy {
       confirmarPassword: ['', Validators.required],
       rol:               ['RECEPCION', Validators.required],
       telefono:          ['', [Validators.pattern(/^[0-9]+$/), Validators.minLength(7), Validators.maxLength(15)]],
-      documento:         ['', [Validators.pattern(/^[0-9]+$/), Validators.minLength(6), Validators.maxLength(15)]],
+      documento:         ['', [Validators.pattern(/^[0-9]+$/), Validators.minLength(4), Validators.maxLength(15)]],
     }, { validators: passwordMatch });
   }
 

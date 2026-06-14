@@ -45,7 +45,7 @@ export class Register implements OnDestroy {
         apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(60), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/)]],
         correo: ['', [Validators.required, Validators.email]],
         rol: ['', [Validators.required, Validators.pattern(/^(ADMIN|ODONTOLOGO|AUXILIAR|RECEPCION)$/)]],
-        password: ['', [Validators.required, Validators.minLength(8)]],
+        password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72), Validators.pattern(/^(?=.*[a-zA-Z])(?=.*\d).+$/)]],
         confirmPassword: ['', Validators.required],
       },
       { validators: passwordMatchValidator },

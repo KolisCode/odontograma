@@ -54,6 +54,7 @@ export class Navbar implements OnInit, OnDestroy {
   notifLoading = false;
   notifCrearVisible = false;
   notifCrearError = '';
+  creandoNotif = false;
   tipoCreacion: 'general' | 'programada' = 'general';
   notificaciones: NotificacionesData | null = null;
   notifForm: FormGroup;
@@ -220,6 +221,7 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   crearNotificacion(): void {
+    if (this.creandoNotif) return;
     if (this.notifForm.invalid) {
       this.notifForm.markAllAsTouched();
       return;
@@ -239,13 +241,16 @@ export class Navbar implements OnInit, OnDestroy {
     if (this.tipoCreacion === 'programada' && val.programadaPara) {
       payload.programadaPara = new Date(val.programadaPara + ':00-05:00').toISOString();
     }
+    this.creandoNotif = true;
     this.notifService.create(payload)
       .pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
+          this.creandoNotif = false;
           this.cerrarFormCrear();
           this.cargarNotificaciones();
         },
         error: (err: any) => {
+          this.creandoNotif = false;
           this.notifCrearError = err?.error?.message || 'No se pudo crear la notificación';
           this.cdr.detectChanges();
         },

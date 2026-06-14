@@ -2,11 +2,12 @@ import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@
 import { encodeId } from '../../../shared/ids';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
+import { takeUntil, switchMap, map, catchError } from 'rxjs/operators';
 import { calcularEdad as calcEdad, formatDateForInput as fmtDate, medianocheColUTC, fechaHoyCol } from '../../../utils/date.utils';
 import { ImportParserService, ParsedRow } from '../../../services/import-parser.service';
 import { ImportResult } from '../service/pacientes.service';
+import { AuthService } from '../../authentication/service/auth-service/auth.service';
 import {
   AbstractControl,
   FormBuilder,
@@ -57,6 +58,7 @@ export class List implements OnInit, OnDestroy {
   private _searchDebounce: ReturnType<typeof setTimeout> | null = null;
   private _successTimer: ReturnType<typeof setTimeout> | null = null;
   private destroy$ = new Subject<void>();
+  private loadTrigger$ = new Subject<void>();
 
   // ── Dropdown de módulos por fila ──────────────────────────────────────────
   openDropdownId: number | null = null;
@@ -85,6 +87,10 @@ export class List implements OnInit, OnDestroy {
   toggleActivoPendientes: { movimientosPendientes: number; odontogramasActivos: number; tratamientosActivos: number } | null = null;
   toggleActivoLoading = false;
   toggleActivoError = '';
+
+  // Permisos de UI (alineados con el RBAC del backend): RECEPCION solo consulta.
+  get puedeGestionar(): boolean { return this.authService.canManage(); }
+  get puedeAccederClinico(): boolean { return this.authService.canAccessClinical(); }
 
   recomputeFilter(): void {
     if (this._searchDebounce) clearTimeout(this._searchDebounce);
@@ -162,6 +168,7 @@ export class List implements OnInit, OnDestroy {
     readonly importParser: ImportParserService,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private authService: AuthService,
   ) {
     this.patientForm = this.fb.group({
       nombre: [
@@ -215,6 +222,34 @@ export class List implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // switchMap garantiza que una carga nueva (búsqueda/paginación) cancele la
+    // anterior en vuelo, evitando que una respuesta lenta pise a una más reciente.
+    this.loadTrigger$.pipe(
+      switchMap(() => {
+        this.tableLoading = true;
+        this.cdr.detectChanges();
+        return this.patientsService.getPatients({
+          soloActivos: !this.mostrarInactivos,
+          search: this.searchTerm.trim() || undefined,
+          page: this.currentPage,
+          pageSize: this.PAGE_SIZE,
+        }).pipe(
+          map((response) => ({ ok: true as const, response })),
+          catchError((err) => of({ ok: false as const, err })),
+        );
+      }),
+      takeUntil(this.destroy$),
+    ).subscribe((result) => {
+      if (result.ok) {
+        this.filteredPatients = result.response.data;
+        this.paginaMeta = result.response.meta ?? null;
+      } else {
+        this.errorMessage = result.err?.error?.message || 'No se pudo cargar el listado de pacientes';
+      }
+      this.tableLoading = false;
+      this.cdr.detectChanges();
+    });
+
     this.loadPatientsModuleData();
   }
 
@@ -225,26 +260,7 @@ export class List implements OnInit, OnDestroy {
   }
 
   loadPatients(): void {
-    this.tableLoading = true;
-
-    this.patientsService.getPatients({
-      soloActivos: !this.mostrarInactivos,
-      search: this.searchTerm.trim() || undefined,
-      page: this.currentPage,
-      pageSize: this.PAGE_SIZE,
-    }).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (response) => {
-        this.filteredPatients = response.data;
-        this.paginaMeta = response.meta ?? null;
-        this.tableLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        this.errorMessage = err?.error?.message || 'No se pudo cargar el listado de pacientes';
-        this.tableLoading = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.loadTrigger$.next();
   }
 
   loadRecentPatients(): void {

@@ -173,7 +173,7 @@
           </ng-container>
           <div class="notif-field-error" *ngIf="notifCrearError">{{ notifCrearError }}</div>
           <div class="notif-form-row notif-form-row--end">
-            <button class="notif-submit" type="submit">Guardar</button>
+            <button class="notif-submit" type="submit" [disabled]="creandoNotif">{{ creandoNotif ? 'Guardando...' : 'Guardar' }}</button>
           </div>
         </form>
 

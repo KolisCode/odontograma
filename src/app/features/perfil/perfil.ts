@@ -38,7 +38,7 @@ export class Perfil implements OnInit, OnDestroy {
     this.passwordForm = this.fb.group(
       {
         currentPassword: ['', Validators.required],
-        newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-zA-Z])(?=.*\d).+$/)]],
+        newPassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72), Validators.pattern(/^(?=.*[a-zA-Z])(?=.*\d).+$/)]],
         confirmPassword: ['', Validators.required],
       },
       { validators: passwordMatchValidator },

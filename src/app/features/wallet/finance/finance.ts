@@ -11,6 +11,7 @@ import { Navbar } from '../../complements/navbar/navbar';
 import { FinanzasService, MovimientoRow, MovimientoFilters, PagoMovimiento, PaginaMeta } from './service/finanzas.service';
 import { PatientsService, PatientRow } from '../../user/service/pacientes.service';
 import { formatDateForInput } from '../../../utils/date.utils';
+import { AuthService } from '../../authentication/service/auth-service/auth.service';
 
 @Component({
   selector: 'app-finance',
@@ -68,6 +69,9 @@ export class Finance implements OnInit, OnDestroy {
     return this.ingresosMes - this.egresosMes;
   }
 
+  // RECEPCION solo consulta finanzas; las acciones de escritura se ocultan.
+  get puedeGestionar(): boolean { return this.authService.canManage(); }
+
   get recentMovimientos(): MovimientoRow[] {
     return this.movimientos.slice(0, 3);
   }
@@ -101,6 +105,7 @@ export class Finance implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef,
+    private authService: AuthService,
   ) {
     this.form = this.fb.group({
       tipo: ['INGRESO', [Validators.required, Validators.pattern(/^(INGRESO|EGRESO)$/)]],

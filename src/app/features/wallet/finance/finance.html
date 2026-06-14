@@ -109,7 +109,7 @@
   </div>
 
   <div class="finance-layout">
-    <section class="finance-card finance-card--form">
+    <section class="finance-card finance-card--form" *ngIf="puedeGestionar">
 
       <!-- Trigger colapsado -->
       <div class="form-trigger" *ngIf="!formVisible" (click)="formVisible = true">
@@ -362,8 +362,8 @@
                   [class.btn-abonos--active]="m.id === expandedPagosId">
                   Abonos<span *ngIf="m.pagos.length"> ({{ m.pagos.length }})</span>
                 </button>
-                <button class="btn-edit" type="button" title="Editar movimiento" (click)="editarMovimiento(m)">Editar</button>
-                <button class="btn-delete" type="button" title="Eliminar movimiento" (click)="eliminar(m.id)">Eliminar</button>
+                <button *ngIf="puedeGestionar" class="btn-edit" type="button" title="Editar movimiento" (click)="editarMovimiento(m)">Editar</button>
+                <button *ngIf="puedeGestionar" class="btn-delete" type="button" title="Eliminar movimiento" (click)="eliminar(m.id)">Eliminar</button>
               </td>
             </tr>
 
@@ -409,7 +409,7 @@
                       <span>{{ formatFecha(pago.fecha) }}</span>
                       <span>{{ pago.metodoPago ?? '—' }}</span>
                       <span class="money--in">{{ pago.monto | currency:'COP ':'symbol':'1.0-0' }}</span>
-                      <button class="btn-delete" type="button" title="Eliminar abono" (click)="pedirEliminarPago(m, pago.id)">Eliminar</button>
+                      <button *ngIf="puedeGestionar" class="btn-delete" type="button" title="Eliminar abono" (click)="pedirEliminarPago(m, pago.id)">Eliminar</button>
                     </div>
                   </div>
 
@@ -418,7 +418,7 @@
                   </div>
 
                   <!-- Formulario para agregar abono -->
-                  <form class="pago-form" [formGroup]="pagoForm" (ngSubmit)="agregarPago(m)">
+                  <form class="pago-form" *ngIf="puedeGestionar" [formGroup]="pagoForm" (ngSubmit)="agregarPago(m)">
                     <div class="pago-form__fields">
                       <div class="form-group">
                         <label>Monto del abono</label>

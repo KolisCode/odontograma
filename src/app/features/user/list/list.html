@@ -6,7 +6,7 @@
       <p>Registro y administración de información básica del paciente</p>
     </div>
 
-    <div class="patients-header__actions">
+    <div class="patients-header__actions" *ngIf="puedeGestionar">
       <button class="btn btn-secondary" type="button" (click)="openImportModal()" title="Cargar múltiples pacientes desde un archivo CSV o Excel">Importar</button>
       <button class="btn btn-primary" type="button" (click)="openForm()" title="Registrar un nuevo paciente en el sistema">Nuevo paciente</button>
     </div>
@@ -21,7 +21,7 @@
   </div>
 
   <div class="patients-layout">
-    <section class="patients-card patients-card--form">
+    <section class="patients-card patients-card--form" *ngIf="puedeGestionar">
 
       <!-- Trigger colapsado -->
       <div class="form-trigger" *ngIf="!formVisible" (click)="openForm()">
@@ -288,7 +288,7 @@
             <td>{{ patient.ultimaCita || 'Sin cita' }}</td>
             <td>
               <div class="table-actions">
-                <button class="btn-table btn-table-edit" type="button" title="Editar datos del paciente" (click)="editPatient(patient.id)">
+                <button *ngIf="puedeGestionar" class="btn-table btn-table-edit" type="button" title="Editar datos del paciente" (click)="editPatient(patient.id)">
                   Editar
                 </button>
 
@@ -299,6 +299,7 @@
                 </button>
 
                 <button
+                  *ngIf="puedeGestionar"
                   class="btn-table"
                   [class.btn-table-danger]="patient.activo"
                   [class.btn-table-success]="!patient.activo"
@@ -335,10 +336,10 @@
      [style.top.px]="dropdownTop"
      [style.left.px]="dropdownLeft"
      (click)="$event.stopPropagation()">
-  <button class="row-dropdown__item" type="button" (click)="goToHistory(openDropdownId!); openDropdownId = null" title="Abrir la historia clínica del paciente">Historia</button>
+  <button *ngIf="puedeAccederClinico" class="row-dropdown__item" type="button" (click)="goToHistory(openDropdownId!); openDropdownId = null" title="Abrir la historia clínica del paciente">Historia</button>
   <button class="row-dropdown__item" type="button" (click)="goToOdontogram(openDropdownId!); openDropdownId = null" title="Ver y editar el odontograma dental del paciente">Odontograma</button>
   <button class="row-dropdown__item" type="button" (click)="goToTratamientos(openDropdownId!); openDropdownId = null" title="Gestionar el plan de tratamientos del paciente">Tratamientos</button>
-  <button class="row-dropdown__item" type="button" (click)="goToResumen(openDropdownId!); openDropdownId = null" title="Ver el resumen clínico completo del paciente">Resumen</button>
+  <button *ngIf="puedeAccederClinico" class="row-dropdown__item" type="button" (click)="goToResumen(openDropdownId!); openDropdownId = null" title="Ver el resumen clínico completo del paciente">Resumen</button>
   <button class="row-dropdown__item" type="button" (click)="goToFinance(openDropdownId!); openDropdownId = null" title="Ver los movimientos financieros del paciente">Finanzas</button>
 </div>
 

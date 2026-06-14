@@ -79,6 +79,22 @@ export class AuthService {
     return this.getUserRole() === 'ADMIN';
   }
 
+  hasRole(...roles: string[]): boolean {
+    const rol = this.getUserRole();
+    return rol ? roles.includes(rol) : false;
+  }
+
+  // Personal que puede gestionar pacientes, finanzas y módulos clínicos
+  // (alineado con el RBAC del backend; RECEPCION queda fuera).
+  canManage(): boolean {
+    return this.hasRole('ADMIN', 'ODONTOLOGO', 'AUXILIAR');
+  }
+
+  // Acceso a la historia clínica y submódulos (GET exige rol clínico en el backend).
+  canAccessClinical(): boolean {
+    return this.hasRole('ADMIN', 'ODONTOLOGO', 'AUXILIAR');
+  }
+
   changeOwnPassword(currentPassword: string, newPassword: string): Observable<any> {
     return this.http.patch(`${this.api}/me/password`, { currentPassword, newPassword });
   }
