@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { Odontogram } from './odontogram';
+import { OdontogramService } from './odontogram';
 
-describe('Odontogram', () => {
-  let service: Odontogram;
+describe('OdontogramService', () => {
+  let service: OdontogramService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(Odontogram);
+    service = TestBed.inject(OdontogramService);
   });
 
   it('should be created', () => {

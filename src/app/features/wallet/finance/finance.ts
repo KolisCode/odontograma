@@ -8,7 +8,7 @@ import { takeUntil, switchMap, catchError } from 'rxjs/operators';
 
 import { Footer } from '../../complements/footer/footer';
 import { Navbar } from '../../complements/navbar/navbar';
-import { FinanzasService, MovimientoRow, MovimientoFilters, PagoMovimiento, PaginaMeta } from './service/finanzas.service';
+import { FinanzasService, MovimientoRow, MovimientoFilters, PaginaMeta } from './service/finanzas.service';
 import { PatientsService, PatientRow } from '../../user/service/pacientes.service';
 import { formatDateForInput } from '../../../utils/date.utils';
 import { AuthService } from '../../authentication/service/auth-service/auth.service';

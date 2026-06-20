@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as XLSX from 'xlsx';
 
-export interface ParsedRow {
-  [key: string]: string;
-}
+export type ParsedRow = Record<string, string>;
 
 export interface ParseResult {
   headers: string[];

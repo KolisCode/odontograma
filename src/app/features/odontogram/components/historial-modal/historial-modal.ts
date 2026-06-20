@@ -3,7 +3,6 @@ import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core
 import { BackendOdontogramResponse } from '../../interfaces/backend-odontogram-response';
 import { Tooth as ToothComponent } from '../tooth/tooth';
 import { SurfaceDiagnosis } from '../../interfaces/surface-diagnosis';
-import { ToothPiece } from '../../interfaces/tooth-piece';
 import { DiagnosisType } from '../../types/diagnosis-type';
 import { PieceType } from '../../types/piece-type';
 import { ToothSurface } from '../../types/tooth-surface';

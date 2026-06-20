@@ -43,9 +43,7 @@ export class Tooth {
   }
 
   /** Superficie central (siempre oclusal) */
-  get centerSurface(): ToothSurface {
-    return 'Oclusal';
-  }
+  readonly centerSurface: ToothSurface = 'Oclusal';
 
   hasPiece(type: PieceType): boolean {
     return this.pieces.includes(type);
@@ -67,7 +65,7 @@ export class Tooth {
     surface: ToothSurface;
   }>();
 
-  private diagnosisClassMap: Record<string, string> = {
+  private readonly diagnosisClassMap: Record<string, string> = {
     // Diagnósticos
     Caries: 'diagnosis-caries',
     Obturacion: 'diagnosis-obturacion',

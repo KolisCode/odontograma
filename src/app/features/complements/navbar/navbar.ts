@@ -8,7 +8,6 @@ import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../authentication/service/auth-service/auth.service';
 import { PatientsService, PatientRow } from '../../user/service/pacientes.service';
 import { NotificacionesService, NotificacionesData } from '../../../services/notificaciones.service';
-import { fechaHoyCol } from '../../../utils/date.utils';
 
 @Component({
   selector: 'app-navbar',
