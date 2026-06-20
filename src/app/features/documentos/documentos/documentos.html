@@ -15,8 +15,9 @@
     <div class="documentos-form">
       <div class="documentos-form__row">
         <div class="documentos-form__field">
-          <label class="documentos-form__label">Archivo</label>
+          <label class="documentos-form__label" for="doc-archivo">Archivo</label>
           <input
+            id="doc-archivo"
             class="documentos-form__input-file"
             type="file"
             accept="image/jpeg,image/png,image/webp,application/pdf"
@@ -28,15 +29,15 @@
 
       <div class="documentos-form__row documentos-form__row--inline">
         <div class="documentos-form__field">
-          <label class="documentos-form__label">Tipo</label>
-          <select class="documentos-form__select" [(ngModel)]="selectedTipo">
+          <label class="documentos-form__label" for="doc-selectedTipo">Tipo</label>
+          <select id="doc-selectedTipo" class="documentos-form__select" [(ngModel)]="selectedTipo">
             <option *ngFor="let t of tiposDocumento" [value]="t.value">{{ t.label }}</option>
           </select>
         </div>
 
         <div class="documentos-form__field">
-          <label class="documentos-form__label">Fecha del documento <span class="documentos-form__optional">(opcional)</span></label>
-          <input class="documentos-form__input" type="date" [(ngModel)]="selectedFecha" />
+          <label class="documentos-form__label" for="doc-selectedFecha">Fecha del documento <span class="documentos-form__optional">(opcional)</span></label>
+          <input id="doc-selectedFecha" class="documentos-form__input" type="date" [(ngModel)]="selectedFecha" />
         </div>
       </div>
 

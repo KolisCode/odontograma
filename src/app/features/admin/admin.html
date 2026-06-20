@@ -80,16 +80,16 @@
         </div>
         <div class="export-entity__filters" *ngIf="movimientos.incluir">
           <div class="filter-row">
-            <label>Desde</label>
-            <input type="date" [(ngModel)]="movimientos.fechaDesde" />
+            <label for="adm-movimientos-fechaDesde">Desde</label>
+            <input id="adm-movimientos-fechaDesde" type="date" [(ngModel)]="movimientos.fechaDesde" />
           </div>
           <div class="filter-row">
-            <label>Hasta</label>
-            <input type="date" [(ngModel)]="movimientos.fechaHasta" />
+            <label for="adm-movimientos-fechaHasta">Hasta</label>
+            <input id="adm-movimientos-fechaHasta" type="date" [(ngModel)]="movimientos.fechaHasta" />
           </div>
           <div class="filter-row">
-            <label>Estado</label>
-            <select [(ngModel)]="movimientos.estado">
+            <label for="adm-movimientos-estado">Estado</label>
+            <select id="adm-movimientos-estado" [(ngModel)]="movimientos.estado">
               <option value="">Todos</option>
               <option *ngFor="let e of ESTADOS_MOVIMIENTO" [value]="e">{{ e }}</option>
             </select>
@@ -108,16 +108,16 @@
         </div>
         <div class="export-entity__filters" *ngIf="citas.incluir">
           <div class="filter-row">
-            <label>Desde</label>
-            <input type="date" [(ngModel)]="citas.fechaDesde" />
+            <label for="adm-citas-fechaDesde">Desde</label>
+            <input id="adm-citas-fechaDesde" type="date" [(ngModel)]="citas.fechaDesde" />
           </div>
           <div class="filter-row">
-            <label>Hasta</label>
-            <input type="date" [(ngModel)]="citas.fechaHasta" />
+            <label for="adm-citas-fechaHasta">Hasta</label>
+            <input id="adm-citas-fechaHasta" type="date" [(ngModel)]="citas.fechaHasta" />
           </div>
           <div class="filter-row">
-            <label>Estado</label>
-            <select [(ngModel)]="citas.estado">
+            <label for="adm-citas-estado">Estado</label>
+            <select id="adm-citas-estado" [(ngModel)]="citas.estado">
               <option value="">Todos</option>
               <option *ngFor="let e of ESTADOS_CITA" [value]="e">{{ e }}</option>
             </select>
@@ -182,55 +182,55 @@
         <h4 class="new-user-form__title">Nuevo usuario</h4>
         <div class="new-user-form__grid">
           <div class="form-field">
-            <label>Nombre *</label>
-            <input type="text" formControlName="nombre" placeholder="Nombre" />
+            <label for="adm-nombre">Nombre *</label>
+            <input id="adm-nombre" type="text" formControlName="nombre" placeholder="Nombre" />
             <small *ngIf="newUserForm.get('nombre')?.touched && newUserForm.get('nombre')?.hasError('required')">El nombre es obligatorio.</small>
             <small *ngIf="newUserForm.get('nombre')?.touched && newUserForm.get('nombre')?.hasError('minlength')">Mínimo 2 caracteres.</small>
             <small *ngIf="newUserForm.get('nombre')?.touched && newUserForm.get('nombre')?.hasError('maxlength')">Máximo 60 caracteres.</small>
             <small *ngIf="newUserForm.get('nombre')?.touched && newUserForm.get('nombre')?.hasError('pattern')">Solo se permiten letras y espacios.</small>
           </div>
           <div class="form-field">
-            <label>Apellido *</label>
-            <input type="text" formControlName="apellido" placeholder="Apellido" />
+            <label for="adm-apellido">Apellido *</label>
+            <input id="adm-apellido" type="text" formControlName="apellido" placeholder="Apellido" />
             <small *ngIf="newUserForm.get('apellido')?.touched && newUserForm.get('apellido')?.hasError('required')">El apellido es obligatorio.</small>
             <small *ngIf="newUserForm.get('apellido')?.touched && newUserForm.get('apellido')?.hasError('minlength')">Mínimo 2 caracteres.</small>
             <small *ngIf="newUserForm.get('apellido')?.touched && newUserForm.get('apellido')?.hasError('maxlength')">Máximo 60 caracteres.</small>
             <small *ngIf="newUserForm.get('apellido')?.touched && newUserForm.get('apellido')?.hasError('pattern')">Solo se permiten letras y espacios.</small>
           </div>
           <div class="form-field">
-            <label>Correo *</label>
-            <input type="email" formControlName="correo" placeholder="correo@ejemplo.com" />
+            <label for="adm-correo">Correo *</label>
+            <input id="adm-correo" type="email" formControlName="correo" placeholder="correo@ejemplo.com" />
             <small *ngIf="newUserForm.get('correo')?.touched && newUserForm.get('correo')?.invalid">Ingresa un correo válido.</small>
           </div>
           <div class="form-field">
-            <label>Contraseña *</label>
-            <input type="password" formControlName="password" placeholder="Mínimo 8 caracteres, una letra y un número" autocomplete="new-password" />
+            <label for="adm-password">Contraseña *</label>
+            <input id="adm-password" type="password" formControlName="password" placeholder="Mínimo 8 caracteres, una letra y un número" autocomplete="new-password" />
             <small *ngIf="newUserForm.get('password')?.touched && newUserForm.get('password')?.hasError('required')">La contraseña es obligatoria.</small>
             <small *ngIf="newUserForm.get('password')?.touched && newUserForm.get('password')?.hasError('minlength')">Mínimo 8 caracteres.</small>
             <small *ngIf="newUserForm.get('password')?.touched && newUserForm.get('password')?.hasError('pattern')">Debe contener al menos una letra y un número.</small>
           </div>
           <div class="form-field">
-            <label>Confirmar contraseña *</label>
-            <input type="password" formControlName="confirmarPassword" placeholder="Repite la contraseña" autocomplete="new-password" />
+            <label for="adm-confirmarPassword">Confirmar contraseña *</label>
+            <input id="adm-confirmarPassword" type="password" formControlName="confirmarPassword" placeholder="Repite la contraseña" autocomplete="new-password" />
             <small *ngIf="newUserForm.get('confirmarPassword')?.touched && newUserForm.errors?.['passwordMismatch']">
               Las contraseñas no coinciden.
             </small>
           </div>
           <div class="form-field">
-            <label>Rol *</label>
-            <select formControlName="rol">
+            <label for="adm-rol">Rol *</label>
+            <select id="adm-rol" formControlName="rol">
               <option *ngFor="let r of ROLES" [value]="r">{{ ROLE_LABELS[r] }}</option>
             </select>
           </div>
           <div class="form-field">
-            <label>Teléfono</label>
-            <input type="text" formControlName="telefono" placeholder="Solo números (opcional)" />
+            <label for="adm-telefono">Teléfono</label>
+            <input id="adm-telefono" type="text" formControlName="telefono" placeholder="Solo números (opcional)" />
             <small *ngIf="newUserForm.get('telefono')?.touched && newUserForm.get('telefono')?.hasError('pattern')">Solo se permiten números.</small>
             <small *ngIf="newUserForm.get('telefono')?.touched && (newUserForm.get('telefono')?.hasError('minlength') || newUserForm.get('telefono')?.hasError('maxlength'))">El teléfono debe tener entre 7 y 15 dígitos.</small>
           </div>
           <div class="form-field">
-            <label>Documento</label>
-            <input type="text" formControlName="documento" placeholder="Solo números (opcional)" />
+            <label for="adm-documento">Documento</label>
+            <input id="adm-documento" type="text" formControlName="documento" placeholder="Solo números (opcional)" />
             <small *ngIf="newUserForm.get('documento')?.touched && newUserForm.get('documento')?.hasError('pattern')">Solo se permiten números.</small>
             <small *ngIf="newUserForm.get('documento')?.touched && (newUserForm.get('documento')?.hasError('minlength') || newUserForm.get('documento')?.hasError('maxlength'))">El documento debe tener entre 6 y 15 dígitos.</small>
           </div>
@@ -389,10 +389,10 @@
 
       <ng-container *ngIf="!configLoading">
         <div class="config-field">
-          <label class="config-label">Indicativo de país (WhatsApp)</label>
+          <label class="config-label" for="adm-configIndicativo">Indicativo de país (WhatsApp)</label>
           <div class="config-input-row">
             <span class="config-prefix">+</span>
-            <input
+            <input id="adm-configIndicativo"
               type="tel"
               inputmode="numeric"
               class="config-input"
@@ -405,8 +405,8 @@
         </div>
 
         <div class="config-field">
-          <label class="config-label">WhatsApp de la clínica (opcional)</label>
-          <input
+          <label class="config-label" for="adm-configWhatsapp">WhatsApp de la clínica (opcional)</label>
+          <input id="adm-configWhatsapp"
             type="tel"
             inputmode="numeric"
             class="config-input"
@@ -442,9 +442,9 @@
   <p class="pwd-modal__user">{{ pwdModalUser!.nombre }} {{ pwdModalUser!.apellido }} — {{ pwdModalUser!.correo }}</p>
 
   <div class="pwd-modal__field">
-    <label>Nueva contraseña</label>
+    <label for="adm-pwdNueva">Nueva contraseña</label>
     <div class="pwd-input-wrap">
-      <input
+      <input id="adm-pwdNueva"
         [type]="pwdShow ? 'text' : 'password'"
         [(ngModel)]="pwdNueva"
         placeholder="Mínimo 8 caracteres, una letra y un número"
@@ -460,8 +460,8 @@
   </div>
 
   <div class="pwd-modal__field">
-    <label>Confirmar contraseña</label>
-    <input
+    <label for="adm-pwdConfirm">Confirmar contraseña</label>
+    <input id="adm-pwdConfirm"
       [type]="pwdShow ? 'text' : 'password'"
       [(ngModel)]="pwdConfirm"
       placeholder="Repite la contraseña"

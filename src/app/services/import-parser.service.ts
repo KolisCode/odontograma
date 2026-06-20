@@ -44,23 +44,23 @@ export class ImportParserService {
             if (match) sheetName = match;
           }
           const ws = wb.Sheets[sheetName];
-          const raw: any[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+          const raw: unknown[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
 
           if (!raw || raw.length < 2) {
             reject(new Error('El archivo no tiene datos o le falta la fila de encabezados'));
             return;
           }
 
-          const headers: string[] = (raw[0] as any[]).map((h) =>
+          const headers: string[] = (raw[0] as unknown[]).map((h) =>
             String(h ?? '').trim().toLowerCase().replace(/\s+/g, '_'),
           );
 
           const rows: ParsedRow[] = raw.slice(1)
-            .filter((row) => (row as any[]).some((cell) => String(cell ?? '').trim() !== ''))
+            .filter((row) => (row as unknown[]).some((cell) => String(cell ?? '').trim() !== ''))
             .map((row) => {
               const obj: ParsedRow = {};
               headers.forEach((h, i) => {
-                const cell = (row as any[])[i];
+                const cell = (row as unknown[])[i];
                 // Fechas: XLSX puede devolver Date objects
                 if (cell instanceof Date) {
                   const _pad = (n: number) => String(n).padStart(2, '0');
@@ -73,8 +73,8 @@ export class ImportParserService {
             });
 
           resolve({ headers, rows, totalRows: rows.length });
-        } catch (err: any) {
-          reject(new Error('No se pudo leer el archivo: ' + (err?.message ?? 'formato no reconocido')));
+        } catch (err) {
+          reject(new Error('No se pudo leer el archivo: ' + (err instanceof Error ? err.message : 'formato no reconocido')));
         }
       };
 

@@ -42,19 +42,19 @@ export class NotificacionesService {
     return this.http.get<{ ok: boolean; data: NotificacionesData }>(url);
   }
 
-  create(data: { titulo: string; mensaje: string; tipo: 'PERSONAL' | 'GLOBAL'; destinatarioId?: number; programadaPara?: string | null }): Observable<any> {
-    return this.http.post(this.api, data);
+  create(data: { titulo: string; mensaje: string; tipo: 'PERSONAL' | 'GLOBAL'; destinatarioId?: number; programadaPara?: string | null }): Observable<{ ok: boolean; message?: string }> {
+    return this.http.post<{ ok: boolean; message?: string }>(this.api, data);
   }
 
-  marcarLeida(id: number): Observable<any> {
-    return this.http.patch(`${this.api}/${id}/leer`, {});
+  marcarLeida(id: number): Observable<{ ok: boolean; message?: string }> {
+    return this.http.patch<{ ok: boolean; message?: string }>(`${this.api}/${id}/leer`, {});
   }
 
-  eliminar(id: number): Observable<any> {
-    return this.http.delete(`${this.api}/${id}`);
+  eliminar(id: number): Observable<{ ok: boolean; message?: string }> {
+    return this.http.delete<{ ok: boolean; message?: string }>(`${this.api}/${id}`);
   }
 
-  descartar(clave: string): Observable<any> {
-    return this.http.post(`${this.api}/descartar`, { clave });
+  descartar(clave: string): Observable<{ ok: boolean; message?: string }> {
+    return this.http.post<{ ok: boolean; message?: string }>(`${this.api}/descartar`, { clave });
   }
 }

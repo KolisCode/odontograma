@@ -540,7 +540,7 @@ export class Appointment implements OnInit, OnDestroy {
         this.updatingEstadoId = null;
         this.loadAppointmentsModuleData();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.updatingEstadoId = null;
         this.errorMessage = err?.error?.message || 'No se pudo actualizar el estado';
         this.cdr.detectChanges();

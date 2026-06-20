@@ -145,12 +145,15 @@ export class ResumenHistoria implements OnInit, OnDestroy {
     });
   }
 
+  // Parser de campos JSON libres del backend (forma variable). Tipo dinámico a propósito.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private parseJson(value: any): any {
     if (!value) return {};
     if (typeof value === 'object') return value;
     try { return JSON.parse(value); } catch { return {}; }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private buildAlertas(historia: any): void {
     const alertas: AlertaClinica[] = [];
 
@@ -219,8 +222,9 @@ export class ResumenHistoria implements OnInit, OnDestroy {
     }
 
     // ── Medicación ────────────────────────────────────────────────────────────
-    const meds = Array.isArray(historia.medicacionActual) ? historia.medicacionActual : [];
-    this.medicamentos = meds.filter((m: any) => m?.medicamento?.trim());
+    const meds: { medicamento: string; dosis: string; frecuencia: string }[] =
+      Array.isArray(historia.medicacionActual) ? historia.medicacionActual : [];
+    this.medicamentos = meds.filter((m) => m?.medicamento?.trim());
     if (this.medicamentos.length > 0) {
       alertas.push({ tipo: 'info', texto: `Toma ${this.medicamentos.length} medicamento(s) actualmente` });
     }
@@ -240,6 +244,7 @@ export class ResumenHistoria implements OnInit, OnDestroy {
     this.alertas = alertas;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private buildHigiene(historia: any): void {
     const h = this.parseJson(historia.higieneOral);
     const momentos: string[] = [];

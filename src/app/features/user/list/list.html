@@ -43,8 +43,8 @@
 
       <form class="patients-form" [formGroup]="patientForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
-          <label>Nombres</label>
-          <input
+          <label for="pac-nombre">Nombres</label>
+          <input id="pac-nombre"
             type="text"
             placeholder="Ej. María Fernanda"
             formControlName="nombre"
@@ -55,8 +55,8 @@
         </div>
 
         <div class="form-group">
-          <label>Apellidos</label>
-          <input
+          <label for="pac-apellido">Apellidos</label>
+          <input id="pac-apellido"
             type="text"
             placeholder="Ej. Gómez Rojas"
             formControlName="apellido"
@@ -67,8 +67,8 @@
         </div>
 
         <div class="form-group">
-          <label>Documento</label>
-          <input
+          <label for="pac-documento">Documento</label>
+          <input id="pac-documento"
             type="text"
             inputmode="numeric"
             placeholder="Número de documento"
@@ -80,8 +80,8 @@
         </div>
  
         <div class="form-group">
-          <label>Fecha de nacimiento</label>
-          <input
+          <label for="pac-fechaNacimiento">Fecha de nacimiento</label>
+          <input id="pac-fechaNacimiento"
             type="date"
             formControlName="fechaNacimiento"
             [min]="minBirthDate"
@@ -96,8 +96,8 @@
         </div>
 
         <div class="form-group">
-          <label>Teléfono</label>
-          <input
+          <label for="pac-telefono">Teléfono</label>
+          <input id="pac-telefono"
             type="text"
             inputmode="numeric"
             placeholder="Número de contacto"
@@ -109,8 +109,8 @@
         </div>
 
         <div class="form-group">
-          <label>Correo electrónico</label>
-          <input
+          <label for="pac-correo">Correo electrónico</label>
+          <input id="pac-correo"
             type="email"
             placeholder="correo@ejemplo.com"
             formControlName="correo"
@@ -121,8 +121,8 @@
         </div>
 
         <div class="form-group form-group--full">
-          <label>Dirección</label>
-          <input
+          <label for="pac-direccion">Dirección</label>
+          <input id="pac-direccion"
             type="text"
             placeholder="Dirección de residencia"
             formControlName="direccion"
@@ -133,8 +133,8 @@
         </div>
 
         <div class="form-group">
-          <label>EPS / Aseguradora</label>
-          <input
+          <label for="pac-eps">EPS / Aseguradora</label>
+          <input id="pac-eps"
             type="text"
             placeholder="Entidad de salud"
             formControlName="eps"
@@ -145,8 +145,8 @@
         </div>
 
         <div class="form-group">
-          <label>Alergias</label>
-          <input
+          <label for="pac-alergias">Alergias</label>
+          <input id="pac-alergias"
             type="text"
             placeholder="Ej. Penicilina"
             formControlName="alergias"
@@ -157,8 +157,8 @@
         </div>
 
         <div class="form-group form-group--full">
-          <label>Observaciones</label>
-          <textarea
+          <label for="pac-observaciones">Observaciones</label>
+          <textarea id="pac-observaciones"
             rows="4"
             placeholder="Notas adicionales del paciente"
             formControlName="observaciones"

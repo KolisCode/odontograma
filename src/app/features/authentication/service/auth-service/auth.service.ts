@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap, catchError, finalize } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
+import { ApiResponse, AuthUser } from '../../../../shared/api.types';
 
 @Injectable({
   providedIn: 'root'
@@ -12,13 +13,13 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  register(data: any): Observable<any> {
-    return this.http.post(`${this.api}/register`, data);
+  register(data: unknown): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(`${this.api}/register`, data);
   }
 
-  login(data: { correo: string; password: string }): Observable<any> {
-    return this.http.post(`${this.api}/login`, data).pipe(
-      tap((response: any) => {
+  login(data: { correo: string; password: string }): Observable<ApiResponse<{ token: string; user: AuthUser }>> {
+    return this.http.post<ApiResponse<{ token: string; user: AuthUser }>>(`${this.api}/login`, data).pipe(
+      tap((response) => {
         try {
           const token = response?.data?.token;
           const user = response?.data?.user;
@@ -29,8 +30,8 @@ export class AuthService {
     );
   }
 
-  getProfile(): Observable<any> {
-    return this.http.get(`${this.api}/me`);
+  getProfile(): Observable<ApiResponse<AuthUser>> {
+    return this.http.get<ApiResponse<AuthUser>>(`${this.api}/me`);
   }
 
   logout(): void {
@@ -53,10 +54,10 @@ export class AuthService {
     try { return localStorage.getItem('token'); } catch { return null; }
   }
 
-  getUser(): any | null {
+  getUser(): AuthUser | null {
     try {
       const user = localStorage.getItem('user');
-      return user ? JSON.parse(user) : null;
+      return user ? (JSON.parse(user) as AuthUser) : null;
     } catch { return null; }
   }
 
@@ -95,7 +96,7 @@ export class AuthService {
     return this.hasRole('ADMIN', 'ODONTOLOGO', 'AUXILIAR');
   }
 
-  changeOwnPassword(currentPassword: string, newPassword: string): Observable<any> {
-    return this.http.patch(`${this.api}/me/password`, { currentPassword, newPassword });
+  changeOwnPassword(currentPassword: string, newPassword: string): Observable<ApiResponse> {
+    return this.http.patch<ApiResponse>(`${this.api}/me/password`, { currentPassword, newPassword });
   }
 }

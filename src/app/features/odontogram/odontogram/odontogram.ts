@@ -350,7 +350,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadCobros();
         this.cobroTimer = setTimeout(() => this.closeCobroForm(), 3000);
       },
-      error: (err: any) => {
+      error: (err) => {
         this.cobroGuardando = false;
         this.cobroMensaje = err?.error?.message || 'No se pudo registrar el cobro';
         this.cobroMensajeTipo = 'error';
@@ -780,12 +780,15 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  // Parser de campos JSON libres del backend (forma variable). Tipo dinámico a propósito.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private parseJson(value: any): any {
     if (!value) return {};
     if (typeof value === 'object') return value;
     try { return JSON.parse(value); } catch { return {}; }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private parseAlertas(historia: any): AlertaClinica[] {
     const alertas: AlertaClinica[] = [];
 
@@ -910,7 +913,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
         numero: tooth.number,
         superficies: tooth.surfaces.flatMap((surface) =>
           surface.diagnoses.map((diagnosis) => ({
-            superficie: surface.surface === ('P' as any)
+            superficie: (surface.surface as string) === 'P'
               ? 'P'
               : this.mapFrontendSurfaceToBackend(surface.surface),
             diagnostico: diagnosis,
@@ -1001,7 +1004,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     for (const piece of piecesData) {
       if (!teethMap.has(piece.tooth)) teethMap.set(piece.tooth, { number: piece.tooth, surfaces: [] });
-      teethMap.get(piece.tooth)!.surfaces.push({ surface: 'P' as any, diagnoses: [piece.type as any] });
+      teethMap.get(piece.tooth)!.surfaces.push({ surface: 'P' as unknown as ToothSurface, diagnoses: [piece.type as unknown as DiagnosisType] });
     }
     return Array.from(teethMap.values());
   }
@@ -1015,7 +1018,7 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
         numero: tooth.number,
         superficies: tooth.surfaces.flatMap((surface) =>
           surface.diagnoses.map((diagnosis) => ({
-            superficie: surface.surface === ('P' as any)
+            superficie: (surface.surface as string) === 'P'
               ? 'P'
               : this.mapFrontendSurfaceToBackend(surface.surface),
             diagnostico: diagnosis,

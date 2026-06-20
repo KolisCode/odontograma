@@ -207,7 +207,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  createMedicamentoGroup(data?: any): FormGroup {
+  createMedicamentoGroup(data?: { medicamento?: string; dosis?: string; frecuencia?: string }): FormGroup {
     return this.fb.group({
       medicamento: [data?.medicamento || ''],
       dosis: [data?.dosis || ''],
@@ -311,6 +311,8 @@ export class HistoriaClinica implements OnInit, OnDestroy {
     this.medicamentosArray.push(this.createMedicamentoGroup());
   }
 
+  // Parser de campos JSON libres del backend (forma variable). Tipo dinámico a propósito.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parseJson(value: any): any {
     if (!value) return {};
     if (typeof value === 'object') return value;
@@ -322,6 +324,8 @@ export class HistoriaClinica implements OnInit, OnDestroy {
     }
   }
 
+  // historia: objeto crudo del backend con la historia clínica completa (JSON libre).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   patchHistoria(historia: any): void {
     const enfermedades = this.parseJson(historia.enfermedadesSistemicas);
     const higiene = this.parseJson(historia.higieneOral);
@@ -449,7 +453,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
 
     if (medicamentos.length > 0) {
       this.medicamentosArray.clear();
-      medicamentos.forEach((item: any) => {
+      medicamentos.forEach((item: { medicamento?: string; dosis?: string; frecuencia?: string }) => {
         this.medicamentosArray.push(this.createMedicamentoGroup(item));
       });
     }
@@ -493,7 +497,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
       }),
       medicacionActual:
         value.tomaMedicamentos === 'Sí'
-          ? value.medicamentos.filter((m: any) => m.medicamento || m.dosis || m.frecuencia)
+          ? value.medicamentos.filter((m: { medicamento?: string; dosis?: string; frecuencia?: string }) => m.medicamento || m.dosis || m.frecuencia)
           : [],
       alergiasGenerales: JSON.stringify({
         medicamentos: value.alergiaMedicamentos,
@@ -602,7 +606,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
     this.router.navigate(['/tratamientos', encodeId(this.pacienteId)]);
   }
 
-  formatDateTime(value: any): string {
+  formatDateTime(value: string | number | Date): string {
     const date = new Date(value);
 
     if (isNaN(date.getTime())) {
@@ -671,7 +675,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
           this.confirmandoEliminarNota = null;
           this.cdr.detectChanges();
         },
-        error: (err: any) => {
+        error: (err) => {
           this.confirmandoEliminarNota = null;
           this.errorMessage = err?.error?.message || 'No se pudo eliminar la evolución';
           this.cdr.detectChanges();
@@ -750,7 +754,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
           this.confirmandoEliminarFormula = null;
           this.cdr.detectChanges();
         },
-        error: (err: any) => {
+        error: (err) => {
           this.confirmandoEliminarFormula = null;
           this.formulaError = err?.error?.message || 'No se pudo eliminar la fórmula';
           this.cdr.detectChanges();

@@ -265,7 +265,7 @@ export class List implements OnInit, OnDestroy {
 
   loadRecentPatients(): void {
     this.patientsService.getRecentPatients().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (response: any) => {
+      next: (response) => {
         this.recentPatients = response.data;
         this.cdr.detectChanges();
       },
@@ -304,7 +304,7 @@ export class List implements OnInit, OnDestroy {
 
   editPatient(id: number): void {
     this.patientsService.getPatientById(id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res: any) => {
+      next: (res) => {
         const p = res.data;
         this.editingId = id;
         this.formVisible = true;
@@ -354,7 +354,7 @@ export class List implements OnInit, OnDestroy {
 
     if (this.editingId !== null) {
       this.patientsService.updatePatient(this.editingId, payload).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (response: any) => {
+        next: (response) => {
           this.setSuccess(response.message || 'Paciente actualizado correctamente');
           this.loading = false;
           this.editingId = null;
@@ -363,7 +363,7 @@ export class List implements OnInit, OnDestroy {
           this.cdr.detectChanges();
           this.loadPatientsModuleData();
         },
-        error: (err: any) => {
+        error: (err) => {
           this.errorMessage = err?.error?.message || 'No se pudo actualizar el paciente';
           this.loading = false;
           this.cdr.detectChanges();
@@ -371,7 +371,7 @@ export class List implements OnInit, OnDestroy {
       });
     } else {
       this.patientsService.createPatient(payload).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (response: any) => {
+        next: (response) => {
           this.setSuccess(response.message || 'Paciente registrado correctamente');
           this.loading = false;
           this.formVisible = false;
@@ -379,7 +379,7 @@ export class List implements OnInit, OnDestroy {
           this.cdr.detectChanges();
           this.loadPatientsModuleData();
         },
-        error: (err: any) => {
+        error: (err) => {
           this.errorMessage = err?.error?.message || 'No se pudo registrar el paciente';
           this.loading = false;
           this.cdr.detectChanges();
@@ -419,7 +419,7 @@ export class List implements OnInit, OnDestroy {
         this.loadPatientsModuleData();
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.toggleActivoLoading = false;
         if (err?.status === 409 && err?.error?.pendientes) {
           this.toggleActivoPendientes = err.error.pendientes;
@@ -445,7 +445,7 @@ export class List implements OnInit, OnDestroy {
         this.loadPatientsModuleData();
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.toggleActivoError = err?.error?.message || 'No se pudo cambiar el estado';
         this.toggleActivoLoading = false;
         this.cdr.detectChanges();
@@ -567,8 +567,8 @@ export class List implements OnInit, OnDestroy {
       this.importPreviewRows = parsed.rows.slice(0, 5);
       this.importTotalRows = parsed.totalRows;
       this.importStep = 'preview';
-    } catch (err: any) {
-      this.importError = err?.message ?? 'No se pudo leer el archivo';
+    } catch (err) {
+      this.importError = (err instanceof Error ? err.message : null) ?? 'No se pudo leer el archivo';
     }
 
     this.importLoading = false;
@@ -604,7 +604,7 @@ export class List implements OnInit, OnDestroy {
 
     const mapped = this.importParser.applyMapping(this._importAllRows, this.importColumnMapping);
 
-    this.patientsService.importarPacientes(mapped as any).pipe(takeUntil(this.destroy$)).subscribe({
+    this.patientsService.importarPacientes(mapped as unknown as PatientPayload[]).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.importResult = res.data;
         this.importStep = 'result';
@@ -614,7 +614,7 @@ export class List implements OnInit, OnDestroy {
         }
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.importError = err?.error?.message ?? 'Error al importar';
         this.importLoading = false;
         this.cdr.detectChanges();

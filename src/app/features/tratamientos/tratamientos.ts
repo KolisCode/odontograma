@@ -107,11 +107,11 @@ export class Tratamientos implements OnInit, OnDestroy {
 
   private loadPatient(): void {
     this.patientsService.getPatientById(this.pacienteId).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res: any) => {
+      next: (res) => {
         this.patientName = `${res.data.nombre} ${res.data.apellido}`.trim();
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: (err) => {
         if (err?.status === 404) {
           this.errorMessage = 'Este paciente no existe o fue eliminado.';
         } else {
@@ -290,7 +290,7 @@ export class Tratamientos implements OnInit, OnDestroy {
           this.cancelForm();
           this.loadTratamientos();
         },
-        error: (err: any) => {
+        error: (err) => {
           this.submitting = false;
           this.errorMessage = err?.error?.message || 'No se pudo actualizar el tratamiento';
           this.cdr.detectChanges();
@@ -307,7 +307,7 @@ export class Tratamientos implements OnInit, OnDestroy {
           this.cancelForm();
           this.loadTratamientos();
         },
-        error: (err: any) => {
+        error: (err) => {
           this.submitting = false;
           this.errorMessage = err?.error?.message || 'No se pudo registrar el tratamiento';
           this.cdr.detectChanges();
@@ -325,7 +325,7 @@ export class Tratamientos implements OnInit, OnDestroy {
         this.setSuccess('Estado de tratamiento actualizado');
         this.loadTratamientos();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.updatingEstadoId = null;
         this.errorMessage = err?.error?.message || 'No se pudo actualizar el estado';
         this.cdr.detectChanges();

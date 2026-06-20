@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { decodeId, encodeId } from '../../../shared/ids';
 import { CommonModule, CurrencyPipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, of } from 'rxjs';
@@ -193,7 +194,7 @@ export class Finance implements OnInit, OnDestroy {
               this.currentPage = 1;
               this.loadMovimientos();
             },
-            error: (err: any) => {
+            error: (err: HttpErrorResponse) => {
               this.selectedPatient = null;
               this.currentPage = 1;
               if (err?.status === 404) {
@@ -393,7 +394,7 @@ export class Finance implements OnInit, OnDestroy {
           this.submitting = false;
           this.setSuccess('Movimiento actualizado correctamente');
           this.errorMessage = '';
-          const totalPagado = (res.data.pagos ?? []).reduce((acc: number, p: any) => acc + p.monto, 0);
+          const totalPagado = (res.data.pagos ?? []).reduce((acc: number, p: { monto: number }) => acc + p.monto, 0);
           this.warnMessage = totalPagado > res.data.monto
             ? `Atención: lo cobrado ($${totalPagado.toLocaleString('es-CO')}) supera el nuevo monto ($${res.data.monto.toLocaleString('es-CO')}). Revisa los abonos registrados.`
             : '';
@@ -403,7 +404,7 @@ export class Finance implements OnInit, OnDestroy {
           this.cdr.detectChanges();
           this.loadMovimientos();
         },
-        error: (err: any) => {
+        error: (err: HttpErrorResponse) => {
           this.submitting = false;
           this.errorMessage = err?.error?.message || 'No se pudo actualizar el movimiento';
           this.cdr.detectChanges();
@@ -422,7 +423,7 @@ export class Finance implements OnInit, OnDestroy {
         this.cdr.detectChanges();
         this.loadMovimientos();
       },
-      error: (err: any) => {
+      error: (err: HttpErrorResponse) => {
         this.submitting = false;
         this.errorMessage = err?.error?.message || 'No se pudo registrar el movimiento';
         this.cdr.detectChanges();
@@ -454,7 +455,7 @@ export class Finance implements OnInit, OnDestroy {
         if (this.expandedPagosId === id) this.expandedPagosId = null;
         this.loadMovimientos();
       },
-      error: (err: any) => {
+      error: (err: HttpErrorResponse) => {
         this.errorMessage = err?.error?.message || 'No se pudo eliminar el movimiento';
         this.cdr.detectChanges();
       },
@@ -510,7 +511,7 @@ export class Finance implements OnInit, OnDestroy {
         this.loadStats();
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: (err: HttpErrorResponse) => {
         this.submittingPago = false;
         this.pagoErrorMessage = err?.error?.message || 'No se pudo registrar el abono';
         this.cdr.detectChanges();

@@ -66,8 +66,8 @@
 
       <form class="appointments-form" [formGroup]="appointmentForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
-          <label>Paciente</label>
-          <select formControlName="pacienteId">
+          <label for="cita-pacienteId">Paciente</label>
+          <select id="cita-pacienteId" formControlName="pacienteId">
             <option value="">Selecciona un paciente</option>
             <option *ngFor="let patient of patients; trackBy: trackById" [value]="patient.id">
               {{ patient.nombreCompleto }}
@@ -79,8 +79,8 @@
         </div>
 
         <div class="form-group">
-          <label>Profesional</label>
-          <select formControlName="usuarioId">
+          <label for="cita-usuarioId">Profesional</label>
+          <select id="cita-usuarioId" formControlName="usuarioId">
             <option value="">Selecciona un profesional</option>
             <option *ngFor="let user of clinicalStaff; trackBy: trackById" [value]="user.id">
               {{ user.nombreCompleto }} - {{ user.rol }}
@@ -92,24 +92,24 @@
         </div>
 
         <div class="form-group">
-          <label>Fecha</label>
-          <input type="date" formControlName="fecha" [min]="minDate" />
+          <label for="cita-fecha">Fecha</label>
+          <input id="cita-fecha" type="date" formControlName="fecha" [min]="minDate" />
           <small *ngIf="hasError('fecha')" class="field-error">
             {{ getErrorMessage('fecha') }}
           </small>
         </div>
 
         <div class="form-group">
-          <label>Hora</label>
-          <input type="time" formControlName="hora" />
+          <label for="cita-hora">Hora</label>
+          <input id="cita-hora" type="time" formControlName="hora" />
           <small *ngIf="hasError('hora')" class="field-error">
             {{ getErrorMessage('hora') }}
           </small>
         </div>
 
         <div class="form-group">
-          <label>Estado</label>
-          <select formControlName="estado">
+          <label for="cita-estado">Estado</label>
+          <select id="cita-estado" formControlName="estado">
             <option value="PROGRAMADA">Programada</option>
             <option value="CONFIRMADA">Confirmada</option>
           </select>
@@ -119,8 +119,8 @@
         </div>
 
         <div class="form-group">
-          <label>Tipo de atención</label>
-          <select formControlName="tipoAtencion">
+          <label for="cita-tipoAtencion">Tipo de atención</label>
+          <select id="cita-tipoAtencion" formControlName="tipoAtencion">
             <option value="Valoración">Valoración</option>
             <option value="Limpieza">Limpieza</option>
             <option value="Control">Control</option>
@@ -132,8 +132,8 @@
         </div>
 
         <div class="form-group form-group--full">
-          <label>Motivo</label>
-          <textarea rows="4" placeholder="Describe el motivo de la cita" formControlName="motivo"></textarea>
+          <label for="cita-motivo">Motivo</label>
+          <textarea id="cita-motivo" rows="4" placeholder="Describe el motivo de la cita" formControlName="motivo"></textarea>
           <small *ngIf="hasError('motivo')" class="field-error">
             {{ getErrorMessage('motivo') }}
           </small>

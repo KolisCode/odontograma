@@ -697,37 +697,37 @@
     </div>
     <form [formGroup]="cobroForm" (ngSubmit)="submitCobro()" class="cobro-form">
       <div class="cobro-form-group">
-        <label>Concepto</label>
-        <input type="text" formControlName="concepto" />
+        <label for="odo-concepto">Concepto</label>
+        <input id="odo-concepto" type="text" formControlName="concepto" />
         <small *ngIf="cobroForm.get('concepto')?.invalid && cobroForm.get('concepto')?.touched" class="field-error">
           El concepto es obligatorio (mín. 3 caracteres).
         </small>
       </div>
       <div class="cobro-form-group">
-        <label>Monto (COP)</label>
-        <input type="number" formControlName="monto" placeholder="Ej. 150000" min="1" />
+        <label for="odo-monto">Monto (COP)</label>
+        <input id="odo-monto" type="number" formControlName="monto" placeholder="Ej. 150000" min="1" />
         <small *ngIf="cobroForm.get('monto')?.invalid && cobroForm.get('monto')?.touched" class="field-error">
           El monto es obligatorio y debe ser mayor a 0.
         </small>
       </div>
       <div class="cobro-form-group">
-        <label>Fecha</label>
-        <input type="date" formControlName="fecha" />
+        <label for="odo-fecha">Fecha</label>
+        <input id="odo-fecha" type="date" formControlName="fecha" />
         <small *ngIf="cobroForm.get('fecha')?.invalid && cobroForm.get('fecha')?.touched" class="field-error">
           La fecha es obligatoria.
         </small>
       </div>
       <div class="cobro-form-group">
-        <label>Estado</label>
-        <select formControlName="estado">
+        <label for="odo-estado">Estado</label>
+        <select id="odo-estado" formControlName="estado">
           <option value="PENDIENTE">Pendiente</option>
           <option value="PAGADO">Pagado</option>
           <option value="CANCELADO">Cancelado</option>
         </select>
       </div>
       <div class="cobro-form-group">
-        <label>Medio de pago</label>
-        <select formControlName="metodoPago">
+        <label for="odo-metodoPago">Medio de pago</label>
+        <select id="odo-metodoPago" formControlName="metodoPago">
           <option value="Efectivo">Efectivo</option>
           <option value="Nequi">Nequi</option>
           <option value="Daviplata">Daviplata</option>

@@ -248,7 +248,7 @@ export class Navbar implements OnInit, OnDestroy {
           this.cerrarFormCrear();
           this.cargarNotificaciones();
         },
-        error: (err: any) => {
+        error: (err) => {
           this.creandoNotif = false;
           this.notifCrearError = err?.error?.message || 'No se pudo crear la notificación';
           this.cdr.detectChanges();

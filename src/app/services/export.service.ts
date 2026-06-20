@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 
 export interface ExportSheet {
   nombre: string;
-  datos: Record<string, any>[];
+  datos: Record<string, unknown>[];
   total: number;
 }
 
@@ -71,14 +71,14 @@ export class ExportService {
     XLSX.writeFile(wb, filename);
   }
 
-  private buildLeyenda(data: ExportData): any[][] {
+  private buildLeyenda(data: ExportData): (string | number)[][] {
     const fecha = new Date(data.generadoEn).toLocaleString('es-CO', {
       day: '2-digit', month: 'long', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
       timeZone: 'America/Bogota',
     });
 
-    const rows: any[][] = [
+    const rows: (string | number)[][] = [
       ['BIODONT — Exportación de datos', ''],
       ['Generado el', fecha],
       ['', ''],
@@ -108,7 +108,7 @@ export class ExportService {
   }
 
   /** Calcula ancho de columna según el contenido más largo */
-  private autoColumnWidth(ws: XLSX.WorkSheet, data: Record<string, any>[]): void {
+  private autoColumnWidth(ws: XLSX.WorkSheet, data: Record<string, unknown>[]): void {
     if (!data.length) return;
     const keys = Object.keys(data[0]);
     ws['!cols'] = keys.map((key) => {

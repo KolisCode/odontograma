@@ -220,7 +220,7 @@ export class Admin implements OnInit, OnDestroy {
         this.exportLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.exportError   = err?.error?.message ?? 'No se pudo generar el archivo';
         this.exportLoading = false;
         this.cdr.detectChanges();
@@ -239,7 +239,7 @@ export class Admin implements OnInit, OnDestroy {
         this.usersLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.usersError   = err?.error?.message ?? 'No se pudo cargar la lista de usuarios';
         this.usersLoading = false;
         this.cdr.detectChanges();
@@ -322,7 +322,7 @@ export class Admin implements OnInit, OnDestroy {
         this.newUserForm.reset({ rol: 'RECEPCION', confirmarPassword: '' });
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.newUserError   = err?.error?.message ?? 'No se pudo crear el usuario';
         this.newUserLoading = false;
         this.cdr.detectChanges();
@@ -376,7 +376,7 @@ export class Admin implements OnInit, OnDestroy {
         this.pwdLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.pwdError   = err?.error?.message ?? 'No se pudo actualizar la contraseña';
         this.pwdLoading = false;
         this.cdr.detectChanges();
@@ -433,7 +433,7 @@ export class Admin implements OnInit, OnDestroy {
         this.configSaving   = false;
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.configError  = err?.error?.message ?? 'No se pudo guardar la configuración';
         this.configSaving = false;
         this.cdr.detectChanges();
@@ -462,7 +462,7 @@ export class Admin implements OnInit, OnDestroy {
         this.backupLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.backupError   = err?.error?.message ?? 'No se pudo descargar el backup';
         this.backupLoading = false;
         this.cdr.detectChanges();
@@ -493,7 +493,7 @@ export class Admin implements OnInit, OnDestroy {
         this.cdr.detectChanges();
         this.restoreTimer = setTimeout(() => window.location.reload(), 3000);
       },
-      error: (err: any) => {
+      error: (err) => {
         this.restoreError   = err?.error?.message ?? 'No se pudo restaurar la base de datos';
         this.restoreLoading = false;
         this.cdr.detectChanges();

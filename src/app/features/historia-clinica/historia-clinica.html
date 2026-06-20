@@ -72,13 +72,13 @@
         <ng-container *ngIf="!isCollapsed('encabezado')">
         <div class="clinical-form-grid">
           <div class="form-group">
-            <label>Fecha de apertura</label>
-            <input type="text" [value]="aperturaTexto" readonly />
+            <label for="hc-aperturaTexto">Fecha de apertura</label>
+            <input id="hc-aperturaTexto" type="text" [value]="aperturaTexto" readonly />
           </div>
 
           <div class="form-group">
-            <label>Número de historia clínica</label>
-            <input type="text" formControlName="numeroHistoria" placeholder="Ej. HC-2026-0001" />
+            <label for="hc-numeroHistoria">Número de historia clínica</label>
+            <input id="hc-numeroHistoria" type="text" formControlName="numeroHistoria" placeholder="Ej. HC-2026-0001" />
           </div>
         </div>
         </ng-container>
@@ -98,18 +98,18 @@
         <ng-container *ngIf="!isCollapsed('datos-personales')">
         <div class="clinical-form-grid">
           <div class="form-group">
-            <label>Nombres completos</label>
-            <input type="text" [value]="patientFirstNames" readonly />
+            <label for="hc-patientFirstNames">Nombres completos</label>
+            <input id="hc-patientFirstNames" type="text" [value]="patientFirstNames" readonly />
           </div>
 
           <div class="form-group">
-            <label>Apellidos completos</label>
-            <input type="text" [value]="patientLastNames" readonly />
+            <label for="hc-patientLastNames">Apellidos completos</label>
+            <input id="hc-patientLastNames" type="text" [value]="patientLastNames" readonly />
           </div>
 
           <div class="form-group">
-            <label>Estado civil</label>
-            <select formControlName="estadoCivil">
+            <label for="hc-estadoCivil">Estado civil</label>
+            <select id="hc-estadoCivil" formControlName="estadoCivil">
               <option value="">Selecciona una opción</option>
               <option>Soltero(a)</option>
               <option>Casado(a)</option>
@@ -120,8 +120,8 @@
           </div>
 
           <div class="form-group">
-            <label>Sexo</label>
-            <select formControlName="sexo">
+            <label for="hc-sexo">Sexo</label>
+            <select id="hc-sexo" formControlName="sexo">
               <option value="">Selecciona una opción</option>
               <option>Femenino</option>
               <option>Masculino</option>
@@ -130,28 +130,28 @@
           </div>
 
           <div class="form-group">
-            <label>Ocupación</label>
-            <input type="text" formControlName="ocupacion" placeholder="Ej. Estudiante, empleado, independiente" />
+            <label for="hc-ocupacion">Ocupación</label>
+            <input id="hc-ocupacion" type="text" formControlName="ocupacion" placeholder="Ej. Estudiante, empleado, independiente" />
           </div>
 
           <div class="form-group">
-            <label>Lugar de residencia</label>
-            <input type="text" formControlName="lugarResidencia" placeholder="Ciudad / municipio" />
+            <label for="hc-lugarResidencia">Lugar de residencia</label>
+            <input id="hc-lugarResidencia" type="text" formControlName="lugarResidencia" placeholder="Ciudad / municipio" />
           </div>
 
           <div class="form-group">
-            <label>Nombre del acompañante</label>
-            <input type="text" formControlName="acompananteNombre" placeholder="Nombre completo del acompañante" />
+            <label for="hc-acompananteNombre">Nombre del acompañante</label>
+            <input id="hc-acompananteNombre" type="text" formControlName="acompananteNombre" placeholder="Nombre completo del acompañante" />
           </div>
 
           <div class="form-group">
-            <label>Teléfono del acompañante</label>
-            <input type="text" formControlName="acompananteTelefono" placeholder="Número del acompañante" />
+            <label for="hc-acompananteTelefono">Teléfono del acompañante</label>
+            <input id="hc-acompananteTelefono" type="text" formControlName="acompananteTelefono" placeholder="Número del acompañante" />
           </div>
 
           <div class="form-group">
-            <label>Parentesco</label>
-            <input type="text" formControlName="acompananteParentesco" placeholder="Ej. Madre, padre, esposo(a)" />
+            <label for="hc-acompananteParentesco">Parentesco</label>
+            <input id="hc-acompananteParentesco" type="text" formControlName="acompananteParentesco" placeholder="Ej. Madre, padre, esposo(a)" />
           </div>
         </div>
         </ng-container>
@@ -171,8 +171,8 @@
         <ng-container *ngIf="!isCollapsed('motivo-consulta')">
         <div class="clinical-form-grid">
           <div class="form-group form-group--full">
-            <label>Motivo de consulta</label>
-            <textarea rows="4" formControlName="motivoConsulta"
+            <label for="hc-motivoConsulta">Motivo de consulta</label>
+            <textarea id="hc-motivoConsulta" rows="4" formControlName="motivoConsulta"
               placeholder="Describe el motivo principal de consulta"></textarea>
           </div>
         </div>
@@ -208,8 +208,8 @@
           </div>
 
           <div class="form-group form-group--full">
-            <label>Observaciones</label>
-            <textarea rows="3" formControlName="sistObservaciones"
+            <label for="hc-sistObservaciones">Observaciones</label>
+            <textarea id="hc-sistObservaciones" rows="3" formControlName="sistObservaciones"
               placeholder="Detalles adicionales sobre enfermedades sistémicas"></textarea>
           </div>
         </div>
@@ -219,24 +219,24 @@
 
           <div class="clinical-form-grid">
             <div class="form-group">
-              <label>¿Ha sido hospitalizado?</label>
-              <select formControlName="hospitalizado">
+              <label for="hc-hospitalizado">¿Ha sido hospitalizado?</label>
+              <select id="hc-hospitalizado" formControlName="hospitalizado">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>¿Cirugías previas?</label>
-              <select formControlName="cirugiasPrevias">
+              <label for="hc-cirugiasPrevias">¿Cirugías previas?</label>
+              <select id="hc-cirugiasPrevias" formControlName="cirugiasPrevias">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group form-group--full">
-              <label>Detalle</label>
-              <textarea rows="3" formControlName="quirurgicosDetalle"
+              <label for="hc-quirurgicosDetalle">Detalle</label>
+              <textarea id="hc-quirurgicosDetalle" rows="3" formControlName="quirurgicosDetalle"
                 placeholder="Especifica hospitalizaciones o cirugías previas"></textarea>
             </div>
           </div>
@@ -247,8 +247,8 @@
 
           <div class="clinical-form-grid">
             <div class="form-group">
-              <label>¿Toma medicamentos?</label>
-              <select formControlName="tomaMedicamentos">
+              <label for="hc-tomaMedicamentos">¿Toma medicamentos?</label>
+              <select id="hc-tomaMedicamentos" formControlName="tomaMedicamentos">
                 <option>No</option>
                 <option>Sí</option>
               </select>
@@ -298,8 +298,8 @@
           </div>
 
           <div class="form-group form-group--full">
-            <label>Descripción de alergias</label>
-            <textarea rows="3" formControlName="alergiasDescripcion"
+            <label for="hc-alergiasDescripcion">Descripción de alergias</label>
+            <textarea id="hc-alergiasDescripcion" rows="3" formControlName="alergiasDescripcion"
               placeholder="Describe las alergias reportadas"></textarea>
           </div>
         </div>
@@ -309,24 +309,24 @@
 
           <div class="clinical-form-grid">
             <div class="form-group">
-              <label>¿Sangra con facilidad?</label>
-              <select formControlName="sangraFacilidad">
+              <label for="hc-sangraFacilidad">¿Sangra con facilidad?</label>
+              <select id="hc-sangraFacilidad" formControlName="sangraFacilidad">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>¿Problemas de coagulación?</label>
-              <select formControlName="problemasCoagulacion">
+              <label for="hc-problemasCoagulacion">¿Problemas de coagulación?</label>
+              <select id="hc-problemasCoagulacion" formControlName="problemasCoagulacion">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group form-group--full">
-              <label>Observaciones</label>
-              <textarea rows="3" formControlName="hematologicosObservaciones"
+              <label for="hc-hematologicosObservaciones">Observaciones</label>
+              <textarea id="hc-hematologicosObservaciones" rows="3" formControlName="hematologicosObservaciones"
                 placeholder="Detalles adicionales"></textarea>
             </div>
           </div>
@@ -337,16 +337,16 @@
 
           <div class="clinical-form-grid">
             <div class="form-group">
-              <label>Embarazo</label>
-              <select formControlName="embarazo">
+              <label for="hc-embarazo">Embarazo</label>
+              <select id="hc-embarazo" formControlName="embarazo">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group" *ngIf="historiaForm.get('embarazo')?.value === 'Sí'">
-              <label>Trimestre</label>
-              <select formControlName="trimestre">
+              <label for="hc-trimestre">Trimestre</label>
+              <select id="hc-trimestre" formControlName="trimestre">
                 <option>No aplica</option>
                 <option>1</option>
                 <option>2</option>
@@ -355,8 +355,8 @@
             </div>
 
             <div class="form-group">
-              <label>Lactancia</label>
-              <select formControlName="lactancia">
+              <label for="hc-lactancia">Lactancia</label>
+              <select id="hc-lactancia" formControlName="lactancia">
                 <option>No</option>
                 <option>Sí</option>
               </select>
@@ -369,37 +369,37 @@
 
           <div class="clinical-form-grid">
             <div class="form-group">
-              <label>Fuma</label>
-              <select formControlName="fuma">
+              <label for="hc-fuma">Fuma</label>
+              <select id="hc-fuma" formControlName="fuma">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group" *ngIf="historiaForm.get('fuma')?.value === 'Sí'">
-              <label>¿Cuántos cigarrillos al día?</label>
-              <input type="number" formControlName="cigarrillosDia" placeholder="Cantidad diaria" />
+              <label for="hc-cigarrillosDia">¿Cuántos cigarrillos al día?</label>
+              <input id="hc-cigarrillosDia" type="number" formControlName="cigarrillosDia" placeholder="Cantidad diaria" />
             </div>
 
             <div class="form-group">
-              <label>Alcohol</label>
-              <select formControlName="alcohol">
+              <label for="hc-alcohol">Alcohol</label>
+              <select id="hc-alcohol" formControlName="alcohol">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>Sustancias psicoactivas</label>
-              <select formControlName="sustanciasPsicoactivas">
+              <label for="hc-sustanciasPsicoactivas">Sustancias psicoactivas</label>
+              <select id="hc-sustanciasPsicoactivas" formControlName="sustanciasPsicoactivas">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group form-group--full">
-              <label>Observaciones</label>
-              <textarea rows="3" formControlName="habitosObservaciones"
+              <label for="hc-habitosObservaciones">Observaciones</label>
+              <textarea id="hc-habitosObservaciones" rows="3" formControlName="habitosObservaciones"
                 placeholder="Detalle hábitos relevantes"></textarea>
             </div>
           </div>
@@ -410,24 +410,24 @@
 
           <div class="clinical-form-grid">
             <div class="form-group">
-              <label>Complicaciones previas</label>
-              <select formControlName="complicacionesPrevias">
+              <label for="hc-complicacionesPrevias">Complicaciones previas</label>
+              <select id="hc-complicacionesPrevias" formControlName="complicacionesPrevias">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>Reacciones a anestesia</label>
-              <select formControlName="reaccionesAnestesia">
+              <label for="hc-reaccionesAnestesia">Reacciones a anestesia</label>
+              <select id="hc-reaccionesAnestesia" formControlName="reaccionesAnestesia">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group form-group--full">
-              <label>Observaciones odontológicas previas</label>
-              <textarea rows="3" formControlName="antecedentesOdontoObservaciones"
+              <label for="hc-antecedentesOdontoObservaciones">Observaciones odontológicas previas</label>
+              <textarea id="hc-antecedentesOdontoObservaciones" rows="3" formControlName="antecedentesOdontoObservaciones"
                 placeholder="Registra detalles relevantes"></textarea>
             </div>
           </div>
@@ -452,16 +452,18 @@
 
           <div class="clinical-form-grid">
             <div class="form-group">
-              <label>¿Cuántas veces al día se cepilla?</label>
-              <input type="number" formControlName="cepilladoVecesDia" placeholder="Ej. 3" />
+              <label for="hc-cepilladoVecesDia">¿Cuántas veces al día se cepilla?</label>
+              <input id="hc-cepilladoVecesDia" type="number" formControlName="cepilladoVecesDia" placeholder="Ej. 3" />
             </div>
 
             <div class="form-group">
-              <label>¿Cada cuánto cambia el cepillo?</label>
-              <input type="text" formControlName="cambioCepillo" placeholder="Ej. Cada 3 meses" />
+              <label for="hc-cambioCepillo">¿Cada cuánto cambia el cepillo?</label>
+              <input id="hc-cambioCepillo" type="text" formControlName="cambioCepillo" placeholder="Ej. Cada 3 meses" />
             </div>
 
             <div class="form-group form-group--full">
+              <!-- Label de grupo para los checkboxes de abajo (cada uno ya tiene su propio label anidado) -->
+              <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
               <label>Momentos del día</label>
               <div class="checkbox-grid checkbox-grid--inline">
                 <label><input type="checkbox" formControlName="momentoManana" /> Mañana</label>
@@ -471,8 +473,8 @@
             </div>
 
             <div class="form-group">
-              <label>Tipo de cepillo</label>
-              <select formControlName="tipoCepillo">
+              <label for="hc-tipoCepillo">Tipo de cepillo</label>
+              <select id="hc-tipoCepillo" formControlName="tipoCepillo">
                 <option value="">Selecciona una opción</option>
                 <option>Suave</option>
                 <option>Medio</option>
@@ -482,8 +484,8 @@
             </div>
 
             <div class="form-group">
-              <label>¿Usa crema dental con flúor?</label>
-              <select formControlName="cremaConFluor">
+              <label for="hc-cremaConFluor">¿Usa crema dental con flúor?</label>
+              <select id="hc-cremaConFluor" formControlName="cremaConFluor">
                 <option>Sí</option>
                 <option>No</option>
               </select>
@@ -496,29 +498,29 @@
 
           <div class="clinical-form-grid">
             <div class="form-group">
-              <label>¿Usa seda dental?</label>
-              <select formControlName="usaSedaDental">
+              <label for="hc-usaSedaDental">¿Usa seda dental?</label>
+              <select id="hc-usaSedaDental" formControlName="usaSedaDental">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group" *ngIf="historiaForm.get('usaSedaDental')?.value === 'Sí'">
-              <label>Frecuencia de uso</label>
-              <input type="text" formControlName="frecuenciaSedaDental" placeholder="Ej. Diario, ocasional" />
+              <label for="hc-frecuenciaSedaDental">Frecuencia de uso</label>
+              <input id="hc-frecuenciaSedaDental" type="text" formControlName="frecuenciaSedaDental" placeholder="Ej. Diario, ocasional" />
             </div>
 
             <div class="form-group">
-              <label>¿Utiliza enjuague bucal?</label>
-              <select formControlName="usaEnjuague">
+              <label for="hc-usaEnjuague">¿Utiliza enjuague bucal?</label>
+              <select id="hc-usaEnjuague" formControlName="usaEnjuague">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group" *ngIf="historiaForm.get('usaEnjuague')?.value === 'Sí'">
-              <label>Tipo de enjuague</label>
-              <select formControlName="tipoEnjuague">
+              <label for="hc-tipoEnjuague">Tipo de enjuague</label>
+              <select id="hc-tipoEnjuague" formControlName="tipoEnjuague">
                 <option>No aplica</option>
                 <option>Con flúor</option>
                 <option>Antiséptico</option>
@@ -527,16 +529,16 @@
             </div>
 
             <div class="form-group">
-              <label>¿Usa cepillos interdentales?</label>
-              <select formControlName="usaCepillosInterdentales">
+              <label for="hc-usaCepillosInterdentales">¿Usa cepillos interdentales?</label>
+              <select id="hc-usaCepillosInterdentales" formControlName="usaCepillosInterdentales">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>¿Usa irrigador oral?</label>
-              <select formControlName="usaIrrigador">
+              <label for="hc-usaIrrigador">¿Usa irrigador oral?</label>
+              <select id="hc-usaIrrigador" formControlName="usaIrrigador">
                 <option>No</option>
                 <option>Sí</option>
               </select>
@@ -549,8 +551,8 @@
 
           <div class="clinical-form-grid">
             <div class="form-group">
-              <label>¿Cada cuánto asiste al odontólogo?</label>
-              <select formControlName="frecuenciaOdontologo">
+              <label for="hc-frecuenciaOdontologo">¿Cada cuánto asiste al odontólogo?</label>
+              <select id="hc-frecuenciaOdontologo" formControlName="frecuenciaOdontologo">
                 <option>Cada 6 meses</option>
                 <option>1 vez al año</option>
                 <option>Solo cuando hay dolor</option>
@@ -558,16 +560,16 @@
             </div>
 
             <div class="form-group">
-              <label>¿Ha recibido educación en higiene oral?</label>
-              <select formControlName="educacionHigieneOral">
+              <label for="hc-educacionHigieneOral">¿Ha recibido educación en higiene oral?</label>
+              <select id="hc-educacionHigieneOral" formControlName="educacionHigieneOral">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>¿Ha recibido profilaxis dental recientemente?</label>
-              <select formControlName="profilaxisReciente">
+              <label for="hc-profilaxisReciente">¿Ha recibido profilaxis dental recientemente?</label>
+              <select id="hc-profilaxisReciente" formControlName="profilaxisReciente">
                 <option>No</option>
                 <option>Sí</option>
               </select>
@@ -580,32 +582,32 @@
 
           <div class="clinical-form-grid">
             <div class="form-group">
-              <label>¿Sangrado de encías al cepillarse?</label>
-              <select formControlName="sangradoEncias">
+              <label for="hc-sangradoEncias">¿Sangrado de encías al cepillarse?</label>
+              <select id="hc-sangradoEncias" formControlName="sangradoEncias">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>¿Mal aliento frecuente?</label>
-              <select formControlName="halitosis">
+              <label for="hc-halitosis">¿Mal aliento frecuente?</label>
+              <select id="hc-halitosis" formControlName="halitosis">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>¿Sensibilidad dental?</label>
-              <select formControlName="sensibilidadDental">
+              <label for="hc-sensibilidadDental">¿Sensibilidad dental?</label>
+              <select id="hc-sensibilidadDental" formControlName="sensibilidadDental">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>¿Movilidad dental?</label>
-              <select formControlName="movilidadDental">
+              <label for="hc-movilidadDental">¿Movilidad dental?</label>
+              <select id="hc-movilidadDental" formControlName="movilidadDental">
                 <option>No</option>
                 <option>Sí</option>
               </select>
@@ -618,24 +620,24 @@
 
           <div class="clinical-form-grid">
             <div class="form-group">
-              <label>¿Usa prótesis dental?</label>
-              <select formControlName="usaProtesis">
+              <label for="hc-usaProtesis">¿Usa prótesis dental?</label>
+              <select id="hc-usaProtesis" formControlName="usaProtesis">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>¿Usa ortodoncia o retenedores?</label>
-              <select formControlName="usaOrtodoncia">
+              <label for="hc-usaOrtodoncia">¿Usa ortodoncia o retenedores?</label>
+              <select id="hc-usaOrtodoncia" formControlName="usaOrtodoncia">
                 <option>No</option>
                 <option>Sí</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>¿Realiza limpieza diaria de prótesis/aparatos?</label>
-              <select formControlName="limpiezaProtesis">
+              <label for="hc-limpiezaProtesis">¿Realiza limpieza diaria de prótesis/aparatos?</label>
+              <select id="hc-limpiezaProtesis" formControlName="limpiezaProtesis">
                 <option>No</option>
                 <option>Sí</option>
               </select>
@@ -673,8 +675,8 @@
           </div>
 
           <div class="form-group form-group--full">
-            <label>Observaciones</label>
-            <textarea rows="3" formControlName="odontObservaciones"
+            <label for="hc-odontObservaciones">Observaciones</label>
+            <textarea id="hc-odontObservaciones" rows="3" formControlName="odontObservaciones"
               placeholder="Detalles adicionales sobre condiciones odontológicas"></textarea>
           </div>
         </div>
@@ -702,8 +704,8 @@
         <div class="formula-form" *ngIf="formulaFormVisible">
           <div class="clinical-form-grid">
             <div class="form-group form-group--full">
-              <label>Diagnóstico / motivo</label>
-              <input type="text" maxlength="2000"
+              <label for="hc-formulaDiagnostico">Diagnóstico / motivo</label>
+              <input id="hc-formulaDiagnostico" type="text" maxlength="2000"
                 [value]="formulaDiagnostico"
                 (input)="formulaDiagnostico = $any($event.target).value"
                 placeholder="Ej. Infección periapical, procedimiento postextracción" />
@@ -759,8 +761,8 @@
 
           <div class="clinical-form-grid">
             <div class="form-group form-group--full">
-              <label>Indicaciones generales</label>
-              <textarea rows="3" maxlength="2000"
+              <label for="hc-formulaInstrucciones">Indicaciones generales</label>
+              <textarea id="hc-formulaInstrucciones" rows="3" maxlength="2000"
                 [value]="formulaInstrucciones"
                 (input)="formulaInstrucciones = $any($event.target).value"
                 placeholder="Ej. Tomar con alimentos, evitar conducir, completar tratamiento"></textarea>
@@ -852,8 +854,8 @@
         <ng-container *ngIf="!isCollapsed('evolucion-tratamiento')">
         <div class="evolucion-form">
           <div class="form-group form-group--full">
-            <label>Nueva nota de evolución</label>
-            <textarea rows="4"
+            <label for="hc-nuevaNota">Nueva nota de evolución</label>
+            <textarea id="hc-nuevaNota" rows="4"
               [value]="nuevaNota"
               (input)="nuevaNota = $any($event.target).value"
               placeholder="Describe el procedimiento, observaciones o evolución del paciente en esta sesión..."

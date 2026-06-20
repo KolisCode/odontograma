@@ -14,16 +14,16 @@ export interface HistoriaClinicaPayload {
   acompananteTelefono?: string;
   acompananteParentesco?: string;
   motivoConsulta?: string;
-  enfermedadesSistemicas?: any;
+  enfermedadesSistemicas?: unknown;
   antecedentesQuirurgicos?: string;
-  medicacionActual?: any;
+  medicacionActual?: unknown;
   alergiasGenerales?: string;
   antecedentesHematologicos?: string;
   ginecoObstetricos?: string;
   habitos?: string;
   antecedentesOdontologicos?: string;
   enfermedadesOdontologicas?: string;
-  higieneOral?: any;
+  higieneOral?: unknown;
   declaracionAceptada?: boolean;
 }
 
@@ -62,12 +62,15 @@ export class HistoriaClinicaService {
   private evolucionesApi = `${environment.apiUrl}/evoluciones`;
   private formulasMedicasApi = `${environment.apiUrl}/formulas-medicas`;
 
+  // Respuesta dinámica: { paciente, historia } con la historia clínica completa
+  // (campos JSON libres). Se tipa laxo a propósito.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getHistoriaByPaciente(pacienteId: number): Observable<any> {
     return this.http.get(`${this.api}/paciente/${pacienteId}`);
   }
 
-  saveHistoria(payload: HistoriaClinicaPayload): Observable<any> {
-    return this.http.post(this.api, payload);
+  saveHistoria(payload: HistoriaClinicaPayload): Observable<{ ok: boolean; message?: string }> {
+    return this.http.post<{ ok: boolean; message?: string }>(this.api, payload);
   }
 
   getEvoluciones(pacienteId: number): Observable<{ ok: boolean; data: EvolucionRow[] }> {

@@ -131,8 +131,8 @@
 
       <form class="finance-form" [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="form-group">
-          <label>Tipo de movimiento <span class="required">*</span></label>
-          <select formControlName="tipo">
+          <label for="fin-tipo">Tipo de movimiento <span class="required">*</span></label>
+          <select id="fin-tipo" formControlName="tipo">
             <option value="INGRESO">Ingreso</option>
             <option value="EGRESO">Egreso</option>
           </select>
@@ -140,28 +140,28 @@
         </div>
 
         <div class="form-group">
-          <label>Monto</label>
-          <input type="number" formControlName="monto" placeholder="Ej. 150000" min="0.01" step="0.01" />
+          <label for="fin-monto">Monto</label>
+          <input id="fin-monto" type="number" formControlName="monto" placeholder="Ej. 150000" min="0.01" step="0.01" />
           <span *ngIf="hasError('monto')" class="field-error">El monto es obligatorio y debe ser mayor a 0.</span>
         </div>
 
         <div class="form-group form-group--full">
-          <label>Concepto</label>
-          <input type="text" formControlName="concepto" placeholder="Describe el concepto del movimiento" />
+          <label for="fin-concepto">Concepto</label>
+          <input id="fin-concepto" type="text" formControlName="concepto" placeholder="Describe el concepto del movimiento" />
           <span *ngIf="form.get('concepto')?.errors?.['required'] && form.get('concepto')?.touched" class="field-error">El concepto es obligatorio.</span>
           <span *ngIf="form.get('concepto')?.errors?.['minlength'] && form.get('concepto')?.touched" class="field-error">Mínimo 3 caracteres.</span>
           <span *ngIf="form.get('concepto')?.errors?.['maxlength'] && form.get('concepto')?.touched" class="field-error">Máximo 300 caracteres.</span>
         </div>
 
         <div class="form-group">
-          <label>Fecha</label>
-          <input type="date" formControlName="fecha" />
+          <label for="fin-fecha">Fecha</label>
+          <input id="fin-fecha" type="date" formControlName="fecha" />
           <span *ngIf="hasError('fecha')" class="field-error">La fecha es obligatoria.</span>
         </div>
 
         <div class="form-group">
-          <label>Medio de pago</label>
-          <select formControlName="metodoPago">
+          <label for="fin-metodoPago">Medio de pago</label>
+          <select id="fin-metodoPago" formControlName="metodoPago">
             <option value="Efectivo">Efectivo</option>
             <option value="Nequi">Nequi</option>
             <option value="Daviplata">Daviplata</option>
@@ -178,8 +178,8 @@
         </div>
 
         <div class="form-group">
-          <label>Estado</label>
-          <select formControlName="estado">
+          <label for="fin-estado">Estado</label>
+          <select id="fin-estado" formControlName="estado">
             <option value="PENDIENTE">Pendiente</option>
             <option value="PAGADO">Pagado</option>
             <option value="CANCELADO">Cancelado</option>
@@ -188,8 +188,8 @@
 
         <!-- Selector de paciente: solo visible cuando no hay filtro activo -->
         <div class="form-group form-group--full" *ngIf="!selectedPatient">
-          <label>Paciente <span class="form-label-hint">(opcional)</span></label>
-          <select formControlName="pacienteId">
+          <label for="fin-pacienteId">Paciente <span class="form-label-hint">(opcional)</span></label>
+          <select id="fin-pacienteId" formControlName="pacienteId">
             <option [ngValue]="null">Sin paciente asociado</option>
             <option *ngFor="let p of patients; trackBy: trackById" [value]="p.id">{{ p.nombreCompleto }}</option>
           </select>
@@ -421,18 +421,18 @@
                   <form class="pago-form" *ngIf="puedeGestionar" [formGroup]="pagoForm" (ngSubmit)="agregarPago(m)">
                     <div class="pago-form__fields">
                       <div class="form-group">
-                        <label>Monto del abono</label>
-                        <input type="number" formControlName="monto" placeholder="Ej. 50000" min="1" />
+                        <label for="pago-monto">Monto del abono</label>
+                        <input id="pago-monto" type="number" formControlName="monto" placeholder="Ej. 50000" min="1" />
                         <span *ngIf="hasPagoError('monto')" class="field-error">Monto requerido (mayor a 0).</span>
                       </div>
                       <div class="form-group">
-                        <label>Fecha</label>
-                        <input type="date" formControlName="fecha" />
+                        <label for="pago-fecha">Fecha</label>
+                        <input id="pago-fecha" type="date" formControlName="fecha" />
                         <span *ngIf="hasPagoError('fecha')" class="field-error">La fecha es obligatoria.</span>
                       </div>
                       <div class="form-group">
-                        <label>Medio de pago</label>
-                        <select formControlName="metodoPago">
+                        <label for="pago-metodoPago">Medio de pago</label>
+                        <select id="pago-metodoPago" formControlName="metodoPago">
                           <option value="Efectivo">Efectivo</option>
                           <option value="Nequi">Nequi</option>
                           <option value="Daviplata">Daviplata</option>

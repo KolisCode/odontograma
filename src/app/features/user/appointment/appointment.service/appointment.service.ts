@@ -83,8 +83,8 @@ export class AppointmentService {
 
   constructor(private http: HttpClient) {}
 
-  createAppointment(payload: AppointmentPayload): Observable<any> {
-    return this.http.post(this.api, payload);
+  createAppointment(payload: AppointmentPayload): Observable<{ ok: boolean; message?: string }> {
+    return this.http.post<{ ok: boolean; message?: string }>(this.api, payload);
   }
 
   getAppointments(filters?: CitaFilters): Observable<{ ok: boolean; data: AppointmentRow[]; meta?: PaginaMeta }> {
@@ -119,7 +119,7 @@ export class AppointmentService {
     return this.http.get<{ ok: boolean; data: ClinicalStaffRow[] }>(`${this.authApi}/clinical-staff`);
   }
 
-  updateEstado(id: number, estado: string, cancelarMovimientos = false): Observable<any> {
-    return this.http.patch(`${this.api}/${id}/estado`, { estado, cancelarMovimientos });
+  updateEstado(id: number, estado: string, cancelarMovimientos = false): Observable<{ ok: boolean; message?: string }> {
+    return this.http.patch<{ ok: boolean; message?: string }>(`${this.api}/${id}/estado`, { estado, cancelarMovimientos });
   }
 }

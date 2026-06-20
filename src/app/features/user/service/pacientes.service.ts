@@ -67,8 +67,8 @@ export class PatientsService {
 
   constructor(private http: HttpClient) {}
 
-  createPatient(payload: PatientPayload): Observable<any> {
-    return this.http.post(this.api, payload);
+  createPatient(payload: PatientPayload): Observable<{ ok: boolean; message?: string }> {
+    return this.http.post<{ ok: boolean; message?: string }>(this.api, payload);
   }
 
   getPatients(params: { soloActivos?: boolean; search?: string; page?: number; pageSize?: number } = {}): Observable<{ ok: boolean; data: PatientRow[]; meta?: PaginaMeta }> {
@@ -88,19 +88,21 @@ export class PatientsService {
     return this.http.get<{ ok: boolean; data: QuickInfo }>(`${this.api}/quick-info`);
   }
 
+  // Devuelve el paciente completo (más campos que PatientRow del listado). Forma laxa.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getPatientById(id: number): Observable<any> {
     return this.http.get(`${this.api}/${id}`);
   }
 
-  updatePatient(id: number, payload: PatientPayload): Observable<any> {
-    return this.http.patch(`${this.api}/${id}`, payload);
+  updatePatient(id: number, payload: PatientPayload): Observable<{ ok: boolean; message?: string }> {
+    return this.http.patch<{ ok: boolean; message?: string }>(`${this.api}/${id}`, payload);
   }
 
   importarPacientes(rows: PatientPayload[]): Observable<{ ok: boolean; data: ImportResult }> {
     return this.http.post<{ ok: boolean; data: ImportResult }>(`${this.api}/importar`, { rows });
   }
 
-  toggleActivo(id: number, activo: boolean, force = false): Observable<any> {
-    return this.http.patch(`${this.api}/${id}/activo`, { activo, force });
+  toggleActivo(id: number, activo: boolean, force = false): Observable<{ ok: boolean; message?: string }> {
+    return this.http.patch<{ ok: boolean; message?: string }>(`${this.api}/${id}/activo`, { activo, force });
   }
 }

@@ -6,6 +6,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { Navbar } from '../complements/navbar/navbar';
 import { Footer } from '../complements/footer/footer';
 import { AuthService } from '../authentication/service/auth-service/auth.service';
+import { AuthUser } from '../../shared/api.types';
 
 const passwordMatchValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const nueva = group.get('newPassword')?.value;
@@ -21,7 +22,7 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
   styleUrls: ['./perfil.css'],
 })
 export class Perfil implements OnInit, OnDestroy {
-  user: any = null;
+  user: AuthUser | null = null;
   passwordForm: FormGroup;
   loading = false;
   successMessage = '';
@@ -50,7 +51,7 @@ export class Perfil implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          this.user = res.data;
+          this.user = res.data ?? null;
           this.cdr.detectChanges();
         },
         error: () => {
@@ -80,10 +81,10 @@ export class Perfil implements OnInit, OnDestroy {
       AUXILIAR: 'Auxiliar',
       RECEPCION: 'Recepción',
     };
-    return labels[this.user?.rol] ?? this.user?.rol ?? '';
+    return labels[this.user?.rol ?? ''] ?? this.user?.rol ?? '';
   }
 
-  formatDate(value: string): string {
+  formatDate(value: string | undefined): string {
     if (!value) return '';
     return new Date(value).toLocaleDateString('es-CO', { dateStyle: 'long', timeZone: 'America/Bogota' });
   }

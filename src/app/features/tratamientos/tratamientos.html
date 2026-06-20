@@ -77,8 +77,8 @@
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label>Descripción <span class="required">*</span></label>
-        <textarea
+        <label for="trat-descripcion">Descripción <span class="required">*</span></label>
+        <textarea id="trat-descripcion"
           formControlName="descripcion"
           rows="3"
           placeholder="Describe el tratamiento a realizar..."
@@ -91,15 +91,15 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label>Estado</label>
-          <select formControlName="estado">
+          <label for="trat-estado">Estado</label>
+          <select id="trat-estado" formControlName="estado">
             <option *ngFor="let e of estados" [value]="e">{{ getEstadoLabel(e) }}</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label>Monto ($)</label>
-          <input type="number" formControlName="monto" placeholder="0.00" min="0" step="0.01"
+          <label for="trat-monto">Monto ($)</label>
+          <input id="trat-monto" type="number" formControlName="monto" placeholder="0.00" min="0" step="0.01"
             [class.input-error]="hasError('monto')" />
           <span *ngIf="hasError('monto')" class="error-text">El monto no puede ser negativo.</span>
         </div>
@@ -107,13 +107,13 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label>Fecha inicio</label>
-          <input type="date" formControlName="fechaInicio" />
+          <label for="trat-fechaInicio">Fecha inicio</label>
+          <input id="trat-fechaInicio" type="date" formControlName="fechaInicio" />
         </div>
 
         <div class="form-group">
-          <label>Fecha fin estimada</label>
-          <input type="date" formControlName="fechaFin"
+          <label for="trat-fechaFin">Fecha fin estimada</label>
+          <input id="trat-fechaFin" type="date" formControlName="fechaFin"
             [class.input-error]="form.errors?.['fechaOrden'] && form.get('fechaFin')?.touched" />
           <span *ngIf="form.errors?.['fechaOrden'] && form.get('fechaFin')?.touched" class="error-text">
             La fecha de fin no puede ser anterior a la de inicio.
