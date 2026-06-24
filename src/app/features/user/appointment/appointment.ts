@@ -19,7 +19,8 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { encodeId } from '../../../shared/ids';
 
 import { Navbar } from '../../complements/navbar/navbar';
 import { Footer } from '../../complements/footer/footer';
@@ -141,6 +142,13 @@ export class Appointment implements OnInit, OnDestroy {
     return this.calendarAppointments.filter(a => this.getFechaISO(a) === this.selectedCalendarDay);
   }
 
+  // Click en una cita del calendario → resumen del paciente.
+  goToResumen(a: AppointmentRow, event?: Event): void {
+    event?.stopPropagation();
+    if (a.pacienteId === undefined || a.pacienteId === null) return;
+    this.router.navigate(['/resumen', encodeId(a.pacienteId)]);
+  }
+
   get calendarDays(): CalendarDay[] {
     const todayKey = fechaHoyCol();
 
@@ -249,6 +257,7 @@ export class Appointment implements OnInit, OnDestroy {
     private appointmentService: AppointmentService,
     private adminService: AdminService,
     private cdr: ChangeDetectorRef,
+    private router: Router,
   ) {
     this.appointmentForm = this.fb.group({
       pacienteId: ['', [Validators.required, this.positiveNumberStringValidator()]],

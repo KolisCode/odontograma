@@ -539,6 +539,15 @@
   cursor: default;
 }
 
+/* Contenido / ítem con destino navegable */
+.notif-item__content--link {
+  cursor: pointer;
+}
+
+.notif-item--link {
+  cursor: pointer;
+}
+
 .notif-item--unread {
   background: #f0faf5;
 }

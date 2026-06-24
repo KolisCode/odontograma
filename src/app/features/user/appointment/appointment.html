@@ -235,7 +235,9 @@
           <div class="cal-chips" *ngIf="day.isCurrentMonth && day.appointments.length > 0">
             <div class="cal-chip"
                  *ngFor="let a of day.appointments.slice(0, 2); trackBy: trackById"
-                 [ngClass]="'cal-chip--' + getStatusKey(a.estado)">
+                 [ngClass]="'cal-chip--' + getStatusKey(a.estado)"
+                 (click)="goToResumen(a, $event)"
+                 title="Ver resumen del paciente">
               <span class="cal-chip__hour">{{ getChipHour(a.hora) }}</span>
               <span class="cal-chip__name">{{ getShortName(a.pacienteNombre) }}</span>
             </div>
@@ -252,7 +254,8 @@
           </span>
         </div>
         <div class="cal-day-panel__list">
-          <div class="agenda-item" *ngFor="let a of selectedDayAppointments; trackBy: trackById">
+          <div class="agenda-item agenda-item--clickable" *ngFor="let a of selectedDayAppointments; trackBy: trackById"
+               (click)="goToResumen(a)" title="Ver resumen del paciente">
             <div class="agenda-item__top">
               <strong>{{ a.hora }} · {{ a.pacienteNombre }}</strong>
               <span class="status-badge" [ngClass]="getStatusClass(a.estado)">{{ getStatusLabel(a.estado) }}</span>

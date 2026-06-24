@@ -7,7 +7,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../authentication/service/auth-service/auth.service';
 import { PatientsService, PatientRow } from '../../user/service/pacientes.service';
-import { NotificacionesService, NotificacionesData } from '../../../services/notificaciones.service';
+import { NotificacionesService, NotificacionesData, NotificacionManual, NotificacionAuto, EnlaceTipo } from '../../../services/notificaciones.service';
 
 @Component({
   selector: 'app-navbar',
@@ -75,6 +75,8 @@ export class Navbar implements OnInit, OnDestroy {
       mensaje: ['', [Validators.required, Validators.maxLength(500)]],
       tipo: ['GLOBAL', Validators.required],
       programadaPara: [null],
+      enlaceTipo: [''],
+      enlacePacienteId: [null],
     });
   }
 
@@ -181,7 +183,7 @@ export class Navbar implements OnInit, OnDestroy {
     this.notifCrearVisible = false;
     this.tipoCreacion = 'general';
     this.notifCrearError = '';
-    this.notifForm.reset({ tipo: 'GLOBAL', programadaPara: null });
+    this.notifForm.reset({ tipo: 'GLOBAL', programadaPara: null, enlaceTipo: '', enlacePacienteId: null });
   }
 
   marcarLeida(id: number): void {
@@ -197,6 +199,37 @@ export class Navbar implements OnInit, OnDestroy {
       },
       error: () => { this.cargarNotificaciones(); },
     });
+  }
+
+  // Click en una notificación manual/programada: la marca como leída (si aplica)
+  // y, si tiene destino vinculado, navega a la zona del paciente.
+  onNotifClick(n: NotificacionManual): void {
+    this.marcarLeida(n.id);
+    if (n.enlaceTipo && n.enlacePacienteId) {
+      this.notifPanelOpen = false;
+      this.navegarEnlace(n.enlaceTipo, n.enlacePacienteId);
+    }
+  }
+
+  // Click en una alerta automática: lleva a la zona correspondiente.
+  abrirAuto(a: NotificacionAuto): void {
+    this.notifPanelOpen = false;
+    if (a.categoria === 'CITA') {
+      this.router.navigate(['/appointments']);
+    } else if (a.categoria === 'PAGO' && a.enlacePacienteId) {
+      this.navegarEnlace('CARTERA', a.enlacePacienteId);
+    } else {
+      this.router.navigate(['/finance']);
+    }
+  }
+
+  private navegarEnlace(tipo: EnlaceTipo, pacienteId: number): void {
+    const enc = encodeId(pacienteId);
+    switch (tipo) {
+      case 'RESUMEN':  this.router.navigate(['/resumen', enc]); break;
+      case 'HISTORIA': this.router.navigate(['/history', enc]); break;
+      case 'CARTERA':  this.router.navigate(['/finance'], { queryParams: { pacienteId: enc } }); break;
+    }
   }
 
   eliminarNotif(id: number): void {
@@ -232,6 +265,12 @@ export class Navbar implements OnInit, OnDestroy {
       ctrl.markAsTouched();
       return;
     }
+    if (val.enlaceTipo && !val.enlacePacienteId) {
+      const ctrl = this.notifForm.get('enlacePacienteId')!;
+      ctrl.setErrors({ required: true });
+      ctrl.markAsTouched();
+      return;
+    }
     const payload: Parameters<typeof this.notifService.create>[0] = {
       titulo: val.titulo,
       mensaje: val.mensaje,
@@ -239,6 +278,10 @@ export class Navbar implements OnInit, OnDestroy {
     };
     if (this.tipoCreacion === 'programada' && val.programadaPara) {
       payload.programadaPara = new Date(val.programadaPara + ':00-05:00').toISOString();
+    }
+    if (val.enlaceTipo && val.enlacePacienteId) {
+      payload.enlaceTipo = val.enlaceTipo as EnlaceTipo;
+      payload.enlacePacienteId = Number(val.enlacePacienteId);
     }
     this.creandoNotif = true;
     this.notifService.create(payload)

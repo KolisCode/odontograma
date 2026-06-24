@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+export type EnlaceTipo = 'RESUMEN' | 'CARTERA' | 'HISTORIA';
+
 export interface NotificacionManual {
   id: number;
   titulo: string;
@@ -13,6 +15,8 @@ export interface NotificacionManual {
   creadoPor: number | null;
   creadorNombre: string | null;
   programadaPara: string | null;
+  enlaceTipo: EnlaceTipo | null;
+  enlacePacienteId: number | null;
   createdAt: string;
 }
 
@@ -21,6 +25,7 @@ export interface NotificacionAuto {
   categoria: 'CITA' | 'PAGO';
   titulo: string;
   mensaje: string;
+  enlacePacienteId?: number | null;
 }
 
 export interface NotificacionesData {
@@ -42,7 +47,7 @@ export class NotificacionesService {
     return this.http.get<{ ok: boolean; data: NotificacionesData }>(url);
   }
 
-  create(data: { titulo: string; mensaje: string; tipo: 'PERSONAL' | 'GLOBAL'; destinatarioId?: number; programadaPara?: string | null }): Observable<{ ok: boolean; message?: string }> {
+  create(data: { titulo: string; mensaje: string; tipo: 'PERSONAL' | 'GLOBAL'; destinatarioId?: number; programadaPara?: string | null; enlaceTipo?: EnlaceTipo | null; enlacePacienteId?: number | null }): Observable<{ ok: boolean; message?: string }> {
     return this.http.post<{ ok: boolean; message?: string }>(this.api, data);
   }
 

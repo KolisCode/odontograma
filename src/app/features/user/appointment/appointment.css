@@ -847,6 +847,11 @@
   white-space: nowrap;
   line-height: 1.4;
   border-left: 2px solid transparent;
+  cursor: pointer;
+}
+
+.agenda-item--clickable {
+  cursor: pointer;
 }
 
 .cal-chip--pending   { color: #7a4d00; border-left-color: #a56a00; }
