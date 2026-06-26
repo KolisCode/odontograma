@@ -96,6 +96,13 @@ export class AuthService {
     return this.hasRole('ADMIN', 'ODONTOLOGO', 'AUXILIAR');
   }
 
+  // Operaciones que el backend restringe a ADMIN/ODONTOLOGO (soloClinico):
+  // borrar movimientos/abonos, importar y activar/desactivar pacientes, y
+  // guardar la historia clínica. AUXILIAR puede crear/editar, pero no estas.
+  canManageSensitive(): boolean {
+    return this.hasRole('ADMIN', 'ODONTOLOGO');
+  }
+
   changeOwnPassword(currentPassword: string, newPassword: string): Observable<ApiResponse> {
     return this.http.patch<ApiResponse>(`${this.api}/me/password`, { currentPassword, newPassword });
   }

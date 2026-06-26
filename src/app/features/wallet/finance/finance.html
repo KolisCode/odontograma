@@ -363,7 +363,7 @@
                   Abonos<span *ngIf="m.pagos.length"> ({{ m.pagos.length }})</span>
                 </button>
                 <button *ngIf="puedeGestionar" class="btn-edit" type="button" title="Editar movimiento" (click)="editarMovimiento(m)">Editar</button>
-                <button *ngIf="puedeGestionar" class="btn-delete" type="button" title="Eliminar movimiento" (click)="eliminar(m.id)">Eliminar</button>
+                <button *ngIf="puedeBorrar" class="btn-delete" type="button" title="Eliminar movimiento" (click)="eliminar(m.id)">Eliminar</button>
               </td>
             </tr>
 
@@ -409,7 +409,7 @@
                       <span>{{ formatFecha(pago.fecha) }}</span>
                       <span>{{ pago.metodoPago ?? '—' }}</span>
                       <span class="money--in">{{ pago.monto | currency:'COP ':'symbol':'1.0-0' }}</span>
-                      <button *ngIf="puedeGestionar" class="btn-delete" type="button" title="Eliminar abono" (click)="pedirEliminarPago(m, pago.id)">Eliminar</button>
+                      <button *ngIf="puedeBorrar" class="btn-delete" type="button" title="Eliminar abono" (click)="pedirEliminarPago(m, pago.id)">Eliminar</button>
                     </div>
                   </div>
 

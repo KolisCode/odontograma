@@ -91,6 +91,8 @@ export class List implements OnInit, OnDestroy {
   // Permisos de UI (alineados con el RBAC del backend): RECEPCION solo consulta.
   get puedeGestionar(): boolean { return this.authService.canManage(); }
   get puedeAccederClinico(): boolean { return this.authService.canAccessClinical(); }
+  // Importar y activar/desactivar están restringidos a ADMIN/ODONTOLOGO en el backend.
+  get puedeBorrar(): boolean { return this.authService.canManageSensitive(); }
 
   recomputeFilter(): void {
     if (this._searchDebounce) clearTimeout(this._searchDebounce);

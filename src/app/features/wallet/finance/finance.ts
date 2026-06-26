@@ -72,6 +72,8 @@ export class Finance implements OnInit, OnDestroy {
 
   // RECEPCION solo consulta finanzas; las acciones de escritura se ocultan.
   get puedeGestionar(): boolean { return this.authService.canManage(); }
+  // Eliminar movimientos/abonos está restringido a ADMIN/ODONTOLOGO en el backend.
+  get puedeBorrar(): boolean { return this.authService.canManageSensitive(); }
 
   get recentMovimientos(): MovimientoRow[] {
     return this.movimientos.slice(0, 3);

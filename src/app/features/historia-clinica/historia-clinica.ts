@@ -16,6 +16,7 @@ import { Footer } from '../complements/footer/footer';
 import { HistoriaClinicaService, EvolucionRow, FormulaMedicaRow, MedicamentoFormula } from './historia-clinica.service/historia-clinica.service';
 import { DocumentosComponent } from '../documentos/documentos/documentos';
 import { fechaHoyCol } from '../../utils/date.utils';
+import { AuthService } from '../authentication/service/auth-service/auth.service';
 
 @Component({
   selector: 'app-historia-clinica',
@@ -76,6 +77,7 @@ export class HistoriaClinica implements OnInit, OnDestroy {
     private router: Router,
     private historiaClinicaService: HistoriaClinicaService,
     private cdr: ChangeDetectorRef,
+    private authService: AuthService,
   ) {
     this.historiaForm = this.fb.group({
       numeroHistoria: [''],
@@ -623,6 +625,10 @@ export class HistoriaClinica implements OnInit, OnDestroy {
   getControl(name: string): AbstractControl | null {
     return this.historiaForm.get(name);
   }
+
+  // Guardar la historia clínica está restringido a ADMIN/ODONTOLOGO en el backend.
+  // AUXILIAR puede consultarla y registrar fórmulas/evoluciones, pero no guardarla.
+  get puedeGuardar(): boolean { return this.authService.canManageSensitive(); }
 
   loadEvoluciones(): void {
     this.loadingEvoluciones = true;

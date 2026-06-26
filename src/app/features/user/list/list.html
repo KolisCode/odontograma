@@ -7,7 +7,7 @@
     </div>
 
     <div class="patients-header__actions" *ngIf="puedeGestionar">
-      <button class="btn btn-secondary" type="button" (click)="openImportModal()" title="Cargar múltiples pacientes desde un archivo CSV o Excel">Importar</button>
+      <button *ngIf="puedeBorrar" class="btn btn-secondary" type="button" (click)="openImportModal()" title="Cargar múltiples pacientes desde un archivo CSV o Excel">Importar</button>
       <button class="btn btn-primary" type="button" (click)="openForm()" title="Registrar un nuevo paciente en el sistema">Nuevo paciente</button>
     </div>
   </div>
@@ -299,7 +299,7 @@
                 </button>
 
                 <button
-                  *ngIf="puedeGestionar"
+                  *ngIf="puedeBorrar"
                   class="btn-table"
                   [class.btn-table-danger]="patient.activo"
                   [class.btn-table-success]="!patient.activo"
