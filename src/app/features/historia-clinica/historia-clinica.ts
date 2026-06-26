@@ -629,6 +629,8 @@ export class HistoriaClinica implements OnInit, OnDestroy {
   // Guardar la historia clínica está restringido a ADMIN/ODONTOLOGO en el backend.
   // AUXILIAR puede consultarla y registrar fórmulas/evoluciones, pero no guardarla.
   get puedeGuardar(): boolean { return this.authService.canManageSensitive(); }
+  // Eliminar fórmulas/notas está restringido a ADMIN/ODONTOLOGO en el backend.
+  get puedeBorrar(): boolean { return this.authService.canManageSensitive(); }
 
   loadEvoluciones(): void {
     this.loadingEvoluciones = true;

@@ -14,6 +14,7 @@ import { DocumentosComponent } from '../documentos/documentos/documentos';
 import { OdontogramService } from '../../services/odontogram';
 import { BackendOdontogramResponse } from '../odontogram/interfaces/backend-odontogram-response';
 import { fechaHoyCol } from '../../utils/date.utils';
+import { AuthService } from '../authentication/service/auth-service/auth.service';
 
 interface ProcResumen {
   tipo: string;
@@ -74,6 +75,7 @@ export class Tratamientos implements OnInit, OnDestroy {
     private tratamientosService: TratamientosService,
     private patientsService: PatientsService,
     private odontogramService: OdontogramService,
+    private authService: AuthService,
   ) {
     this.form = this.fb.group(
       {
@@ -332,6 +334,9 @@ export class Tratamientos implements OnInit, OnDestroy {
       },
     });
   }
+
+  // Eliminar tratamiento está restringido a ADMIN/ODONTOLOGO en el backend.
+  get puedeBorrar(): boolean { return this.authService.canManageSensitive(); }
 
   eliminar(id: number): void {
     this.confirmDeleteId = id;

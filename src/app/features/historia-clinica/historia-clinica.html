@@ -795,7 +795,7 @@
                 </span>
               </div>
               <div class="evolucion-item__actions">
-                <button *ngIf="confirmandoEliminarFormula !== f.id"
+                <button *ngIf="puedeBorrar && confirmandoEliminarFormula !== f.id"
                   class="btn-link btn-link--danger" type="button"
                   (click)="confirmandoEliminarFormula = f.id">Eliminar</button>
                 <ng-container *ngIf="confirmandoEliminarFormula === f.id">
@@ -886,7 +886,7 @@
               </div>
               <p class="evolucion-item__nota">{{ ev.nota }}</p>
               <div class="evolucion-item__actions">
-                <button *ngIf="confirmandoEliminarNota !== ev.id"
+                <button *ngIf="puedeBorrar && confirmandoEliminarNota !== ev.id"
                   class="btn-link btn-link--danger" type="button"
                   (click)="confirmandoEliminarNota = ev.id">Eliminar</button>
                 <ng-container *ngIf="confirmandoEliminarNota === ev.id">

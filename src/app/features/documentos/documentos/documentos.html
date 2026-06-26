@@ -84,7 +84,7 @@
           {{ esImagen(doc.mimetype) ? 'Ver' : 'Abrir' }}
         </button>
         <button class="btn-text" type="button" (click)="descargarDocumento(doc)">Descargar</button>
-        <button class="btn-text btn-text--danger" type="button" (click)="solicitarEliminar(doc.id)">Eliminar</button>
+        <button *ngIf="puedeBorrar" class="btn-text btn-text--danger" type="button" (click)="solicitarEliminar(doc.id)">Eliminar</button>
       </div>
 
     </div>

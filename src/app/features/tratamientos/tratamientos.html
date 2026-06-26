@@ -180,7 +180,7 @@
               <option *ngFor="let e of estados" [value]="e">{{ getEstadoLabel(e) }}</option>
             </select>
             <button class="btn-icon btn-edit" title="Editar tratamiento" (click)="editTratamiento(t)">Editar</button>
-            <button class="btn-icon btn-delete" title="Eliminar tratamiento" (click)="eliminar(t.id)">Eliminar</button>
+            <button *ngIf="puedeBorrar" class="btn-icon btn-delete" title="Eliminar tratamiento" (click)="eliminar(t.id)">Eliminar</button>
           </td>
         </tr>
       </tbody>

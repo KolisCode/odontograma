@@ -109,9 +109,10 @@
 
         <div class="form-group">
           <label for="cita-estado">Estado</label>
+          <!-- Las citas se crean siempre en PROGRAMADA; el backend rechaza otros estados al crear.
+               La confirmación/atención/cancelación se hace luego desde las acciones de estado (FSM). -->
           <select id="cita-estado" formControlName="estado">
             <option value="PROGRAMADA">Programada</option>
-            <option value="CONFIRMADA">Confirmada</option>
           </select>
           <small *ngIf="hasError('estado')" class="field-error">
             {{ getErrorMessage('estado') }}

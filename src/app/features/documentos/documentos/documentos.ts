@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DocumentosService, Documento, DocumentoTipo } from '../documentos.service';
+import { AuthService } from '../../authentication/service/auth-service/auth.service';
 
 interface TipoOption {
   value: DocumentoTipo;
@@ -58,7 +59,11 @@ export class DocumentosComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private documentosService: DocumentosService,
     private cdr: ChangeDetectorRef,
+    private authService: AuthService,
   ) {}
+
+  // Eliminar documentos está restringido a ADMIN/ODONTOLOGO en el backend.
+  get puedeBorrar(): boolean { return this.authService.canManageSensitive(); }
 
   ngOnInit(): void {
     this.loadDocumentos();
