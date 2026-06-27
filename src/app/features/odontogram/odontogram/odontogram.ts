@@ -856,6 +856,9 @@ export class OdontogramComponent implements OnInit, AfterViewInit, OnDestroy {
         this.odontogram = structuredClone(this.originalOdontogram);
 
         const { diagnoses, pieces } = this.buildDiagnosesFromBackend(data);
+        // Cargar datos del backend NO debe disparar el autoguardado: sería un PATCH
+        // espurio (re-escribe los dientes por el solo hecho de abrir el odontograma).
+        this.suppressNextAutoSave = true;
         this.diagnoses.set(diagnoses);
         this.pieces.set(pieces);
         this.odontogramChecked = true;
