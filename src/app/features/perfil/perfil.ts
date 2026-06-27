@@ -68,12 +68,6 @@ export class Perfil implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private setSuccess(msg: string): void {
-    if (this._successTimer) clearTimeout(this._successTimer);
-    this.successMessage = msg;
-    this._successTimer = setTimeout(() => { this.successMessage = ''; this.cdr.detectChanges(); }, 4000);
-  }
-
   get rolLabel(): string {
     const labels: Record<string, string> = {
       ADMIN: 'Administrador',
@@ -103,11 +97,19 @@ export class Perfil implements OnInit, OnDestroy {
     this.authService.changeOwnPassword(currentPassword, newPassword)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (res) => {
-          this.setSuccess(res?.message || 'Contraseña actualizada correctamente');
+        next: () => {
+          // Cambiar la propia contraseña invalida la sesión en el backend
+          // (tokenVersion++). Desconectamos de forma controlada en vez de dejar
+          // que el próximo request reciba un 401 inesperado.
+          this.successMessage = 'Contraseña actualizada. Por seguridad, vuelve a iniciar sesión con tu nueva contraseña…';
           this.passwordForm.reset();
           this.loading = false;
           this.cdr.detectChanges();
+          if (this._successTimer) clearTimeout(this._successTimer);
+          this._successTimer = setTimeout(() => {
+            this.authService.logout();
+            this.router.navigate(['/login']);
+          }, 3000);
         },
         error: (err) => {
           this.errorMessage = err?.error?.message || 'No se pudo actualizar la contraseña';

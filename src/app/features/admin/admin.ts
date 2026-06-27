@@ -255,10 +255,12 @@ export class Admin implements OnInit, OnDestroy {
         const idx = this.users.findIndex(u => u.id === user.id);
         if (idx !== -1) this.users[idx].rol = res.data.rol;
         this.savingRoleId = null;
+        this.usersError = '';
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.savingRoleId = null;
+        this.usersError = err?.error?.message ?? 'No se pudo cambiar el rol del usuario';
         this.cdr.detectChanges();
       },
     });
@@ -272,10 +274,12 @@ export class Admin implements OnInit, OnDestroy {
         const idx = this.users.findIndex(u => u.id === user.id);
         if (idx !== -1) this.users[idx].activo = res.data.activo;
         this.savingStatusId = null;
+        this.usersError = '';
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.savingStatusId = null;
+        this.usersError = err?.error?.message ?? 'No se pudo cambiar el estado del usuario';
         this.cdr.detectChanges();
       },
     });
@@ -462,8 +466,16 @@ export class Admin implements OnInit, OnDestroy {
         this.backupLoading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        this.backupError   = err?.error?.message ?? 'No se pudo descargar el backup';
+      error: async (err) => {
+        // La respuesta es responseType:'blob', así que un error del backend llega
+        // como Blob; hay que leerlo para extraer el mensaje JSON real.
+        let msg = 'No se pudo descargar el backup';
+        if (err?.error instanceof Blob) {
+          try { msg = JSON.parse(await err.error.text())?.message || msg; } catch { /* blob no-JSON */ }
+        } else {
+          msg = err?.error?.message ?? msg;
+        }
+        this.backupError   = msg;
         this.backupLoading = false;
         this.cdr.detectChanges();
       },
