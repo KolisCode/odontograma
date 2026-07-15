@@ -1,7 +1,13 @@
-import { ApplicationConfig, APP_INITIALIZER, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, APP_INITIALIZER, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { registerLocaleData } from '@angular/common';
+import localeEsCo from '@angular/common/locales/es-CO';
 import { firstValueFrom } from 'rxjs';
+
+// Registrar el locale colombiano para que los pipes de Angular (date, number,
+// currency) usen dd/MM/aa, 24h y separadores locales en vez del default en-US.
+registerLocaleData(localeEsCo);
 
 import { routes } from './app.routes';
 import { tokenInterceptor } from './features/authentication/service/token-interceptor/token-interceptor';
@@ -24,6 +30,7 @@ function initAuth(authService: AuthService): () => Promise<void> {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: LOCALE_ID, useValue: 'es-CO' },
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([tokenInterceptor])),

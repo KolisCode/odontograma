@@ -18,9 +18,13 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
     });
   }
 
+  // El propio endpoint de auth maneja su error (credenciales inválidas);
+  // no debe disparar el redirect global de sesión expirada.
+  const isAuthRequest = /\/auth\/(login|register)$/.test(req.url);
+
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && router.url !== '/login') {
+      if (error.status === 401 && !isAuthRequest && router.url !== '/login') {
         authService.logout();
         router.navigate(['/login']);
       }
