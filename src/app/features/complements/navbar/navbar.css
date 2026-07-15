@@ -660,3 +660,92 @@
     transform: translateX(-50%);
   }
 }
+/* ── Buscador de paciente en el form de notificación ─────────────────────── */
+.notif-paciente {
+  position: relative;
+}
+
+.notif-paciente-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(18, 38, 63, 0.14);
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.notif-paciente-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  background: transparent;
+  font-size: 0.85rem;
+  color: #1e293b;
+  text-align: left;
+  cursor: pointer;
+}
+
+.notif-paciente-option:last-of-type {
+  border-bottom: none;
+}
+
+.notif-paciente-option:hover,
+.notif-paciente-option:focus-visible {
+  background: #f0fdf6;
+}
+
+.notif-paciente-option__doc {
+  color: #64748b;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.notif-paciente-empty {
+  padding: 10px;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.notif-paciente-selected {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1.5px solid #2f7d57;
+  border-radius: 8px;
+  background: #f0fdf6;
+  font-size: 0.86rem;
+  color: #1e293b;
+}
+
+.notif-paciente-selected__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notif-paciente-clear {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.notif-paciente-clear:hover {
+  color: #b91c1c;
+}

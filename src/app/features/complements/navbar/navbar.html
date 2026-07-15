@@ -177,14 +177,39 @@
             <option value="CARTERA">Al abrir: cartera del paciente</option>
             <option value="HISTORIA">Al abrir: historia clínica</option>
           </select>
-          <div class="notif-field" *ngIf="notifForm.get('enlaceTipo')!.value">
-            <select
-              class="notif-select"
-              [class.notif-input--error]="notifForm.get('enlacePacienteId')!.touched && notifForm.get('enlacePacienteId')!.hasError('required')"
-              formControlName="enlacePacienteId">
-              <option [ngValue]="null">Selecciona un paciente…</option>
-              <option *ngFor="let p of patients" [ngValue]="p.id">{{ p.nombreCompleto }} — {{ p.documento }}</option>
-            </select>
+          <div class="notif-field notif-paciente" *ngIf="notifForm.get('enlaceTipo')!.value">
+            <!-- Paciente ya elegido: chip con opción de quitar -->
+            <div class="notif-paciente-selected" *ngIf="notifPacienteSeleccionado; else notifPacienteBuscador">
+              <span class="notif-paciente-selected__label">
+                {{ notifPacienteSeleccionado.nombreCompleto }} — {{ notifPacienteSeleccionado.documento }}
+              </span>
+              <button type="button" class="notif-paciente-clear" (click)="limpiarNotifPaciente()"
+                aria-label="Quitar paciente seleccionado">×</button>
+            </div>
+            <!-- Sin elegir: buscador con el mismo criterio del header -->
+            <ng-template #notifPacienteBuscador>
+              <input
+                class="notif-input"
+                type="text"
+                autocomplete="off"
+                [class.notif-input--error]="notifForm.get('enlacePacienteId')!.touched && notifForm.get('enlacePacienteId')!.hasError('required')"
+                placeholder="Buscar paciente por nombre o documento…"
+                [value]="notifPacienteSearch"
+                (input)="notifPacienteSearch = $any($event.target).value" />
+              <div class="notif-paciente-dropdown" *ngIf="notifPacienteSearch.trim()">
+                <div class="notif-paciente-empty" *ngIf="filteredNotifPatients.length === 0">
+                  Sin resultados para "{{ notifPacienteSearch.trim() }}"
+                </div>
+                <button
+                  type="button"
+                  class="notif-paciente-option"
+                  *ngFor="let p of filteredNotifPatients"
+                  (click)="seleccionarNotifPaciente(p)">
+                  <span class="notif-paciente-option__name">{{ p.nombreCompleto }}</span>
+                  <span class="notif-paciente-option__doc">{{ p.documento }}</span>
+                </button>
+              </div>
+            </ng-template>
             <span class="notif-field-error"
               *ngIf="notifForm.get('enlacePacienteId')!.touched && notifForm.get('enlacePacienteId')!.hasError('required')">
               Selecciona el paciente del enlace

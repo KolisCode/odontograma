@@ -30,22 +30,21 @@ export class Navbar implements OnInit, OnDestroy {
 
   readonly SEARCH_LIMIT = 6;
 
-  get filteredGlobalPatients(): PatientRow[] {
-    const term = this.globalSearch.trim().toLowerCase();
+  private filterPatients(raw: string): PatientRow[] {
+    const term = raw.trim().toLowerCase();
     if (!term) return [];
     return this.patients.filter(p =>
       p.nombreCompleto.toLowerCase().includes(term) ||
       p.documento.includes(term)
-    ).slice(0, this.SEARCH_LIMIT);
+    );
+  }
+
+  get filteredGlobalPatients(): PatientRow[] {
+    return this.filterPatients(this.globalSearch).slice(0, this.SEARCH_LIMIT);
   }
 
   get globalSearchTotal(): number {
-    const term = this.globalSearch.trim().toLowerCase();
-    if (!term) return 0;
-    return this.patients.filter(p =>
-      p.nombreCompleto.toLowerCase().includes(term) ||
-      p.documento.includes(term)
-    ).length;
+    return this.filterPatients(this.globalSearch).length;
   }
 
   // ── Notificaciones ─────────────────────────────────────────────────────────
@@ -59,6 +58,32 @@ export class Navbar implements OnInit, OnDestroy {
   notifForm: FormGroup;
   manualesSkip = 0;
   cargandoMas = false;
+
+  // Buscador de paciente para el enlace de la notificación — mismo criterio que
+  // el buscador global del header (nombre o documento), en vez del select plano
+  notifPacienteSearch = '';
+
+  get filteredNotifPatients(): PatientRow[] {
+    return this.filterPatients(this.notifPacienteSearch).slice(0, this.SEARCH_LIMIT);
+  }
+
+  get notifPacienteSeleccionado(): PatientRow | null {
+    const id = this.notifForm.get('enlacePacienteId')!.value;
+    if (id == null) return null;
+    return this.patients.find(p => p.id === id) ?? null;
+  }
+
+  seleccionarNotifPaciente(p: PatientRow): void {
+    const ctrl = this.notifForm.get('enlacePacienteId')!;
+    ctrl.setValue(p.id);
+    ctrl.setErrors(null);
+    this.notifPacienteSearch = '';
+  }
+
+  limpiarNotifPaciente(): void {
+    this.notifForm.get('enlacePacienteId')!.setValue(null);
+    this.notifPacienteSearch = '';
+  }
 
   private destroy$ = new Subject<void>();
 
@@ -183,6 +208,7 @@ export class Navbar implements OnInit, OnDestroy {
     this.notifCrearVisible = false;
     this.tipoCreacion = 'general';
     this.notifCrearError = '';
+    this.notifPacienteSearch = '';
     this.notifForm.reset({ tipo: 'GLOBAL', programadaPara: null, enlaceTipo: '', enlacePacienteId: null });
   }
 
