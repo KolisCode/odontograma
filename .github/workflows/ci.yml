@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # El outputPath real apunta a ../Biodont/public (repo hermano, no existe en CI):
+      # se sobreescribe a un directorio local solo para verificar que compila
+      - run: npx ng build --output-path=dist-ci
+      # Angular 21 corre los tests con vitest (21 tests, ~7 s local)
+      - run: npx ng test --watch=false
